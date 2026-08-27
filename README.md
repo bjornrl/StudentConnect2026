@@ -1,8 +1,8 @@
 # Student Connect 2026 — oppgavekart
 
 Bedrifter melder inn utfordringer de vil at studenter skal utforske. Hver innmelding blir
-en node i et felles kart, gruppert etter bransje og koblet sammen med andre som har samme
-ansvarsområde.
+en node i et felles kart, gruppert etter bransje og koblet sammen med de andre i samme
+bransje.
 
 ## Kom i gang
 
@@ -17,9 +17,14 @@ npm run dev
 
 ## De to visningene
 
-**`/edit`** — fire steg: bransje → ansvarsområde → utfordringen → kontaktinfo.
-Når man publiserer, dukker noden opp i kartet med én gang og pulserer i noen sekunder.
-Kartet henter også inn andres innmeldinger hvert 20. sekund, så flere kan fylle ut samtidig.
+**`/edit`** — hele skjemaet på én side, i tre bolker: utfordringen → hvem dere er →
+bransje. Når man publiserer, dukker noden opp i kartet med én gang og pulserer i noen
+sekunder. Kartet henter også inn andres innmeldinger hvert 20. sekund, så flere kan fylle
+ut samtidig.
+
+På mobil er det ikke plass til kartet ved siden av, så det tas helt ut av siden — og etter
+publisering sendes man videre til `/presentation`, der noden pulserer. Kartet er
+kvitteringen.
 
 **`/presentation`** — bare kartet. Filtrer på bransje, søk i teksten, klikk en node for å
 lese utfordringen. Har lys/mørk modus (mørk er som regel best på projektor) og en
@@ -28,12 +33,16 @@ gjennom hele dagen uten at noen trenger å laste den på nytt.
 
 ## Slik bytter du ut spørsmålene
 
-Alt ligger i **`lib/taxonomy.ts`**. Rediger `INDUSTRIES` — bransjer, ansvarsområder,
-farger og hjelpetekst. Skjema, filtermeny og kart følger automatisk etter.
+Alt ligger i **`lib/taxonomy.ts`**. Rediger `INDUSTRIES` — bransjer, farger og
+hjelpetekst. Skjema, filtermeny og kart følger automatisk etter.
 
 Én regel: `key`-verdiene lagres i databasen. Endre gjerne `label` når som helst, men ikke
 endre en `key` etter at det er kommet inn svar — da mister de radene tilhørigheten sin.
-Hver bransje får automatisk et «Annet»-valg med fritekstfelt.
+
+`subareas` står igjen i filen selv om skjemaet ikke lenger spør om ansvarsområde. De
+brukes til å vise riktig etikett på innmeldinger fra før feltet ble tatt bort. Nye rader
+lagres med `subarea_key = 'annet'` og tom fritekst, fordi kolonnen er `not null` i basen —
+det betyr «ikke oppgitt», og gir ingen tagg i detaljpanelet.
 
 ## Hvordan kartet er bygget
 
@@ -42,7 +51,7 @@ så kartet flyter sakte i stedet for å stivne:
 
 - hver bransje har et ankerpunkt i en ring rundt sentrum, som driver langsomt omkring
 - noder trekkes mot ankeret til sin egen bransje, og dyttes fra hverandre
-- noder som deler **bransje + ansvarsområde** kobles med en myk bue
+- noder som deler **bransje** kobles med en myk bue
 - bak hver klynge ligger et svakt fargefelt med bransjenavnet over
 
 Filtrering dimmer i stedet for å fjerne, slik at kartet ikke hopper. Zoom med scroll,

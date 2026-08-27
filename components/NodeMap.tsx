@@ -135,14 +135,13 @@ export default function NodeMap({
       };
     });
 
-    // koblinger: noder som deler bransje OG ansvarsområde
+    /* Koblinger: noder som deler bransje. Tidligere måtte de dele ansvarsområde
+       også, men det feltet er tatt ut av skjemaet — hadde vi latt regelen stå,
+       ville gamle innmeldinger klumpet seg finere enn nye, og kartet fått to
+       ulike logikker samtidig. */
     const groups = new Map<string, MapNode[]>();
     for (const n of nodes) {
-      const key = `${n.submission.industry_key}::${n.submission.subarea_key}::${
-        n.submission.subarea_key === "annet"
-          ? (n.submission.subarea_other ?? "").trim().toLowerCase()
-          : ""
-      }`;
+      const key = n.submission.industry_key;
       const arr = groups.get(key);
       if (arr) arr.push(n);
       else groups.set(key, [n]);
@@ -251,7 +250,14 @@ export default function NodeMap({
     if (!d) return;
     const dx = e.clientX - d.x;
     const dy = e.clientY - d.y;
-    if (Math.abs(dx) + Math.abs(dy) > 4) movedRef.current = true;
+    /* Over denne grensen regnes det som panorering, og klikket på noden under
+       skal ignoreres. Grensen var |dx|+|dy| > 4, som er strengere enn den ser
+       ut: et diagonalt rykk på 3 px ga summen 6 og slukte klikket. Ingen
+       klarer å holde en finger eller en styreflate roligere enn det, så
+       nodene føltes døde. Nå måles ekte avstand, og terskelen er den samme
+       slark som operativsystemene selv bruker — mer for berøring enn for mus. */
+    const slark = e.pointerType === "mouse" ? 10 : 16;
+    if (Math.hypot(dx, dy) > slark) movedRef.current = true;
     setView((v) => ({ ...v, x: d.vx + dx, y: d.vy + dy }));
   };
   const onPointerUp = () => {
@@ -331,7 +337,7 @@ export default function NodeMap({
             );
           })}
 
-          {/* koblinger mellom noder som deler ansvarsområde */}
+          {/* koblinger mellom noder som deler bransje */}
           <g>
             {links.map((l) => {
               const s = l.source as MapNode;

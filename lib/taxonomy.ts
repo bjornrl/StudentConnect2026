@@ -2,9 +2,13 @@
  * ─────────────────────────────────────────────────────────────────────────────
  *  DETTE ER DEN ENESTE FILEN DU TRENGER Å ENDRE FOR Å BYTTE UT SPØRSMÅLENE.
  *
- *  Strukturen er: bransje  →  ansvarsområde  →  fritekst-utfordring.
- *  Nodekartet grupperer etter `industry` og kobler sammen noder som deler
- *  `subarea`. Endrer du listene under, endrer kartet seg automatisk.
+ *  Skjemaet spør om bransje og en fritekst-utfordring. Nodekartet grupperer og
+ *  kobler etter `industry`. Endrer du listene under, endrer kartet seg
+ *  automatisk.
+ *
+ *  `subareas` brukes ikke lenger av skjemaet — feltet «ansvarsområde» er tatt
+ *  bort. Listene står igjen fordi innmeldinger fra før den endringen har en
+ *  `subarea_key`, og trenger etiketten sin for å vises riktig.
  *
  *  Regler:
  *   • `key` må være unik og bør ikke endres etter at data er samlet inn

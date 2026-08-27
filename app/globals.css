@@ -1,35 +1,85 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    Student Connect 2026 — oppgavekartlegging
-   Minimalistisk, skandinavisk: hvitt underlag, lysegrå flater, farge kun der
-   den bærer informasjon (bransjene i kartet).
+   Neue Haas Grotesk på #f5f5f5 og #101110. Farge bærer informasjon: bransjene
+   i kartet, og de tre sekundærfargene til status (grønn = fullført, blå =
+   fokus og lenker, rød = feil).
    ──────────────────────────────────────────────────────────────────────────── */
 
+/* Neue Haas Grotesk er en lisensiert font og kan ikke hentes fra et CDN.
+   Legg woff2-filene i public/fonts/ (se README-en der), så tas de i bruk med
+   én gang. Mangler de, faller vi ned på Helvetica Neue — samme grotesk-slekt,
+   så oppsettet endrer seg knapt. `local()` fanger opp fonten hvis den alt er
+   installert på maskinen. */
+@font-face {
+  font-family: "Neue Haas Grotesk";
+  src:
+    local("Neue Haas Grotesk Display Pro 55 Roman"),
+    local("NeueHaasDisplay-Roman"),
+    url("/fonts/NeueHaasGrotesk-Roman.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Neue Haas Grotesk";
+  src:
+    local("Neue Haas Grotesk Display Pro 65 Medium"),
+    local("NeueHaasDisplay-Mediu"),
+    url("/fonts/NeueHaasGrotesk-Medium.woff2") format("woff2");
+  font-weight: 500 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Neue Haas Grotesk";
+  src:
+    local("Neue Haas Grotesk Display Pro 75 Bold"),
+    local("NeueHaasDisplay-Bold"),
+    url("/fonts/NeueHaasGrotesk-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --bg: #ffffff;
-  --surface: #f4f4f2;
-  --surface-2: #ebebe8;
-  --line: #e0e0dc;
-  --ink: #16171a;
-  --ink-2: #5c6066;
-  --ink-3: #8b9096;
-  --accent-ink: #16171a;
-  --map-bg: #fbfbfa;
-  --map-node-ring: #ffffff;
+  --bg: #f5f5f5;
+  --surface: #f5f5f5;
+  --surface-2: #e0e0e0;
+  --line: #d7d8d7;
+  --ink: #101110;
+  --ink-2: #575957;
+  --ink-3: #101110;
+  --accent-ink: #101110;
+  --map-bg: #efefef;
+  --map-node-ring: #f5f5f5;
+
+  /* Sekundærfarger. Grønn er sterk og lys — den brukes som flate med mørk
+     tekst oppå, aldri som tekst på lyst underlag. */
+  --accent-green: #00ffa0;
+  --accent-blue: #5899e2;
+  --accent-red: #ab2346;
+  /* Blå og rød må bære tekst på #f5f5f5 også, og trenger å mørknes litt der. */
+  --link: #2f6fb8;
+  --danger: #ab2346;
+
   --radius: 14px;
   --radius-sm: 9px;
-  --shadow: 0 1px 2px rgba(16, 17, 20, 0.04), 0 8px 28px rgba(16, 17, 20, 0.06);
+  --shadow: 0 1px 2px rgba(16, 17, 16, 0.05), 0 8px 28px rgba(16, 17, 16, 0.07);
 }
 
 [data-theme="dark"] {
-  --bg: #0e1013;
-  --surface: #171a1f;
-  --surface-2: #1f232a;
-  --line: #2a2f37;
-  --ink: #f2f3f4;
-  --ink-2: #a8aeb6;
-  --ink-3: #6f767f;
-  --map-bg: #0b0d10;
-  --map-node-ring: rgba(255, 255, 255, 0.22);
+  --bg: #101110;
+  --surface: #1b1c1b;
+  --surface-2: #262726;
+  --line: #313231;
+  --ink: #f5f5f5;
+  --ink-2: #a9aba9;
+  --ink-3: #6f716f;
+  --map-bg: #0a0b0a;
+  --map-node-ring: rgba(245, 245, 245, 0.22);
+  /* På mørk flate bærer originalfargene tekst fint som de er. */
+  --link: #5899e2;
+  --danger: #e4657f;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 34px rgba(0, 0, 0, 0.45);
 }
 
@@ -44,13 +94,21 @@ body {
   height: 100%;
 }
 
+/* Typografien styres herfra. Nesten alle størrelser i filen er i `rem`, så
+   dette tallet skalerer hele grensesnittet samlet. Kartets egne etiketter er
+   med vilje satt i `px` og følger ikke med — der er tett stoff poenget. */
+html {
+  font-size: 18px;
+}
+
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: "Aeonik", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica,
-    Arial, sans-serif;
-  font-size: 15px;
-  line-height: 1.55;
+  /* Helvetica Neue ligger på alle Apple-enheter og er Neue Haas' nærmeste
+     slektning — fallbacken flytter nesten ingenting. */
+  font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1.06rem;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -66,6 +124,21 @@ h3 {
 button {
   font: inherit;
   cursor: pointer;
+}
+
+a {
+  color: var(--link);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+}
+a:hover {
+  color: var(--ink);
+}
+
+/* Tastaturfokus skal alltid være synlig, og bruker sekundærblå. */
+:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
 }
 
 /* ── knapper ──────────────────────────────────────────────────────────────── */
@@ -165,7 +238,10 @@ button {
 .edit {
   display: grid;
   grid-template-columns: minmax(420px, 46%) 1fr;
+  /* 100vh regner med adresselinja på mobil, så publiseringslinja havner
+     utenfor skjermen. dvh følger den synlige høyden; vh står som reserve. */
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -174,6 +250,9 @@ button {
   flex-direction: column;
   border-right: 1px solid var(--line);
   min-width: 0;
+  /* Uten min-height: 0 vokser griden forbi 100vh og .q-body slutter å
+     scrolle — hele skjemaet står under hverandre og er høyere enn ruta. */
+  min-height: 0;
   background: var(--bg);
 }
 
@@ -217,18 +296,6 @@ button {
   color: var(--ink);
 }
 
-@media (max-width: 900px) {
-  .edit {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 44vh;
-    height: 100vh;
-  }
-  .edit-pane {
-    border-right: none;
-    border-bottom: 1px solid var(--line);
-  }
-}
-
 /* ── spørreskjema ─────────────────────────────────────────────────────────── */
 
 .q {
@@ -238,64 +305,220 @@ button {
   min-height: 0;
 }
 
-.q-steps {
-  list-style: none;
+.q-section-head {
   display: flex;
-  gap: 0.4rem;
-  margin: 0;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid var(--line);
+  align-items: baseline;
+  gap: 0.7rem;
+  margin-bottom: 0.75rem;
 }
-.q-steps li {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: var(--ink-3);
-  font-size: 0.82rem;
-  padding-right: 0.6rem;
-}
-.q-steps li.is-done {
-  cursor: pointer;
-  color: var(--ink-2);
-}
-.q-steps li.is-current {
-  color: var(--ink);
-  font-weight: 500;
-}
-.q-step-dot {
+.q-section-num {
   width: 21px;
   height: 21px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: var(--surface-2);
-  font-size: 0.72rem;
-  flex: none;
-}
-.q-steps li.is-current .q-step-dot {
   background: var(--ink);
   color: var(--bg);
+  font-size: 0.72rem;
+  flex: none;
+  transform: translateY(-0.15rem);
 }
-.q-steps li.is-done .q-step-dot {
-  background: var(--surface-2);
-  color: var(--ink);
+
+/* Kort forklaring øverst i skjemaet, med logoene til samarbeidspartnerne. */
+.q-intro {
+  padding-bottom: 1.7rem;
+  margin-bottom: 2.2rem;
+  border-bottom: 1px solid var(--line);
 }
-@media (max-width: 1100px) {
-  .q-step-label {
-    display: none;
-  }
+.q-intro p {
+  color: var(--ink-2);
+  font-size: 0.94rem;
+  margin: 0 0 0.8rem;
+  max-width: 60ch;
+}
+.q-intro-label {
+  display: block;
+  margin: 1.5rem 0 0.9rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.q-intro-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.1rem 1.9rem;
+}
+.q-intro-logos img {
+  /* høyden settes per logo i lib/partners.ts */
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+/* Alle fire bolkene står under hverandre, så de trenger en tydelig skillelinje. */
+.q-section + .q-section {
+  margin-top: 2.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.bg-accent-blue {
+  background: var(--accent-blue);
+}
+.bg-accent-red {
+  background: var(--accent-red);
+}
+.bg-accent-green {
+  background: var(--accent-green);
+}
+
+.q-section.bg-accent-blue,
+.q-section.bg-accent-red,
+.q-section.bg-accent-green {
+  border-radius: var(--radius);
+  padding: 1.45rem 1.4rem 1.7rem;
+  border-top: none;
+}
+
+.q-section.bg-accent-blue {
+  color: #fff;
+  --ghost-stroke: #fff;
+  --ghost-text: #fff;
+  --ghost-placeholder: rgb(255 255 255 / 0.6);
+  --ghost-active: var(--accent-blue);
+}
+.q-section.bg-accent-red {
+  color: var(--bg);
+  --ghost-stroke: #fff;
+  --ghost-text: #fff;
+  --ghost-placeholder: rgb(255 255 255 / 0.6);
+  --ghost-active: var(--accent-red);
+}
+.q-section.bg-accent-green {
+  color: var(--accent-ink);
+  --ghost-stroke: var(--accent-ink);
+  --ghost-text: var(--accent-ink);
+  --ghost-placeholder: color-mix(in srgb, var(--accent-ink) 55%, transparent);
+  --ghost-active: var(--accent-ink);
+}
+
+.q-section.bg-accent-blue .q-lead,
+.q-section.bg-accent-blue .q-label {
+  color: #fff;
+}
+.q-section.bg-accent-red .q-lead,
+.q-section.bg-accent-red .q-label,
+.q-section.bg-accent-red .q-optional {
+  color: var(--bg);
+}
+.q-section.bg-accent-green .q-lead,
+.q-section.bg-accent-green .q-label {
+  color: var(--accent-ink);
+}
+
+.q-section.bg-accent-blue .q-input,
+.q-section.bg-accent-blue .q-textarea,
+.q-section.bg-accent-blue .q-chip,
+.q-section.bg-accent-red .q-input,
+.q-section.bg-accent-red .q-textarea {
+  background: transparent;
+  border: 3px solid var(--ghost-stroke);
+  border-radius: 22px;
+  color: var(--ghost-text);
+  box-shadow: none;
+}
+
+.q-section.bg-accent-blue .q-input::placeholder,
+.q-section.bg-accent-blue .q-textarea::placeholder,
+.q-section.bg-accent-red .q-input::placeholder,
+.q-section.bg-accent-red .q-textarea::placeholder {
+  color: var(--ghost-placeholder);
+}
+
+.q-section.bg-accent-blue .q-input:focus,
+.q-section.bg-accent-blue .q-textarea:focus,
+.q-section.bg-accent-red .q-input:focus,
+.q-section.bg-accent-red .q-textarea:focus {
+  background: #fff;
+  border-color: var(--ghost-stroke);
+  color: var(--ghost-active);
+  box-shadow: none;
+  outline: none;
+}
+.q-section.bg-accent-blue .q-input:focus::placeholder,
+.q-section.bg-accent-blue .q-textarea:focus::placeholder,
+.q-section.bg-accent-red .q-input:focus::placeholder,
+.q-section.bg-accent-red .q-textarea:focus::placeholder {
+  color: color-mix(in srgb, var(--ghost-active) 60%, transparent);
+}
+
+.q-section.bg-accent-blue .q-chip.is-on {
+  background: #fff;
+  border-color: var(--ghost-stroke);
+  color: var(--ghost-active);
+  box-shadow: none;
+}
+
+.q-section.bg-accent-blue .q-chip:focus,
+.q-section.bg-accent-blue .q-chip:focus-visible,
+.q-section.bg-accent-green .q-chip:focus,
+.q-section.bg-accent-green .q-chip:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+
+.q-section.bg-accent-green .q-chip {
+  background: transparent;
+  border: 3px solid #fff;
+  border-radius: 22px;
+  color: #fff;
+  box-shadow: none;
+}
+.q-section.bg-accent-green .q-chip.is-on {
+  background: var(--opt-color);
+  border-color: var(--opt-color);
+  color: var(--opt-ink);
+}
+
+.q-section.bg-accent-red .q-lead-note {
+  background: color-mix(in srgb, #fff 16%, transparent);
+  border-left-color: color-mix(in srgb, #fff 50%, transparent);
+}
+.q-section.bg-accent-red .q-error {
+  color: #fff;
+}
+
+.q-waiting {
+  color: var(--ink-3);
+  font-size: 0.9rem;
+  margin: 0.4rem 0 0;
+}
+
+/* Lar Enter i et tekstfelt sende skjemaet, uten å vises noe sted. */
+.q-submit-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .q-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1.75rem 2rem;
+  padding: 1.75rem 2rem 2.5rem;
   min-height: 0;
+  position: relative;
 }
 
-.q-section h2 {
-  font-size: 1.45rem;
-  margin-bottom: 0.5rem;
+.q-section-head h1,
+.q-section-head h2 {
+  font-size: 2.25rem;
+  line-height: 1.2;
 }
 .q-lead {
   color: var(--ink-2);
@@ -311,7 +534,7 @@ button {
 
 .q-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
   gap: 0.6rem;
 }
 
@@ -365,6 +588,26 @@ button {
   border-style: dashed;
 }
 
+/* Bolk 1 lister alle bransjene på én gang, så knappene der er strammere og
+   står uten undertekst — ellers spiser de halve skjemaet. */
+.q-grid-compact {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.45rem;
+}
+.q-grid-compact .q-option {
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.8rem;
+}
+.q-grid-compact .q-option-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 0;
+}
+.q-grid-compact .q-option-text strong {
+  font-size: 0.9rem;
+}
+
 .q-label {
   display: block;
   margin: 1.3rem 0 0.4rem;
@@ -382,8 +625,8 @@ button {
   width: 100%;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
   color: var(--ink);
   font: inherit;
   outline: none;
@@ -391,8 +634,9 @@ button {
 }
 .q-input:focus,
 .q-textarea:focus {
-  border-color: var(--ink-2);
+  border-color: var(--accent-blue);
   background: var(--bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-blue) 22%, transparent);
 }
 .q-textarea {
   resize: vertical;
@@ -400,7 +644,9 @@ button {
 }
 .q-input::placeholder,
 .q-textarea::placeholder {
-  color: var(--ink-3);
+  color: color-mix(in srgb, var(--ink) 38%, transparent);
+  font-weight: 600;
+  opacity: 1;
 }
 
 .q-counter {
@@ -433,6 +679,7 @@ button {
   border-radius: 999px;
   padding: 0.4rem 0.9rem;
   font-size: 0.85rem;
+  font-weight: 600;
   color: var(--ink-2);
   transition: all 0.15s ease;
 }
@@ -446,18 +693,28 @@ button {
 }
 
 .q-error {
-  color: #c0392b;
+  color: var(--danger);
   font-size: 0.88rem;
   margin: 0.9rem 0 0;
 }
 
 .q-nav {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
+  gap: 1rem;
   padding: 1rem 2rem;
   border-top: 1px solid var(--line);
   background: var(--bg);
+}
+.q-nav-hint {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 0.85rem;
+  min-width: 0;
+}
+.q-nav .btn-primary {
+  flex: none;
 }
 
 .q-done {
@@ -468,7 +725,9 @@ button {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--surface-2);
+  /* Grønn holder seg like sterk i begge temaer, så teksten oppå er alltid mørk. */
+  background: var(--accent-green);
+  color: var(--accent-ink);
   display: grid;
   place-items: center;
   font-size: 1.2rem;
@@ -592,6 +851,7 @@ button {
 .present {
   position: relative;
   height: 100vh;
+  height: 100dvh;
   width: 100%;
   overflow: hidden;
   background: var(--map-bg);
@@ -647,12 +907,78 @@ button {
 
 /* ── filtermeny ───────────────────────────────────────────────────────────── */
 
+/* Kvittering etter publisering fra mobil — kartet er kvitteringen, dette er
+   bare beskjeden om hvor noden ble av og veien videre. */
+.present-published {
+  position: absolute;
+  z-index: 6;
+  left: 1rem;
+  right: 1rem;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  margin: 0 auto;
+  max-width: 540px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--accent-green);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+  animation: publishedin 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes publishedin {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+.present-published-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.present-published-text strong {
+  font-size: 0.95rem;
+}
+.present-published-text span {
+  color: var(--ink-2);
+  font-size: 0.85rem;
+}
+.present-published .btn-primary {
+  flex: none;
+  text-decoration: none;
+  font-size: 0.88rem;
+  padding: 0.55rem 1.15rem;
+  white-space: nowrap;
+}
+.present-published-close {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--ink-3);
+  font-size: 0.85rem;
+  padding: 0.35rem;
+}
+.present-published-close:hover {
+  color: var(--ink);
+}
+@media (prefers-reduced-motion: reduce) {
+  .present-published {
+    animation: none;
+  }
+}
+
 .filters {
   position: absolute;
   left: 1.5rem;
   top: 5.2rem;
   z-index: 4;
-  width: 262px;
+  width: 292px;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -699,7 +1025,7 @@ button {
   outline: none;
 }
 .filters-search:focus {
-  border-color: var(--ink-2);
+  border-color: var(--accent-blue);
 }
 
 .filters-list {
@@ -763,28 +1089,37 @@ button {
 
 /* ── detaljpanel ──────────────────────────────────────────────────────────── */
 
+/* Skuff som glir inn fra høyre kant av kartet. Den ligger montert etter
+   første åpning, slik at den kan gli ut igjen i stedet for å forsvinne. */
 .detail {
   position: absolute;
-  right: 1.5rem;
-  top: 5.2rem;
+  top: 0;
+  right: 0;
+  bottom: 0;
   z-index: 5;
-  width: min(400px, calc(100vw - 3rem));
-  max-height: calc(100vh - 7.5rem);
+  width: min(470px, 100%);
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--bg);
-  border: 1px solid var(--line);
-  border-top: 3px solid var(--accent);
-  border-radius: var(--radius);
-  padding: 1.4rem 1.5rem 1.5rem;
-  box-shadow: var(--shadow);
-  animation: detailin 0.22s ease;
+  border-left: 3px solid var(--accent);
+  padding: 1.5rem 1.6rem 2rem;
+  box-shadow: -14px 0 34px rgb(0 0 0 / 0.09);
+  transform: translateX(100%);
+  visibility: hidden;
+  transition:
+    transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+    visibility 0.3s;
 }
-@keyframes detailin {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
+.detail.is-open {
+  transform: none;
+  visibility: visible;
+}
+@media (prefers-reduced-motion: reduce) {
+  .detail {
+    transition: none;
   }
 }
+
 .detail-close {
   position: absolute;
   top: 0.85rem;
@@ -876,19 +1211,142 @@ button {
   color: var(--ink-2);
 }
 
-@media (max-width: 760px) {
+/* ── mobil ────────────────────────────────────────────────────────────────
+   Ligger sist i filen med vilje: en mediespørring har samme spesifisitet som
+   regelen den skal overstyre, så den må komme etter for å vinne. Sto denne
+   blokken lenger opp, ble halve innholdet stille overstyrt igjen lenger ned. */
+@media (max-width: 900px) {
+  /* Kartet tas ut av DOM-en på mobil (se app/edit/page.tsx), så skjemaet står
+     alene i én kolonne og fyller høyden. */
+  .edit {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
+  .edit-pane {
+    border-right: none;
+  }
+  .edit-header {
+    padding: 1.1rem 1.15rem 0.9rem;
+    padding-top: max(1.1rem, env(safe-area-inset-top));
+  }
+  .edit-header h1 {
+    font-size: 1.18rem;
+  }
+  .edit-header p {
+    font-size: 0.86rem;
+  }
+
+  .q-body {
+    padding: 1.3rem 1.15rem 1.8rem;
+  }
+  .q-section + .q-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+  }
+  .q-intro {
+    margin-bottom: 1.8rem;
+  }
+
+  /* Trykkflater: en finger trenger mer enn en musepeker. */
+  .q-option {
+    padding: 0.95rem;
+  }
+  .q-grid-compact .q-option {
+    padding: 0.8rem 0.85rem;
+  }
+  .q-chip {
+    padding: 0.5rem 0.95rem;
+  }
+
+  /* Bunnlinja stables: hintet over, knappen i full bredde der tommelen er. */
+  .q-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 0.9rem 1.15rem;
+    padding-bottom: max(0.9rem, env(safe-area-inset-bottom));
+  }
+  .q-nav-hint {
+    text-align: center;
+  }
+  .q-nav .btn-primary {
+    width: 100%;
+    padding-block: 0.8rem;
+  }
+
+  .q-done {
+    padding: 2.2rem 1.15rem;
+  }
+  .q-done-actions .btn-primary,
+  .q-done-actions .btn-ghost {
+    flex: 1 1 100%;
+  }
+
+  /* ── /presentation på mobil ──────────────────────────────────────────── */
+  .present-topbar {
+    padding: 0.9rem 1rem;
+    padding-top: max(0.9rem, env(safe-area-inset-top));
+    gap: 0.6rem;
+  }
+  .present-title strong {
+    font-size: 0.95rem;
+  }
+  .present-title span {
+    font-size: 0.7rem;
+  }
+  /* Fullskjerm-API-et finnes ikke på iOS Safari — knappen ville bare lyve. */
+  .present-fullscreen {
+    display: none;
+  }
+  /* .present-actions a er sterkere enn .present-cta alene, så den må med. */
+  .present-actions .present-cta {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+    font-weight: 500;
+  }
+
+  .present-published {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.8rem;
+    border-left: 1px solid var(--line);
+    border-top: 4px solid var(--accent-green);
+  }
+  .present-published .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+
   .filters {
     left: 1rem;
     right: 1rem;
+    top: 4.6rem;
+    top: calc(4.6rem + env(safe-area-inset-top));
     width: auto;
-    max-height: 42vh;
+    max-height: 40vh;
   }
+  .filters.is-collapsed {
+    right: auto;
+  }
+
+  /* Skuffen tar hele bredden, og lukkeknappen må ligge klar av hakket. */
   .detail {
-    left: 1rem;
-    right: 1rem;
-    top: auto;
-    bottom: 1rem;
-    width: auto;
-    max-height: 55vh;
+    width: 100%;
+    border-left: none;
+    border-top: 3px solid var(--accent);
+    padding-top: max(1.5rem, calc(env(safe-area-inset-top) + 0.6rem));
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  }
+  /* Eneste veien ut av skuffen på en telefon — da må den være til å treffe. */
+  .detail-close {
+    top: max(0.55rem, env(safe-area-inset-top));
+    right: 0.55rem;
+    font-size: 1.15rem;
+    padding: 0;
+    min-width: 44px;
+    min-height: 44px;
+    display: grid;
+    place-items: center;
   }
 }

@@ -27,8 +27,12 @@ export async function POST(request: Request) {
 
   const industry_key = String(body.industry_key ?? "");
   const subarea_key = String(body.subarea_key ?? "");
+  /* Tom streng og null betyr det samme her — «ikke oppgitt». Lagre null, så
+     slipper vi å teste for begge deler hver gang feltet leses. */
   const subarea_other =
-    subarea_key === OTHER_KEY ? String(body.subarea_other ?? "").trim().slice(0, 80) : null;
+    subarea_key === OTHER_KEY
+      ? String(body.subarea_other ?? "").trim().slice(0, 80) || null
+      : null;
   const title = String(body.title ?? "").trim();
   const challenge = String(body.challenge ?? "").trim();
   const company_name = String(body.company_name ?? "").trim();
@@ -36,11 +40,11 @@ export async function POST(request: Request) {
     ? body.levels.map(String).filter((l) => VALID_LEVELS.has(l))
     : [];
 
+  /* Ansvarsområdet er tatt ut av skjemaet. Kolonnen er fortsatt `not null`, så
+     nye rader lagres med «annet» og tom fritekst — det betyr «ikke oppgitt».
+     Eldre rader har ekte ansvarsområder, og de valideres fortsatt. */
   if (!isValidPair(industry_key, subarea_key)) {
     return NextResponse.json({ error: "Ukjent bransje eller ansvarsområde." }, { status: 400 });
-  }
-  if (subarea_key === OTHER_KEY && (!subarea_other || subarea_other.length < 2)) {
-    return NextResponse.json({ error: "Beskriv ansvarsområdet." }, { status: 400 });
   }
   if (title.length < 3 || title.length > 120) {
     return NextResponse.json({ error: "Tittelen må være mellom 3 og 120 tegn." }, { status: 400 });

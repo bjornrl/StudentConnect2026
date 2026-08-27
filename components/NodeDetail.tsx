@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { industryColor, industryLabel, subareaLabel, LEVELS } from "@/lib/taxonomy";
+import { industryColor, industryLabel, subareaLabel, OTHER_KEY, LEVELS } from "@/lib/taxonomy";
 import type { PublicSubmission } from "@/lib/types";
 
 type Props = {
@@ -10,6 +10,9 @@ type Props = {
 };
 
 export default function NodeDetail({ submission, onClose }: Props) {
+  /* Skuffen skal gli ut igjen når man lukker. Derfor beholder vi den siste
+     noden og lar panelet stå montert — ellers rykker det bare bort. */
+  const [shown, setShown] = useState<PublicSubmission | null>(submission);
   const [asking, setAsking] = useState(false);
   const [sent, setSent] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -19,24 +22,44 @@ export default function NodeDetail({ submission, onClose }: Props) {
   const [role, setRole] = useState("");
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    setAsking(false);
-    setSent(false);
-    setError(null);
-  }, [submission?.id]);
+  /* Klikk på en ny node skal bytte innhold og nullstille kontaktskjemaet.
+     Justeres under render — det er Reacts anbefalte måte å utlede state fra
+     props på, og slipper en effekt som trigger en render til. Lukking (null)
+     bytter ikke innhold; da skal teksten bli stående mens skuffen glir ut. */
+  const currentId = submission?.id ?? null;
+  const [prevId, setPrevId] = useState(currentId);
+  if (currentId !== prevId) {
+    setPrevId(currentId);
+    if (submission) {
+      setShown(submission);
+      setAsking(false);
+      setSent(false);
+      setError(null);
+    }
+  }
 
   useEffect(() => {
+    if (!submission) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [submission, onClose]);
 
-  if (!submission) return null;
+  // før første åpning finnes ikke panelet i det hele tatt
+  if (!shown) return null;
 
-  const color = industryColor(submission.industry_key);
+  const open = Boolean(submission);
+  const color = industryColor(shown.industry_key);
+
+  /* Ansvarsområdet er tatt ut av skjemaet. Eldre innmeldinger har fortsatt ett,
+     og skal vise det; nye lagres som «annet» uten fritekst og får ingen tagg. */
+  const subarea =
+    shown.subarea_key === OTHER_KEY && !shown.subarea_other?.trim()
+      ? null
+      : subareaLabel(shown.industry_key, shown.subarea_key, shown.subarea_other);
 
   async function sendRequest() {
-    if (!submission) return;
+    if (!shown) return;
     setSaving(true);
     setError(null);
     try {
@@ -44,7 +67,7 @@ export default function NodeDetail({ submission, onClose }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          submission_id: submission.id,
+          submission_id: shown.id,
           requester_name: name.trim(),
           requester_email: email.trim(),
           requester_role: role.trim() || null,
@@ -64,24 +87,26 @@ export default function NodeDetail({ submission, onClose }: Props) {
   const canSend = name.trim().length >= 2 && email.trim().includes("@");
 
   return (
-    <aside className="detail" style={{ ["--accent" as string]: color }}>
+    <aside
+      className={`detail ${open ? "is-open" : ""}`}
+      style={{ ["--accent" as string]: color }}
+      aria-hidden={!open}
+    >
       <button className="detail-close" onClick={onClose} aria-label="Lukk">
         ✕
       </button>
 
       <div className="detail-tags">
-        <span className="detail-tag detail-tag-industry">{industryLabel(submission.industry_key)}</span>
-        <span className="detail-tag">
-          {subareaLabel(submission.industry_key, submission.subarea_key, submission.subarea_other)}
-        </span>
+        <span className="detail-tag detail-tag-industry">{industryLabel(shown.industry_key)}</span>
+        {subarea && <span className="detail-tag">{subarea}</span>}
       </div>
 
-      <h2 className="detail-title">{submission.title}</h2>
-      <p className="detail-challenge">{submission.challenge}</p>
+      <h2 className="detail-title">{shown.title}</h2>
+      <p className="detail-challenge">{shown.challenge}</p>
 
-      {submission.levels.length > 0 && (
+      {shown.levels.length > 0 && (
         <div className="detail-levels">
-          {submission.levels.map((l) => (
+          {shown.levels.map((l) => (
             <span key={l} className="q-chip is-static">
               {LEVELS.find((x) => x.key === l)?.label ?? l}
             </span>
