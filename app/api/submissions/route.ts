@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase, publicDbError } from "@/lib/supabase";
 import { isValidPair, OTHER_KEY, LEVELS } from "@/lib/taxonomy";
 import type { PublicSubmission } from "@/lib/types";
 
@@ -13,7 +13,7 @@ export async function GET() {
     .select("*")
     .order("created_at", { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDbError(error) }, { status: 500 });
   return NextResponse.json({ submissions: (data ?? []) as PublicSubmission[] });
 }
 
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     contact_phone: body.contact_phone ? String(body.contact_phone).trim().slice(0, 40) : null,
   });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDbError(error) }, { status: 500 });
 
   const submission: PublicSubmission = {
     id,

@@ -91,3 +91,29 @@ Det ligger 23 demo-innmeldinger inne så kartet har noe å vise. Slett dem med:
 ```sql
 delete from public.sc_submissions where company_name like 'Demo %';
 ```
+
+## Miljøvariabler på Netlify
+
+Netlify-teamet (Comte) har **delte miljøvariabler på team-nivå**, blant annet
+`NEXT_PUBLIC_SUPABASE_URL` og `NEXT_PUBLIC_SUPABASE_ANON_KEY`. De arves av alle
+sites i teamet, og flere av sitene bruker helt forskjellige Supabase-prosjekter.
+Derfor er begge to satt **på site-nivå** for `studentconnect2026`
+(Site configuration → Environment variables → *Add a variable*), slik at
+team-verdiene aldri får virkning her:
+
+| Variabel | Verdi |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://dhhclddelbwfcfewsymu.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | den publiserbare nøkkelen (`sb_publishable_…`) til samme prosjekt |
+
+Begge er `NEXT_PUBLIC_`, altså bakt inn i bygget. **En endring får først effekt
+etter en ny deploy** — endrer du dem, må du trigge *Deploys → Trigger deploy →
+Clear cache and deploy site*.
+
+Blandes URL fra ett prosjekt med nøkkel fra et annet, stopper `lib/supabase.ts`
+det med en tydelig feilmelding. Uten den sperren svarer Supabase enten
+*Invalid API key* eller *Could not find the table 'public.sc_submissions' in the
+schema cache* — begge ser ut som databasefeil, men er konfigfeil.
+
+Mangler tabellene faktisk i prosjektet URL-en peker på, lim inn
+`supabase/setup.sql` i SQL-editoren der og kjør den.

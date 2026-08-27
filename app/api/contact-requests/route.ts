@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase, publicDbError } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +29,6 @@ export async function POST(request: Request) {
     message: body.message ? String(body.message).trim().slice(0, 2000) : null,
   });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDbError(error) }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

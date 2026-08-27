@@ -5,6 +5,8 @@
 -- INSERT ... RETURNING ikke virker for anon — derfor lager API-ruten id-en selv
 -- og sender den med inn, i stedet for å lese den tilbake.
 
+grant usage on schema public to anon, authenticated;
+
 revoke all on public.sc_submissions      from anon, authenticated;
 revoke all on public.sc_contact_requests from anon, authenticated;
 
@@ -12,3 +14,5 @@ grant insert on public.sc_submissions      to anon, authenticated;
 grant insert on public.sc_contact_requests to anon, authenticated;
 
 grant select on public.sc_submissions_public to anon, authenticated;
+
+notify pgrst, 'reload schema';
