@@ -1,0 +1,5 @@
+[build.environment]
+  # Turbopack's persistent cache (.netlify/.next/cache) snapshots the build
+  # environment, so Netlify's secrets scanner finds env var values in it.
+  # That directory is a build artifact and is never published, so exclude it.
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/.next/cache/**"
