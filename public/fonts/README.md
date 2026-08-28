@@ -13,8 +13,3 @@ ellers ville nettleseren syntetisert en halvfet variant.
 
 Aeonik er en kommersiell font. Sjekk at lisensen deres dekker webbruk før
 dette går i produksjon; filene ligger åpent under `/fonts/`.
-
-## Tidligere: Apfel Grotezk
-
-`ApfelGrotezk-*` og `Apfel Grotezk-Regular.ufo/` ligger fortsatt i mappa, men
-er ikke lenger referert fra `app/globals.css`. De kan slettes.

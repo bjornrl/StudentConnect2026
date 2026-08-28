@@ -243,14 +243,14 @@ export default function Questionnaire({
         <div className="flex flex-col gap-stack p-[max(2rem,5cqi)]">
         {/* ── hva er dette ───────────────────────────────────────────────── */}
         <section className="flex w-full flex-col items-start gap-card">
-          <h1 className={DISPLAY}>Student Connect 2026</h1>
-          <p className="m-0 w-full text-field leading-[1.45] font-normal text-ink/70 [overflow-wrap:break-word]">
+          <h1 className="w-full text-display font-medium text-ink [overflow-wrap:break-word]">Student Connect 2026</h1>
+          <p className="m-0 w-full text-field leading-[1.45] font-normal text-ink [overflow-wrap:break-word]">
             Student Connect 2026 kobler bedrifter med studenter som leter etter noe å skrive om.
             Meld inn en utfordring, et spørsmål eller et tema dere gjerne skulle visst mer om — så
             blir det en node i et felles kart, gruppert etter bransje og koblet til andre som jobber
             med det samme.
           </p>
-          <p className="m-0 w-full text-field leading-[1.45] font-normal text-ink/70 [overflow-wrap:break-word]">
+          <p className="m-0 w-full text-field leading-[1.45] font-normal text-ink [overflow-wrap:break-word]">
             Studenter som finner noe de vil ta tak i, sender en forespørsel gjennom oss.
             Kontaktinformasjonen deres vises aldri offentlig i kartet.
           </p>

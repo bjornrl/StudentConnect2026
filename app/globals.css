@@ -271,7 +271,13 @@
 .home {
   min-height: 100%;
   display: grid;
-  place-items: center;
+  /* To rader: modalen sentreres i den øvre, logoene ligger i ro nederst.
+     `1fr auto` gjør at logoene blir stående på bunnen uansett vindushøyde,
+     mens modalen fortsatt står midt i plassen som er igjen. */
+  grid-template-rows: 1fr auto;
+  justify-items: center;
+  align-items: center;
+  gap: 2.5rem;
   padding: 3rem 1.5rem;
   position: relative;
   isolation: isolate;

@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import Aurora from "@/components/Aurora";
+import { PARTNERS } from "@/lib/partners";
 import type { CSSProperties } from "react";
 import { hoverVars } from "@/lib/color";
 
@@ -27,7 +29,7 @@ const CARD =
   "active:border-press active:bg-press active:text-bg";
 
 const CARD_TITLE = "w-full text-[max(0.95rem,3.205cqi)] font-medium"; /* 15/468 */
-const CARD_BODY = "w-full text-[max(0.7rem,1.703cqi)] font-light"; /* 7.968/468 */
+const CARD_BODY = "w-full text-sm font-normal"; /* 7.968/468 */
 
 /* Brødteksten står som tre avsnitt i designet, skilt av blanke linjer. Her er
    de tre <p> med luft imellom — setningene brytes da der bredden tilsier, ikke
@@ -81,6 +83,22 @@ export default function Home() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Samarbeidspartnerne nederst, utenfor modalen. Høyden per logo er satt
+          i lib/partners.ts — lik høyde gir ikke lik tyngde. */}
+      <div className="flex w-full flex-wrap items-center justify-center gap-x-10 gap-y-6">
+        {PARTNERS.map((p) => (
+          <Image
+            key={p.src}
+            className="w-auto max-w-[160px] object-contain"
+            src={p.src}
+            alt={p.alt}
+            width={p.width}
+            height={p.height}
+            style={{ height: p.displayHeight }}
+          />
+        ))}
       </div>
     </main>
   );
