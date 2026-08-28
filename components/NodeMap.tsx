@@ -12,7 +12,12 @@ import {
   type SimulationNodeDatum,
   type SimulationLinkDatum,
 } from "d3-force";
-import { INDUSTRIES, industryColor, industryLabel } from "@/lib/taxonomy";
+import {
+  INDUSTRIES,
+  industryLabel,
+  industryNodeColor,
+  industryTextColor,
+} from "@/lib/taxonomy";
 import type { PublicSubmission } from "@/lib/types";
 
 type MapNode = SimulationNodeDatum & {
@@ -352,7 +357,7 @@ export default function NodeMap({
                   key={l.key}
                   d={`M ${s.x} ${s.y} Q ${mx + bow} ${my - bow} ${t.x} ${t.y}`}
                   fill="none"
-                  stroke={industryColor(s.submission.industry_key)}
+                  stroke={industryNodeColor(s.submission.industry_key)}
                   strokeWidth={active ? 1.4 : 0.8}
                   strokeOpacity={active ? 0.4 : 0.09}
                   pointerEvents="none"
@@ -370,7 +375,7 @@ export default function NodeMap({
                 y={c.y - c.r + 22}
                 textAnchor="middle"
                 className="nodemap-cluster-label"
-                fill={industryColor(c.key)}
+                fill={industryTextColor(c.key)}
                 pointerEvents="none"
               >
                 {industryLabel(c.key)}
@@ -383,7 +388,7 @@ export default function NodeMap({
             {nodes.map((n) => {
               if (typeof n.x !== "number" || typeof n.y !== "number") return null;
               const on = matches.has(n.id);
-              const color = industryColor(n.submission.industry_key);
+              const color = industryNodeColor(n.submission.industry_key);
               const isSelected = selectedId === n.id;
               const isHover = hoverId === n.id;
               const breathe = 1 + Math.sin(clockRef.current * 0.0012 + n.phase) * 0.05;

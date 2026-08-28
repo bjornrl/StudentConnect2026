@@ -1,6 +1,6 @@
 "use client";
 
-import { INDUSTRIES } from "@/lib/taxonomy";
+import { industryNodeColor, INDUSTRIES } from "@/lib/taxonomy";
 import { hoverVars } from "@/lib/color";
 import type { PublicSubmission } from "@/lib/types";
 import type { CSSProperties } from "react";
@@ -61,7 +61,7 @@ export default function FilterMenu({
                 <li key={ind.key}>
                   <button
                     className={`filters-item ${on ? "is-on" : ""} ${n === 0 ? "is-empty" : ""}`}
-                    style={{ ["--opt-color"]: ind.color, ...hoverVars(i) } as CSSProperties}
+                    style={{ ["--opt-color"]: industryNodeColor(ind.key), ...hoverVars(i) } as CSSProperties}
                     onClick={() => onToggle(ind.key)}
                     disabled={n === 0}
                   >

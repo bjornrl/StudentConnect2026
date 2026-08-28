@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties } from "react";
-import { industryColor, industryLabel, subareaLabel, OTHER_KEY, LEVELS } from "@/lib/taxonomy";
+import { industryTextColor, industryLabel, subareaLabel, OTHER_KEY, LEVELS } from "@/lib/taxonomy";
 import { hoverVars } from "@/lib/color";
 import type { PublicSubmission } from "@/lib/types";
 
@@ -50,7 +50,7 @@ export default function NodeDetail({ submission, onClose }: Props) {
   if (!shown) return null;
 
   const open = Boolean(submission);
-  const color = industryColor(shown.industry_key);
+  const color = industryTextColor(shown.industry_key);
 
   /* Ansvarsområdet er tatt ut av skjemaet. Eldre innmeldinger har fortsatt ett,
      og skal vise det; nye lagres som «annet» uten fritekst og får ingen tagg. */

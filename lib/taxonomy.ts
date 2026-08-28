@@ -35,6 +35,8 @@ export type Industry = {
   subareas: SubArea[];
 };
 
+import { readableOn } from "./color";
+
 export const OTHER_KEY = "annet";
 
 export const INDUSTRIES: Industry[] = [
@@ -206,8 +208,35 @@ export function industryLabel(key: string): string {
   return industryByKey.get(key)?.label ?? "Ukjent bransje";
 }
 
+const UNKNOWN_COLOR = "#9AA0A6";
+
+/* Kartflata i lyst tema. Prikker er grafikk (3:1 etter WCAG 1.4.11), etiketter
+   og tagger er liten tekst (4.5:1) — derfor to avledninger av samme palett. */
+const MAP_BG = "#efefef";
+const nodeColors = new Map(
+  INDUSTRIES.map((i) => [i.key, readableOn(i.color, MAP_BG, 3)] as const)
+);
+const textColors = new Map(
+  INDUSTRIES.map((i) => [i.key, readableOn(i.color, MAP_BG, 4.5)] as const)
+);
+
+/* «Ukjent bransje» treffer denne på hver node, så den regnes én gang. */
+const UNKNOWN_NODE = readableOn(UNKNOWN_COLOR, MAP_BG, 3);
+const UNKNOWN_TEXT = readableOn(UNKNOWN_COLOR, MAP_BG, 4.5);
+
+/** Bransjefargen slik den er i paletten — flater, hover og de myke gloriene. */
 export function industryColor(key: string): string {
-  return industryByKey.get(key)?.color ?? "#9AA0A6";
+  return industryByKey.get(key)?.color ?? UNKNOWN_COLOR;
+}
+
+/** Til prikker og streker på kartet: samme kulør, mørk nok til å synes. */
+export function industryNodeColor(key: string): string {
+  return nodeColors.get(key) ?? UNKNOWN_NODE;
+}
+
+/** Til etiketter og tagger, som er tekst og trenger mer. */
+export function industryTextColor(key: string): string {
+  return textColors.get(key) ?? UNKNOWN_TEXT;
 }
 
 export function subareaLabel(industryKey: string, subareaKey: string, other?: string | null): string {

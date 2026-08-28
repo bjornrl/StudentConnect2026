@@ -282,7 +282,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background: linear-gradient(160deg, #affd86 0%, #9ff3e2 48%, #c8fb89 100%);
+  background: linear-gradient(160deg, #d7fec2 0%, #cff9f0 48%, #e3fdc4 100%);
 }
 
 /* Flytende gradient. Brukes av .home og .edit-pane (se components/Aurora.tsx).
@@ -298,6 +298,9 @@
   inset: -25%;
   z-index: -1;
   pointer-events: none;
+  /* Fargene beholdes som de er, men slipper mindre igjennom — sammen med den
+     lysere grunngradienten gir det en dus bakgrunn i stedet for en mettet. */
+  opacity: 0.45;
 }
 .aurora span {
   position: absolute;
@@ -375,7 +378,7 @@
   /* Uten min-height: 0 vokser griden forbi 100vh og skjemaets scrollflate
      slutter å scrolle — alt står under hverandre og er høyere enn ruta. */
   min-height: 0;
-  background: linear-gradient(160deg, #affd86 0%, #9ff3e2 48%, #c8fb89 100%);
+  background: linear-gradient(160deg, #d7fec2 0%, #cff9f0 48%, #e3fdc4 100%);
 }
 
 .edit-map {
@@ -477,7 +480,8 @@
   font-weight: 500;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  opacity: 0.75;
+  /* Ingen opacity her: fargen er alt dempet til 4.5:1 mot kartflata, og et
+     slør oppå ville spist opp den kontrasten igjen. */
 }
 .nodemap-cluster-count {
   fill: var(--ink-3);
