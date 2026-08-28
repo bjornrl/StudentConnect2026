@@ -7,7 +7,9 @@ import NodeDetail from "@/components/NodeDetail";
 import FilterMenu from "@/components/FilterMenu";
 import { useIsMobile } from "@/lib/useMediaQuery";
 import { takeJustPublished } from "@/lib/justPublished";
+import { hoverVars } from "@/lib/color";
 import type { PublicSubmission } from "@/lib/types";
+import type { CSSProperties } from "react";
 
 export default function PresentationPage() {
   const isMobile = useIsMobile();
@@ -140,7 +142,7 @@ export default function PresentationPage() {
             <strong>Oppgaven er publisert</strong>
             <span>Den ligger i kartet nå — noden som pulserer er deres.</span>
           </div>
-          <Link className="btn-primary" href="/edit">
+          <Link className="btn-primary" href="/edit" style={hoverVars(4) as CSSProperties}>
             Meld inn en ny utfordring
           </Link>
           <button

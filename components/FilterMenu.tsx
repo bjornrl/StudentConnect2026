@@ -1,7 +1,9 @@
 "use client";
 
 import { INDUSTRIES } from "@/lib/taxonomy";
+import { hoverVars } from "@/lib/color";
 import type { PublicSubmission } from "@/lib/types";
+import type { CSSProperties } from "react";
 
 type Props = {
   submissions: PublicSubmission[];
@@ -52,14 +54,14 @@ export default function FilterMenu({
           />
 
           <ul className="filters-list">
-            {INDUSTRIES.map((ind) => {
+            {INDUSTRIES.map((ind, i) => {
               const n = counts.get(ind.key) ?? 0;
               const on = active.includes(ind.key);
               return (
                 <li key={ind.key}>
                   <button
                     className={`filters-item ${on ? "is-on" : ""} ${n === 0 ? "is-empty" : ""}`}
-                    style={{ ["--opt-color" as string]: ind.color }}
+                    style={{ ["--opt-color"]: ind.color, ...hoverVars(i) } as CSSProperties}
                     onClick={() => onToggle(ind.key)}
                     disabled={n === 0}
                   >

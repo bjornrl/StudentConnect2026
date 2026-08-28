@@ -18,3 +18,22 @@ export function contrastingInk(hex: string): "#ffffff" | "#101110" {
   const vsBlack = (L + 0.05) / 0.05;
   return vsWhite >= vsBlack ? "#ffffff" : "#101110";
 }
+
+/** Paletten fra forsiden, uten den mørke skoggrønne som er reserved for :active. */
+export const HOVER_GREENS = [
+  "#cbf863",
+  "#affd86",
+  "#71fbb4",
+  "#9ff3e2",
+  "#c8fb89",
+  "#7fb447",
+  "#6d906e",
+] as const;
+
+/** Samme mørkegrønne på alle knapper når de trykkes inn. */
+export const PRESS_GREEN = "#0a1d06";
+
+export function hoverVars(index: number): { "--hover": string; "--hover-ink": string } {
+  const bg = HOVER_GREENS[((index % HOVER_GREENS.length) + HOVER_GREENS.length) % HOVER_GREENS.length];
+  return { "--hover": bg, "--hover-ink": contrastingInk(bg) };
+}

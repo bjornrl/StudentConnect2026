@@ -1,42 +1,42 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    Student Connect 2026 — oppgavekartlegging
-   Neue Haas Grotesk på #f5f5f5 og #101110. Farge bærer informasjon: bransjene
+   Aeonik på #f5f5f5 og #101110. Farge bærer informasjon: bransjene
    i kartet, og de tre sekundærfargene til status (grønn = fullført, blå =
    fokus og lenker, rød = feil).
    ──────────────────────────────────────────────────────────────────────────── */
 
-/* Neue Haas Grotesk er en lisensiert font og kan ikke hentes fra et CDN.
-   Legg woff2-filene i public/fonts/ (se README-en der), så tas de i bruk med
-   én gang. Mangler de, faller vi ned på Helvetica Neue — samme grotesk-slekt,
-   så oppsettet endrer seg knapt. `local()` fanger opp fonten hvis den alt er
-   installert på maskinen. */
+/* Tailwind. Preflight er bevisst utelatt — resten av appen har egne
+   grunnstiler, og en reset ville dratt dem med seg. */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@source "../app";
+@source "../components";
+
+/* Aeonik (CoType Foundry) ligger i public/fonts/.
+   Light (300) til display og etiketter, Regular (400) til feltene,
+   Medium (500) til ingressene og knappene. Familien har ingen 600 — der
+   filen tidligere ba om 600 står det nå 500. */
 @font-face {
-  font-family: "Neue Haas Grotesk";
-  src:
-    local("Neue Haas Grotesk Display Pro 55 Roman"),
-    local("NeueHaasDisplay-Roman"),
-    url("/fonts/NeueHaasGrotesk-Roman.woff2") format("woff2");
+  font-family: "Aeonik";
+  src: url("/fonts/Aeonik-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik";
+  src: url("/fonts/Aeonik-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Neue Haas Grotesk";
-  src:
-    local("Neue Haas Grotesk Display Pro 65 Medium"),
-    local("NeueHaasDisplay-Mediu"),
-    url("/fonts/NeueHaasGrotesk-Medium.woff2") format("woff2");
-  font-weight: 500 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Neue Haas Grotesk";
-  src:
-    local("Neue Haas Grotesk Display Pro 75 Bold"),
-    local("NeueHaasDisplay-Bold"),
-    url("/fonts/NeueHaasGrotesk-Bold.woff2") format("woff2");
-  font-weight: 700;
+  font-family: "Aeonik";
+  src: url("/fonts/Aeonik-Medium.woff2") format("woff2");
+  font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
@@ -55,14 +55,17 @@
 
   /* Sekundærfarger. Grønn er sterk og lys — den brukes som flate med mørk
      tekst oppå, aldri som tekst på lyst underlag. */
-  --accent-green: #00ffa0;
+  --accent-green: #cbf863;
+  --press: #0a1d06;
   --accent-blue: #5899e2;
   --accent-red: #ab2346;
   /* Blå og rød må bære tekst på #f5f5f5 også, og trenger å mørknes litt der. */
   --link: #2f6fb8;
   --danger: #ab2346;
 
-  --radius: 14px;
+  --card: #ffffff;
+
+  --radius: 32px;
   --radius-sm: 9px;
   --shadow: 0 1px 2px rgba(16, 17, 16, 0.05), 0 8px 28px rgba(16, 17, 16, 0.07);
 }
@@ -77,83 +80,160 @@
   --ink-3: #6f716f;
   --map-bg: #0a0b0a;
   --map-node-ring: rgba(245, 245, 245, 0.22);
+  --card: #1b1c1b;
   /* På mørk flate bærer originalfargene tekst fint som de er. */
   --link: #5899e2;
   --danger: #e4657f;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 34px rgba(0, 0, 0, 0.45);
 }
 
-* {
-  box-sizing: border-box;
+/* Tokenene over gjort tilgjengelige som Tailwind-utilities: bg-ink, text-ink-2,
+   border-line, rounded-card … `inline` gjør at utilities peker på `var(--…)`,
+   så [data-theme="dark"] fortsatt bytter dem ut. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-green: var(--accent-green);
+  --color-press: var(--press);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-red: var(--accent-red);
+  --color-link: var(--link);
+  --color-danger: var(--danger);
+
+  --radius-note: var(--radius-sm);
+
+  /* Bruddpunktene skjemaet allerede bruker, som max-mobile:/max-narrow:. */
+  --breakpoint-mobile: 900px;
+  --breakpoint-narrow: 620px;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+/* ── Figma «Editorial» ────────────────────────────────────────────────────────
+   Designet er tegnet på et 2013 px bredt artboard. Hvert mål er tatt som sin
+   andel av den bredden og skrevet i `cqi`, altså prosent av skjemaets EGEN
+   bredde — ikke vindusbredden. Skjemaruta er halve skjermen på desktop og hele
+   på mobil, så `vw` ville skalert mot feil referanse; `container-type` står
+   derfor på scrollflaten i Questionnaire.
+   clamp()-gulvet holder teksten lesbar når ruta blir smal, taket treffer
+   Figma-verdien når den er bred nok. Kommentaren bak hver linje er px-en fra
+   designet. */
+@theme {
+  --text-eyebrow: clamp(0.8rem, 2.38cqi, 2.667rem); /* 48px */
+  --text-eyebrow--line-height: 0.87;
+  --text-display: clamp(1.9rem, 6.36cqi, 7.111rem); /* 128px */
+  --text-display--line-height: 0.87;
+  --text-lead: clamp(1rem, 2.38cqi, 2.667rem); /* 48px */
+  --text-lead--line-height: 1;
+  --text-field: clamp(0.95rem, 1.99cqi, 2.222rem); /* 40px */
+  --text-field--line-height: 0.87;
+
+  --spacing-card: clamp(1.25rem, 3.18cqi, 3.556rem); /* 64px — kortets luft */
+  --spacing-stack: clamp(1.75rem, 7.75cqi, 8.667rem); /* 156px — mellom kortene */
+  --spacing-field: clamp(0.6rem, 1.59cqi, 1.778rem); /* 32px */
+  --spacing-chip: clamp(0.35rem, 0.6cqi, 0.667rem); /* 12px */
+  --spacing-editor: clamp(9rem, 32cqi, 35.833rem); /* 645px — høyden på fritekstfeltet */
+
+  --radius-card: clamp(1.25rem, 3.18cqi, 3.556rem); /* 64px */
 }
 
-/* Typografien styres herfra. Nesten alle størrelser i filen er i `rem`, så
-   dette tallet skalerer hele grensesnittet samlet. Kartets egne etiketter er
-   med vilje satt i `px` og følger ikke med — der er tett stoff poenget. */
-html {
-  font-size: 18px;
-}
+/* Elementreglene ligger i @layer base, slik at Tailwind-utilities (som er
+   lagdelt) kan overstyre dem. Alt annet i denne filen står utenfor lag og
+   ligger derfor fortsatt over utilities. */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-body {
-  background: var(--bg);
-  color: var(--ink);
-  /* Helvetica Neue ligger på alle Apple-enheter og er Neue Haas' nærmeste
-     slektning — fallbacken flytter nesten ingenting. */
-  font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 1.06rem;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
 
-h1,
-h2,
-h3 {
-  margin: 0;
-  font-weight: 600;
-  letter-spacing: -0.018em;
-  line-height: 1.2;
-}
+  /* Typografien styres herfra. Nesten alle størrelser i filen er i `rem`, så
+     dette tallet skalerer hele grensesnittet samlet. Kartets egne etiketter er
+     med vilje satt i `px` og følger ikke med — der er tett stoff poenget. */
+  html {
+    font-size: 18px;
+  }
 
-button {
-  font: inherit;
-  cursor: pointer;
-}
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Aeonik", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.06rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
 
-a {
-  color: var(--link);
-  text-underline-offset: 0.18em;
-  text-decoration-thickness: 1px;
-}
-a:hover {
-  color: var(--ink);
-}
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    font-weight: 500;
+    letter-spacing: -0.018em;
+    line-height: 1.2;
+  }
 
-/* Tastaturfokus skal alltid være synlig, og bruker sekundærblå. */
-:focus-visible {
-  outline: 2px solid var(--accent-blue);
-  outline-offset: 2px;
+  button {
+    font: inherit;
+    cursor: pointer;
+  }
+
+  /* Preflight er av, så skjemafeltene arver ikke skriften av seg selv. */
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  a {
+    color: var(--link);
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+  }
+  a:hover {
+    color: var(--ink);
+  }
+
+  /* Tastaturfokus skal alltid være synlig, og bruker sekundærblå. */
+  :focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+  }
 }
 
 /* ── knapper ──────────────────────────────────────────────────────────────── */
 
 .btn-primary {
+  --hover: var(--accent-green);
+  --hover-ink: var(--ink);
   background: var(--ink);
   color: var(--bg);
   border: 1px solid var(--ink);
   border-radius: 999px;
   padding: 0.62rem 1.35rem;
   font-weight: 500;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .btn-primary:hover:not(:disabled) {
-  opacity: 0.85;
+  background: var(--hover);
+  border-color: var(--hover);
+  color: var(--hover-ink);
+  opacity: 1;
+}
+.btn-primary:active:not(:disabled) {
+  background: var(--press);
+  border-color: var(--press);
+  color: var(--bg);
+  opacity: 1;
 }
 .btn-primary:disabled {
   opacity: 0.28;
@@ -161,17 +241,25 @@ a:hover {
 }
 
 .btn-ghost {
+  --hover: #71fbb4;
+  --hover-ink: var(--ink);
   background: transparent;
   color: var(--ink-2);
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 0.62rem 1.35rem;
   font-weight: 500;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 .btn-ghost:hover:not(:disabled) {
-  background: var(--surface);
-  color: var(--ink);
+  background: var(--hover);
+  border-color: var(--hover);
+  color: var(--hover-ink);
+}
+.btn-ghost:active:not(:disabled) {
+  background: var(--press);
+  border-color: var(--press);
+  color: var(--bg);
 }
 .btn-ghost:disabled {
   opacity: 0.3;
@@ -185,52 +273,75 @@ a:hover {
   display: grid;
   place-items: center;
   padding: 3rem 1.5rem;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(160deg, #affd86 0%, #9ff3e2 48%, #c8fb89 100%);
 }
-.home-inner {
-  max-width: 640px;
+
+/* Flytende gradient. Brukes av .home og .edit-pane (se components/Aurora.tsx).
+   Fargene er de samme som før, men hver av dem er nå sin egen flate med sin
+   egen bane og omløpstid. Før lå alle ni i ett bilde som ble flyttet under ett
+   — da beveget hele bakgrunnen seg som et fotografi. Nå driver de fra
+   hverandre, og siden omløpstidene ikke går opp i hverandre møtes fargene i
+   stadig nye kombinasjoner.
+   Ingen blur: flatene tones allerede ut i kanten (`closest-side` mot
+   transparent), og et blur-filter over hele vinduet er dyrt å animere. */
+.aurora {
+  position: absolute;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
 }
+.aurora span {
+  position: absolute;
+  display: block;
+  background: radial-gradient(closest-side, var(--c) 0%, transparent 100%);
+  will-change: transform;
+  animation: var(--anim) var(--dur) var(--delay) ease-in-out infinite;
+}
+
+/* Plassering og størrelse er de samme ellipsene som lå i den gamle
+   background-lista: en flate er dobbelt så bred som radiusen, forskjøvet slik
+   at midtpunktet lander der fargen sto før. */
+.aurora span:nth-child(1) { --c: #cbf863; left: -30%; top: -14%; width: 84%; height: 72%; --anim: aurora-a; --dur: 34s; --delay: -3s; }
+.aurora span:nth-child(2) { --c: #71fbb4; left: 44%; top: -36%; width: 76%; height: 88%; --anim: aurora-b; --dur: 41s; --delay: -11s; }
+.aurora span:nth-child(3) { --c: #9ff3e2; left: -32%; top: 40%; width: 80%; height: 76%; --anim: aurora-c; --dur: 47s; --delay: -19s; }
+.aurora span:nth-child(4) { --c: #e2c38e; left: 52%; top: 30%; width: 72%; height: 84%; --anim: aurora-a; --dur: 53s; --delay: -27s; }
+.aurora span:nth-child(5) { --c: #c8fb89; left: 18%; top: 14%; width: 68%; height: 68%; --anim: aurora-b; --dur: 61s; --delay: -7s; }
+.aurora span:nth-child(6) { --c: #7fb447; left: 8%; top: 42%; width: 60%; height: 80%; --anim: aurora-c; --dur: 43s; --delay: -33s; }
+.aurora span:nth-child(7) { --c: #6d906e; left: 40%; top: -4%; width: 56%; height: 64%; --anim: aurora-a; --dur: 67s; --delay: -15s; }
+.aurora span:nth-child(8) { --c: #a1a19b; left: -2%; top: 18%; width: 52%; height: 60%; --anim: aurora-b; --dur: 59s; --delay: -23s; }
+.aurora span:nth-child(9) { --c: #0a1d06; left: 72%; top: 14%; width: 44%; height: 56%; --anim: aurora-c; --dur: 73s; --delay: -41s; }
+
+@keyframes aurora-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(12%, 8%, 0) scale(1.16); }
+  66% { transform: translate3d(-9%, -11%, 0) scale(0.9); }
+}
+@keyframes aurora-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.06); }
+  40% { transform: translate3d(-14%, 10%, 0) scale(0.88); }
+  75% { transform: translate3d(10%, -13%, 0) scale(1.2); }
+}
+@keyframes aurora-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.94); }
+  50% { transform: translate3d(9%, -14%, 0) scale(1.22); }
+}
+
 .home-eyebrow {
+  display: block;
   color: var(--ink-3);
   font-size: 0.8rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  text-align: left;
 }
-.home h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  margin: 0.9rem 0 1rem;
-}
-.home p {
-  color: var(--ink-2);
-  font-size: 1.05rem;
-  margin: 0 0 2rem;
-}
-.home-links {
-  display: flex;
-  gap: 0.9rem;
-  flex-wrap: wrap;
-}
-.home-card {
-  flex: 1 1 240px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 1.35rem;
-  text-decoration: none;
-  color: var(--ink);
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-.home-card:hover {
-  background: var(--surface-2);
-  transform: translateY(-2px);
-}
-.home-card strong {
-  display: block;
-  font-size: 1.05rem;
-  margin-bottom: 0.3rem;
-}
-.home-card span {
-  color: var(--ink-2);
-  font-size: 0.9rem;
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora span {
+    animation: none;
+  }
 }
 
 /* ── /edit: delt skjerm ───────────────────────────────────────────────────── */
@@ -250,27 +361,15 @@ a:hover {
   flex-direction: column;
   border-right: 1px solid var(--line);
   min-width: 0;
-  /* Uten min-height: 0 vokser griden forbi 100vh og .q-body slutter å
-     scrolle — hele skjemaet står under hverandre og er høyere enn ruta. */
+  /* Samme bevegelige gradient som forsiden. `isolation` holder flatene over
+     ruta sin egen bakgrunn men under skjemaet, `overflow` klipper dem i kanten. */
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  /* Uten min-height: 0 vokser griden forbi 100vh og skjemaets scrollflate
+     slutter å scrolle — alt står under hverandre og er høyere enn ruta. */
   min-height: 0;
-  background: var(--bg);
-}
-
-.edit-header {
-  padding: 1.5rem 2rem 1rem;
-  border-bottom: 1px solid var(--line);
-}
-.edit-header .home-eyebrow {
-  display: block;
-  margin-bottom: 0.4rem;
-}
-.edit-header h1 {
-  font-size: 1.3rem;
-}
-.edit-header p {
-  margin: 0.45rem 0 0;
-  color: var(--ink-2);
-  font-size: 0.9rem;
+  background: linear-gradient(160deg, #affd86 0%, #9ff3e2 48%, #c8fb89 100%);
 }
 
 .edit-map {
@@ -296,329 +395,9 @@ a:hover {
   color: var(--ink);
 }
 
-/* ── spørreskjema ─────────────────────────────────────────────────────────── */
-
-.q {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.q-section-head {
-  display: flex;
-  align-items: baseline;
-  gap: 0.7rem;
-  margin-bottom: 0.75rem;
-}
-.q-section-num {
-  width: 21px;
-  height: 21px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--ink);
-  color: var(--bg);
-  font-size: 0.72rem;
-  flex: none;
-  transform: translateY(-0.15rem);
-}
-
-/* Kort forklaring øverst i skjemaet, med logoene til samarbeidspartnerne. */
-.q-intro {
-  padding-bottom: 1.7rem;
-  margin-bottom: 2.2rem;
-  border-bottom: 1px solid var(--line);
-}
-.q-intro p {
-  color: var(--ink-2);
-  font-size: 0.94rem;
-  margin: 0 0 0.8rem;
-  max-width: 60ch;
-}
-.q-intro-label {
-  display: block;
-  margin: 1.5rem 0 0.9rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-.q-intro-logos {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1.1rem 1.9rem;
-}
-.q-intro-logos img {
-  /* høyden settes per logo i lib/partners.ts */
-  width: auto;
-  max-width: 160px;
-  object-fit: contain;
-}
-
-/* Alle fire bolkene står under hverandre, så de trenger en tydelig skillelinje. */
-.q-section + .q-section {
-  margin-top: 2.5rem;
-  padding-top: 2.5rem;
-  border-top: 1px solid var(--line);
-}
-
-.bg-accent-blue {
-  background: var(--accent-blue);
-}
-.bg-accent-red {
-  background: var(--accent-red);
-}
-.bg-accent-green {
-  background: var(--accent-green);
-}
-
-.q-section.bg-accent-blue,
-.q-section.bg-accent-red,
-.q-section.bg-accent-green {
-  border-radius: var(--radius);
-  padding: 1.45rem 1.4rem 1.7rem;
-  border-top: none;
-}
-
-.q-section.bg-accent-blue {
-  color: #fff;
-  --ghost-stroke: #fff;
-  --ghost-text: #fff;
-  --ghost-placeholder: rgb(255 255 255 / 0.6);
-  --ghost-active: var(--accent-blue);
-}
-.q-section.bg-accent-red {
-  color: var(--bg);
-  --ghost-stroke: #fff;
-  --ghost-text: #fff;
-  --ghost-placeholder: rgb(255 255 255 / 0.6);
-  --ghost-active: var(--accent-red);
-}
-.q-section.bg-accent-green {
-  color: var(--accent-ink);
-  --ghost-stroke: var(--accent-ink);
-  --ghost-text: var(--accent-ink);
-  --ghost-placeholder: color-mix(in srgb, var(--accent-ink) 55%, transparent);
-  --ghost-active: var(--accent-ink);
-}
-
-.q-section.bg-accent-blue .q-lead,
-.q-section.bg-accent-blue .q-label {
-  color: #fff;
-}
-.q-section.bg-accent-red .q-lead,
-.q-section.bg-accent-red .q-label,
-.q-section.bg-accent-red .q-optional {
-  color: var(--bg);
-}
-.q-section.bg-accent-green .q-lead,
-.q-section.bg-accent-green .q-label {
-  color: var(--accent-ink);
-}
-
-.q-section.bg-accent-blue .q-input,
-.q-section.bg-accent-blue .q-textarea,
-.q-section.bg-accent-blue .q-chip,
-.q-section.bg-accent-red .q-input,
-.q-section.bg-accent-red .q-textarea {
-  background: transparent;
-  border: 3px solid var(--ghost-stroke);
-  border-radius: 22px;
-  color: var(--ghost-text);
-  box-shadow: none;
-}
-
-.q-section.bg-accent-blue .q-input::placeholder,
-.q-section.bg-accent-blue .q-textarea::placeholder,
-.q-section.bg-accent-red .q-input::placeholder,
-.q-section.bg-accent-red .q-textarea::placeholder {
-  color: var(--ghost-placeholder);
-}
-
-.q-section.bg-accent-blue .q-input:focus,
-.q-section.bg-accent-blue .q-textarea:focus,
-.q-section.bg-accent-red .q-input:focus,
-.q-section.bg-accent-red .q-textarea:focus {
-  background: #fff;
-  border-color: var(--ghost-stroke);
-  color: var(--ghost-active);
-  box-shadow: none;
-  outline: none;
-}
-.q-section.bg-accent-blue .q-input:focus::placeholder,
-.q-section.bg-accent-blue .q-textarea:focus::placeholder,
-.q-section.bg-accent-red .q-input:focus::placeholder,
-.q-section.bg-accent-red .q-textarea:focus::placeholder {
-  color: color-mix(in srgb, var(--ghost-active) 60%, transparent);
-}
-
-.q-section.bg-accent-blue .q-chip.is-on {
-  background: #fff;
-  border-color: var(--ghost-stroke);
-  color: var(--ghost-active);
-  box-shadow: none;
-}
-
-.q-section.bg-accent-blue .q-chip:focus,
-.q-section.bg-accent-blue .q-chip:focus-visible,
-.q-section.bg-accent-green .q-chip:focus,
-.q-section.bg-accent-green .q-chip:focus-visible {
-  box-shadow: none;
-  outline: none;
-}
-
-.q-section.bg-accent-green .q-chip {
-  background: transparent;
-  border: 3px solid #fff;
-  border-radius: 22px;
-  color: #fff;
-  box-shadow: none;
-}
-.q-section.bg-accent-green .q-chip.is-on {
-  background: var(--opt-color);
-  border-color: var(--opt-color);
-  color: var(--opt-ink);
-}
-
-.q-section.bg-accent-red .q-lead-note {
-  background: color-mix(in srgb, #fff 16%, transparent);
-  border-left-color: color-mix(in srgb, #fff 50%, transparent);
-}
-.q-section.bg-accent-red .q-error {
-  color: #fff;
-}
-
-.q-waiting {
-  color: var(--ink-3);
-  font-size: 0.9rem;
-  margin: 0.4rem 0 0;
-}
-
-/* Lar Enter i et tekstfelt sende skjemaet, uten å vises noe sted. */
-.q-submit-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  border: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.q-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.75rem 2rem 2.5rem;
-  min-height: 0;
-  position: relative;
-}
-
-.q-section-head h1,
-.q-section-head h2 {
-  font-size: 2.25rem;
-  line-height: 1.2;
-}
-.q-lead {
-  color: var(--ink-2);
-  margin: 0 0 1.4rem;
-  font-size: 0.94rem;
-}
-.q-lead-note {
-  background: var(--surface);
-  border-left: 2px solid var(--line);
-  padding: 0.75rem 0.9rem;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
-
-.q-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
-  gap: 0.6rem;
-}
-
-.q-option {
-  --opt-color: var(--ink);
-  display: flex;
-  align-items: flex-start;
-  gap: 0.7rem;
-  text-align: left;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 0.85rem 0.95rem;
-  color: var(--ink);
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
-}
-.q-option:hover {
-  border-color: var(--opt-color);
-  transform: translateY(-1px);
-}
-.q-option.is-selected {
-  border-color: var(--opt-color);
-  background: var(--bg);
-  box-shadow: inset 0 0 0 1px var(--opt-color);
-}
-.q-option-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--opt-color);
-  margin-top: 0.42rem;
-  flex: none;
-}
-.q-option-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
-}
-.q-option-text strong {
-  font-weight: 500;
-  line-height: 1.35;
-}
-.q-option-text em {
-  font-style: normal;
-  color: var(--ink-3);
-  font-size: 0.82rem;
-  line-height: 1.35;
-}
-.q-option.is-other {
-  border-style: dashed;
-}
-
-/* Bolk 1 lister alle bransjene på én gang, så knappene der er strammere og
-   står uten undertekst — ellers spiser de halve skjemaet. */
-.q-grid-compact {
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 0.45rem;
-}
-.q-grid-compact .q-option {
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 0.8rem;
-}
-.q-grid-compact .q-option-dot {
-  width: 8px;
-  height: 8px;
-  margin-top: 0;
-}
-.q-grid-compact .q-option-text strong {
-  font-size: 0.9rem;
-}
-
-.q-label {
-  display: block;
-  margin: 1.3rem 0 0.4rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--ink-2);
-}
-.q-optional {
-  color: var(--ink-3);
-  font-weight: 400;
-}
+/* ── skjemafelter ─────────────────────────────────────────────────────────── */
+/* Alt som bare gjaldt Questionnaire.tsx er borte — den komponenten står på
+   Tailwind nå. Det som blir igjen her deles med NodeDetail. */
 
 .q-input,
 .q-textarea {
@@ -645,48 +424,19 @@ a:hover {
 .q-input::placeholder,
 .q-textarea::placeholder {
   color: color-mix(in srgb, var(--ink) 38%, transparent);
-  font-weight: 600;
+  font-weight: 500;
   opacity: 1;
 }
 
-.q-counter {
-  display: block;
-  text-align: right;
-  font-size: 0.74rem;
-  color: var(--ink-3);
-  margin-top: 0.25rem;
-}
-
-.q-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.9rem;
-}
-@media (max-width: 620px) {
-  .q-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-.q-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
 .q-chip {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 0.4rem 0.9rem;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink-2);
   transition: all 0.15s ease;
-}
-.q-chip.is-on {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--bg);
 }
 .q-chip.is-static {
   cursor: default;
@@ -696,55 +446,6 @@ a:hover {
   color: var(--danger);
   font-size: 0.88rem;
   margin: 0.9rem 0 0;
-}
-
-.q-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 2rem;
-  border-top: 1px solid var(--line);
-  background: var(--bg);
-}
-.q-nav-hint {
-  margin: 0;
-  color: var(--ink-3);
-  font-size: 0.85rem;
-  min-width: 0;
-}
-.q-nav .btn-primary {
-  flex: none;
-}
-
-.q-done {
-  padding: 3rem 2rem;
-  max-width: 460px;
-}
-.q-done-mark {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  /* Grønn holder seg like sterk i begge temaer, så teksten oppå er alltid mørk. */
-  background: var(--accent-green);
-  color: var(--accent-ink);
-  display: grid;
-  place-items: center;
-  font-size: 1.2rem;
-  margin-bottom: 1.2rem;
-}
-.q-done h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.6rem;
-}
-.q-done p {
-  color: var(--ink-2);
-  margin: 0 0 1.7rem;
-}
-.q-done-actions {
-  display: flex;
-  gap: 0.7rem;
-  flex-wrap: wrap;
 }
 
 /* ── nodekartet ───────────────────────────────────────────────────────────── */
@@ -767,7 +468,7 @@ a:hover {
 
 .nodemap-cluster-label {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   opacity: 0.75;
@@ -876,7 +577,7 @@ a:hover {
 .present-title strong {
   display: block;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
 }
 .present-title span {
   font-size: 0.8rem;
@@ -1052,8 +753,12 @@ a:hover {
   transition: background 0.13s ease, color 0.13s ease;
 }
 .filters-item:hover:not(:disabled) {
-  background: var(--surface);
-  color: var(--ink);
+  background: var(--hover, var(--accent-green));
+  color: var(--hover-ink, var(--ink));
+}
+.filters-item:active:not(:disabled) {
+  background: var(--press);
+  color: var(--bg);
 }
 .filters-item.is-on {
   background: var(--surface-2);
@@ -1225,61 +930,9 @@ a:hover {
   .edit-pane {
     border-right: none;
   }
-  .edit-header {
-    padding: 1.1rem 1.15rem 0.9rem;
-    padding-top: max(1.1rem, env(safe-area-inset-top));
-  }
-  .edit-header h1 {
-    font-size: 1.18rem;
-  }
-  .edit-header p {
-    font-size: 0.86rem;
-  }
-
-  .q-body {
-    padding: 1.3rem 1.15rem 1.8rem;
-  }
-  .q-section + .q-section {
-    margin-top: 2rem;
-    padding-top: 2rem;
-  }
-  .q-intro {
-    margin-bottom: 1.8rem;
-  }
-
   /* Trykkflater: en finger trenger mer enn en musepeker. */
-  .q-option {
-    padding: 0.95rem;
-  }
-  .q-grid-compact .q-option {
-    padding: 0.8rem 0.85rem;
-  }
   .q-chip {
     padding: 0.5rem 0.95rem;
-  }
-
-  /* Bunnlinja stables: hintet over, knappen i full bredde der tommelen er. */
-  .q-nav {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.6rem;
-    padding: 0.9rem 1.15rem;
-    padding-bottom: max(0.9rem, env(safe-area-inset-bottom));
-  }
-  .q-nav-hint {
-    text-align: center;
-  }
-  .q-nav .btn-primary {
-    width: 100%;
-    padding-block: 0.8rem;
-  }
-
-  .q-done {
-    padding: 2.2rem 1.15rem;
-  }
-  .q-done-actions .btn-primary,
-  .q-done-actions .btn-ghost {
-    flex: 1 1 100%;
   }
 
   /* ── /presentation på mobil ──────────────────────────────────────────── */

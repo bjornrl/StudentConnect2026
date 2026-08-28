@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { industryColor, industryLabel, subareaLabel, OTHER_KEY, LEVELS } from "@/lib/taxonomy";
+import { hoverVars } from "@/lib/color";
 import type { PublicSubmission } from "@/lib/types";
 
 type Props = {
@@ -151,10 +152,19 @@ export default function NodeDetail({ submission, onClose }: Props) {
             />
             {error && <p className="q-error">{error}</p>}
             <div className="detail-form-actions">
-              <button className="btn-ghost" onClick={() => setAsking(false)}>
+              <button
+                className="btn-ghost"
+                style={hoverVars(3) as CSSProperties}
+                onClick={() => setAsking(false)}
+              >
                 Avbryt
               </button>
-              <button className="btn-primary" disabled={!canSend || saving} onClick={sendRequest}>
+              <button
+                className="btn-primary"
+                style={hoverVars(6) as CSSProperties}
+                disabled={!canSend || saving}
+                onClick={sendRequest}
+              >
                 {saving ? "Sender…" : "Send forespørsel"}
               </button>
             </div>
@@ -164,7 +174,11 @@ export default function NodeDetail({ submission, onClose }: Props) {
             <p className="detail-hidden-note">
               Bedriften bak denne oppgaven vises ikke offentlig.
             </p>
-            <button className="btn-primary detail-ask" onClick={() => setAsking(true)}>
+            <button
+              className="btn-primary detail-ask"
+              style={hoverVars(2) as CSSProperties}
+              onClick={() => setAsking(true)}
+            >
               Be om kontaktinfo
             </button>
           </>

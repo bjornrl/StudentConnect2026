@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import Aurora from "@/components/Aurora";
 import NodeMap from "@/components/NodeMap";
 import Questionnaire from "@/components/Questionnaire";
 import NodeDetail from "@/components/NodeDetail";
@@ -66,14 +66,7 @@ export default function EditPage() {
   return (
     <main className="edit">
       <section className="edit-pane">
-        <header className="edit-header">
-          {/* <span className="home-eyebrow">Student Connect 2026</span> */}
-          <h1>Student Connect 2026</h1>
-          {/* <p>
-            Alt står på én side. Noden dukker opp i kartet med én gang dere publiserer.{" "}
-            <Link href="/presentation">Se kartet i fullskjerm →</Link>
-          </p> */}
-        </header>
+        <Aurora />
         <Questionnaire
           onPublished={onPublished}
           onIndustryPreview={setPreview}

@@ -13,7 +13,10 @@
  *  Regler:
  *   • `key` må være unik og bør ikke endres etter at data er samlet inn
  *     (nøkkelen lagres i databasen). Endre gjerne `label` fritt.
- *   • `color` styrer fargen på nodene i den bransjen.
+ *   • `color` styrer fargen på nodene i den bransjen — og er samme farge som
+ *     bransjeknappen i skjemaet får på hover og når den er valgt. Verdiene
+ *     er grøntonene fra forsiden (HOVER_GREENS i lib/color.ts). Paletten har
+ *     sju farger og lista her har ti bransjer, så tre par deler farge.
  *   • Hver bransje får automatisk et «Annet» valg med fritekstfelt.
  * ─────────────────────────────────────────────────────────────────────────────
  */
@@ -39,7 +42,7 @@ export const INDUSTRIES: Industry[] = [
     key: "bygg-anlegg",
     label: "Bygg og anlegg",
     hint: "Entreprenør, rådgivende ingeniør, arkitektur, eiendom",
-    color: "#E2725B",
+    color: "#71fbb4",
     subareas: [
       { key: "prosjektering", label: "Prosjektering og teknisk rådgivning" },
       { key: "prosjektledelse", label: "Prosjekt- og byggeledelse" },
@@ -55,7 +58,7 @@ export const INDUSTRIES: Industry[] = [
     key: "energi",
     label: "Energi og kraft",
     hint: "Fornybar, olje og gass, nett, energisystemer",
-    color: "#2E9E7B",
+    color: "#9ff3e2",
     subareas: [
       { key: "fornybar", label: "Fornybar produksjon (vind, sol, vann)" },
       { key: "olje-gass", label: "Olje, gass og undervannsteknologi" },
@@ -70,7 +73,7 @@ export const INDUSTRIES: Industry[] = [
     key: "forsvar",
     label: "Forsvar og sikkerhet",
     hint: "Forsvarsindustri, beredskap, sikkerhet",
-    color: "#4B5D73",
+    color: "#c8fb89",
     subareas: [
       { key: "materiell", label: "Materiell og systemutvikling" },
       { key: "beredskap", label: "Beredskap og krisehåndtering" },
@@ -84,7 +87,7 @@ export const INDUSTRIES: Industry[] = [
     key: "transport",
     label: "Transport og samferdsel",
     hint: "Bane, vei, kollektiv, logistikk",
-    color: "#C9A227",
+    color: "#7fb447",
     subareas: [
       { key: "bane-skinne", label: "Bane og skinnegående transport" },
       { key: "vei-infrastruktur", label: "Vei og infrastruktur" },
@@ -99,7 +102,7 @@ export const INDUSTRIES: Industry[] = [
     key: "helse",
     label: "Helse og medisinsk teknologi",
     hint: "Sykehus, medtech, diagnostikk, helsedata",
-    color: "#B0578D",
+    color: "#6d906e",
     subareas: [
       { key: "medisinsk-utstyr", label: "Medisinsk utstyr og instrumentering" },
       { key: "bildediagnostikk", label: "Bildediagnostikk og sensorikk" },
@@ -113,7 +116,7 @@ export const INDUSTRIES: Industry[] = [
     key: "it-data",
     label: "IT, data og digitalisering",
     hint: "Programvare, data, KI, plattformer",
-    color: "#3A6EA5",
+    color: "#cbf863",
     subareas: [
       { key: "systemutvikling", label: "System- og programvareutvikling" },
       { key: "data-plattform", label: "Dataplattform og integrasjoner" },
@@ -128,7 +131,7 @@ export const INDUSTRIES: Industry[] = [
     key: "industri-automasjon",
     label: "Industri og automasjon",
     hint: "Produksjon, prosess, robotikk, vedlikehold",
-    color: "#7A4E9E",
+    color: "#affd86",
     subareas: [
       { key: "produksjon", label: "Produksjon og prosessindustri" },
       { key: "automasjon-robot", label: "Automasjon og robotikk" },
@@ -143,7 +146,7 @@ export const INDUSTRIES: Industry[] = [
     key: "vann-miljo",
     label: "Vann, miljø og klima",
     hint: "VA, klimatilpasning, miljøteknologi",
-    color: "#2C8CA8",
+    color: "#71fbb4",
     subareas: [
       { key: "vann-avlop", label: "Vann og avløp" },
       { key: "overvann", label: "Overvann og klimatilpasning" },
@@ -157,7 +160,7 @@ export const INDUSTRIES: Industry[] = [
     key: "radgivning-finans",
     label: "Rådgivning og finans",
     hint: "Revisjon, konsulent, økonomi, forretningsutvikling",
-    color: "#8A7A5C",
+    color: "#9ff3e2",
     subareas: [
       { key: "revisjon-regnskap", label: "Revisjon og regnskap" },
       { key: "forretningsradgivning", label: "Forretnings- og strategirådgivning" },
@@ -171,7 +174,7 @@ export const INDUSTRIES: Industry[] = [
     key: "offentlig-utdanning",
     label: "Offentlig sektor og utdanning",
     hint: "Kommune, stat, universitet, interesseorganisasjon",
-    color: "#5E8C4A",
+    color: "#c8fb89",
     subareas: [
       { key: "tjenesteutvikling-off", label: "Tjenesteutvikling og innbyggerdialog" },
       { key: "forvaltning", label: "Forvaltning, regelverk og saksbehandling" },

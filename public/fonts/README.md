@@ -1,20 +1,20 @@
-# Neue Haas Grotesk
+# Aeonik
 
-Fonten er lisensiert og ligger derfor ikke i repoet. Legg woff2-filene her, med
-nøyaktig disse navnene — `@font-face`-reglene øverst i `app/globals.css` peker
-på dem:
+CoType Foundry. Webfontene som siden laster:
 
-| Fil | Vekt |
-| --- | --- |
-| `NeueHaasGrotesk-Roman.woff2` | 400 (brødtekst) |
-| `NeueHaasGrotesk-Medium.woff2` | 500–600 (mellomtitler, knapper) |
-| `NeueHaasGrotesk-Bold.woff2` | 700 (overskrifter) |
+| Fil | Vekt | Brukes til |
+| --- | --- | --- |
+| `Aeonik-Light.woff2` | 300 | display, etiketter, chips |
+| `Aeonik-Regular.woff2` | 400 | brødtekst og skjemafelt |
+| `Aeonik-Medium.woff2` | 500 | ingresser, overskrifter ellers i appen, knapper |
 
-Har du bare otf/ttf, konverter til woff2 først — det er rundt en tredjedel av
-størrelsen, og er det eneste formatet som er verdt å sende over nett.
+Familien har ingen 600. Der stilarket tidligere ba om 600 står det nå 500 —
+ellers ville nettleseren syntetisert en halvfet variant.
 
-Mangler filene, faller siden ned på Helvetica Neue. Det er samme grotesk-slekt,
-så oppsettet flytter seg knapt — men det er ikke fonten deres.
+Aeonik er en kommersiell font. Sjekk at lisensen deres dekker webbruk før
+dette går i produksjon; filene ligger åpent under `/fonts/`.
 
-Sjekk lisensen før filene commites til et offentlig repo. Skal de ikke ligge i
-git, kan de lastes opp direkte i Netlify eller legges bak en privat kilde.
+## Tidligere: Apfel Grotezk
+
+`ApfelGrotezk-*` og `Apfel Grotezk-Regular.ufo/` ligger fortsatt i mappa, men
+er ikke lenger referert fra `app/globals.css`. De kan slettes.
