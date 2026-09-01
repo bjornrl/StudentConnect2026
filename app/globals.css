@@ -277,14 +277,21 @@
    på skjermen mens topp og bunn blir liggende i kantene uansett vindushøyde. */
 .home {
   min-height: 100%;
+  /* dvh følger den synlige høyden når adresselinja på mobil glir inn og ut. */
+  min-height: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr auto;
   justify-items: center;
-  gap: 2.5rem;
+  /* Radavstanden er også det som skyver midtraden oppover: alt som ligger
+     under den er reservert plass. Strammere her = overskriften lenger ned. */
+  gap: 2rem;
   padding: 1.75rem clamp(1.25rem, 5vw, 3rem) 2.5rem;
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  /* `overflow: hidden` klippet alt som ikke fikk plass — på en telefon ble
+     logoene og finskriften utilgjengelige. Bare den vannrette aksen klippes nå;
+     `clip` (ikke `hidden`) lar den loddrette være synlig og rullbar. */
+  overflow-x: clip;
   /* Nesten flat. Den mettede grønngradienten er byttet mot husets egen lyse
      flate, med et grønnskjær igjen nederst — nok til at flaten ikke er død,
      lite nok til at typografien er det man ser først. */
@@ -294,8 +301,14 @@
 }
 
 /* Auroraen deles med .edit-pane, der den fortsatt skal stå i full styrke.
-   Nedtoningen gjelder derfor bare forsiden. */
+   Nedtoningen gjelder derfor bare forsiden.
+
+   `fixed` fordi forsiden ikke lenger klipper loddrett: flatene stikker 25 %
+   utenfor kanten, og som `absolute` ville de lagt til rulleplass under
+   innholdet. Fixed-elementer regnes ikke med i rulleflaten, og siden `.home`
+   ikke har noen transform er det vinduet de måler seg mot. */
 .home .aurora {
+  position: fixed;
   opacity: 0.13;
 }
 
@@ -393,6 +406,23 @@
   text-align: center;
 }
 
+/* Blokka sentreres om sin egen midte, og alt som står under overskriften —
+   handlingen, finskriften — drar den midten nedover. Overskriften havner
+   dermed godt over midten av siden. Her skyves hele blokka ned igjen.
+   `transform` er med vilje: den endrer ikke layouten, så raden er like høy som
+   før og lave vinduer får ikke innholdet dyttet ned i partnerlogoene. Under
+   700 px høyde er det ikke plass til å flytte noe, og da står den i ro. */
+/* Hvor mye som er trygt å skyve avhenger av hvor mye slark raden har, og den
+   krymper både når vinduet blir lavere og når det blir smalere (teksten brekker
+   på flere linjer). Derfor står forskyvningen bare på når det er rom for den i
+   begge retninger — ellers sentreres blokka som før, uten å legge seg oppå
+   partnerlogoene. */
+@media (min-width: 700px) and (min-height: 700px) {
+  .home-hero {
+    transform: translateY(clamp(0rem, 5vh, 4rem));
+  }
+}
+
 .home-eyebrow {
   margin: 0;
   font-size: 0.78rem;
@@ -410,20 +440,24 @@
   font-size: clamp(2.5rem, 6.8vw, 5rem);
   font-weight: 300;
   line-height: 0.95;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.05em;
   text-wrap: balance;
   color: var(--ink);
 }
 
 /* Ingressen er ett trinn ned fra tittelen, men fortsatt i full ink — det er
-   den setningen som forklarer hva siden ber om. Samme bredde som tittelen,
-   ikke et smalere mål i `ch`. */
+   den setningen som forklarer hva siden ber om.
+
+   `max-width`, ikke `width`: et fast `70ch` er ~830 px og kan ikke krympe, så
+   den sprengte skjermen på en telefon. Med `width: 100%` og et tak følger den
+   spalten ned. */
 .home-lead {
   margin: 1.25rem 0 0;
-  width: 70ch;
+  width: 120%;
+  max-width: 70ch;
   font-size: clamp(1.08rem, 1.55vw, 1.32rem);
   font-weight: 400;
-  line-height: 1.45;
+  line-height: 1.2;
   text-wrap: balance;
   color: var(--ink);
 }
@@ -489,11 +523,19 @@
    holder. Samtykket skal være lesbar finskrift, ikke grå pynt. */
 .home-fineprint {
   margin: 1.15rem 0 0;
-  max-width: 62ch;
+  /* Bredere enn før: på 62ch ble de to avsnittene sju linjer til sammen og
+     skjøv overskriften oppover. */
+  width: 100%;
+  max-width: 92ch;
   font-size: 0.8rem;
   line-height: 1.5;
   text-wrap: pretty;
   color: var(--ink-2);
+}
+/* Avsnitt to hører til det første — de trenger ikke like mye luft mellom seg
+   som det første trenger ned fra knappen. */
+.home-fineprint + .home-fineprint {
+  margin-top: 0.7rem;
 }
 
 /* ── forsiden: partnere ───────────────────────────────────────────────────── */
@@ -503,7 +545,7 @@
   width: 100%;
   flex-direction: column;
   align-items: center;
-  gap: 1.15rem;
+  gap: 0.85rem;
 }
 
 .home-partners-label {
@@ -520,7 +562,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem 2.75rem;
+  gap: 1.25rem 2.5rem;
 }
 
 /* Logoene skal kjennes igjen, ikke trekke blikket vekk fra handlingen. De sterke
@@ -541,19 +583,51 @@
 
 @media (max-width: 620px) {
   .home {
-    gap: 2.25rem;
+    gap: 1.75rem;
+    padding: 1.25rem 1.25rem 2rem;
+  }
+  /* Vinduet er for smalt til at overskriften kan holde desktop-gulvet på
+     2.5rem — den ble stående og sprenge spalten. Her styrer vw-leddet. */
+  .home-title {
+    font-size: clamp(2rem, 10.5vw, 3.1rem);
+    letter-spacing: -0.03em;
+  }
+  .home-lead {
+    margin-top: 1rem;
+    font-size: 1.02rem;
   }
   .home-actions {
     width: 100%;
+    margin-top: 1.6rem;
     flex-direction: column;
     gap: 1rem;
   }
+  /* Etiketten er lang; på 320 px brakk den i to med pila hengende for seg
+     selv. Litt mindre grad og strammere sideluft holder den på én linje. */
   .home-cta {
     width: 100%;
     justify-content: center;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    font-size: 0.98rem;
+  }
+  .home-fineprint {
+    font-size: 0.78rem;
   }
   .home-logos {
-    gap: 1.25rem 2rem;
+    gap: 1.1rem 1.75rem;
+  }
+  /* Fem logoer på tvers av en telefon blir frimerker uansett; de får litt
+     mindre tak hver, så raden brekker på to linjer i stedet for fire. */
+  .home-logos img {
+    max-width: 104px;
+  }
+}
+
+/* Under ~380 px står «Oslo · 2026» i veien for avsenderen i topplinja. */
+@media (max-width: 380px) {
+  .home-meta {
+    display: none;
   }
 }
 

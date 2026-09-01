@@ -34,7 +34,7 @@ const CARD =
 /* Overskriftsrekka i et kort. Ingressen er ikke lenger `font-medium` — den
    konkurrerte med overskriften over seg. */
 const EYEBROW = "w-full text-eyebrow font-normal tracking-[0.12em] uppercase text-ink/60";
-const DISPLAY = "mt-[0.5rem] w-full text-display font-light text-ink [overflow-wrap:break-word]";
+const DISPLAY = "mt-[0.5rem] w-full text-display font-medium text-ink [overflow-wrap:break-word]";
 const LEAD = "m-0 mt-[0.55rem] w-full text-lead font-normal text-ink-2 [overflow-wrap:break-word]";
 
 /** Feltbolken under ingressen. Den store luften over er trinnskillet. */
@@ -319,7 +319,7 @@ export default function Questionnaire({
             </span>
             {/* Ett trinn større enn kortoverskriftene under — sidens tittel
                 skal ikke være like tung som bolkene den samler. */}
-            <h1 className="mt-[0.5rem] w-full text-[clamp(2rem,5.6cqi,3.4rem)] leading-[1.02] font-light tracking-[-0.02em] text-ink [overflow-wrap:break-word]">
+            <h1 className="mt-[0.5rem] w-full text-[clamp(2rem,5.6cqi,3.4rem)] leading-[0.95] font-medium tracking-[-0.02em] text-ink [overflow-wrap:break-word]">
               Meld inn en utfordring
             </h1>
             <p className="m-0 mt-[0.7rem] w-full text-lead font-normal text-ink-2 [overflow-wrap:break-word]">
@@ -328,6 +328,7 @@ export default function Questionnaire({
               forespørsel gjennom oss — kontaktinformasjonen deres vises aldri offentlig.
             </p>
           </section>
+          <PartnerRow />
 
           {/* ── 1. utfordringen ───────────────────────────────────────────── */}
           <section className={CARD}>
@@ -373,11 +374,10 @@ export default function Questionnaire({
                   <button
                     key={l.key}
                     type="button"
-                    className={`${CHIP} ${
-                      levels.includes(l.key)
-                        ? "border-accent-green bg-accent-green text-ink"
-                        : CHIP_OFF
-                    }`}
+                    className={`${CHIP} ${levels.includes(l.key)
+                      ? "border-accent-green bg-accent-green text-ink"
+                      : CHIP_OFF
+                      }`}
                     style={hoverVars(i) as CSSProperties}
                     aria-pressed={levels.includes(l.key)}
                     onClick={() => toggleLevel(l.key)}
@@ -466,11 +466,10 @@ export default function Questionnaire({
                   <button
                     key={ind.key}
                     type="button"
-                    className={`${CHIP} ${
-                      industryKey === ind.key
-                        ? "border-[var(--opt-color)] bg-[var(--opt-color)] text-[var(--opt-ink)]"
-                        : CHIP_OFF
-                    }`}
+                    className={`${CHIP} ${industryKey === ind.key
+                      ? "border-[var(--opt-color)] bg-[var(--opt-color)] text-[var(--opt-ink)]"
+                      : CHIP_OFF
+                      }`}
                     style={
                       {
                         /* Hover, valgt tilstand og prikken i kartet leser alle
@@ -496,7 +495,7 @@ export default function Questionnaire({
             </div>
           </section>
 
-          <PartnerRow />
+
 
           {/* Publiseringslinja følger med nedover. Skjemaet er langt nok til at
               knappen ellers ligger utenfor skjermen hele veien, og da er det

@@ -30,7 +30,7 @@ export default function Home() {
 
       <header className="home-bar">
         <span className="home-wordmark">Koblingspunkt</span>
-        <span className="home-meta">Oslo · 2026</span>
+        {/* <span className="home-meta">Oslo · 2026</span> */}
       </header>
 
       <div className="home-hero">
@@ -58,12 +58,8 @@ export default function Home() {
         {/* Finskriften bærer samtykket, så den skal stå — men under handlingen
             og i minste trinn, ikke som et tredje avsnitt på linje med ingressen
             slik den gjorde før. */}
-        <p className="home-fineprint">
-          Koblingspunkt matcher utfordringene med studenter og studentteam. De kan skape nye
-          løsninger, gi nye perspektiver og energi inn i innovasjonsarbeidet deres.
-        </p>
-        <p className="home-fineprint">
-          Det er uforpliktende å registrere. Hva som meldes inn, og av hvem, er kun tilgjengelig for
+        <p className="home-fineprint">Koblingspunkt matcher utfordringene med studenter og studentteam. De kan skape nye
+          løsninger, gi nye perspektiver og energi inn i innovasjonsarbeidet deres. Det er uforpliktende å registrere. Hva som meldes inn, og av hvem, er kun tilgjengelig for
           oss i Koblingspunkt — og ved å registrere godkjenner dere at vi kan ta kontakt for å bidra
           med studenter som kan løse utfordringen.
         </p>
