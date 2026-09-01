@@ -1,38 +1,54 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { INDUSTRIES, LEVELS, OTHER_KEY } from "@/lib/taxonomy";
 import { contrastingInk, hoverVars } from "@/lib/color";
-import { PARTNERS, type Partner } from "@/lib/partners";
+import { PARTNERS } from "@/lib/partners";
 import type { PublicSubmission } from "@/lib/types";
 
-const OSLO_LOGO_SRC = "/logos/oslo-kommune.png";
-const osloPartner = PARTNERS.find((p) => p.src === OSLO_LOGO_SRC);
-
 /* ─────────────────────────────────────────────────────────────────────────────
-   Figma «Editorial» (node 129:170).
+   Skjemaet.
 
-   Målene i designet er px på et 2013 px bredt artboard. De ligger som
-   cqi-baserte clamp()-tokens i globals.css (text-display, p-card, gap-stack …)
-   og regnes mot skjemaets egen bredde — derfor `@container` på scrollflaten
-   under. Skjemaruta er halve skjermen på desktop og hele på mobil, så alt her
-   må holde seg innenfor den beholderen: cqi-verdier utenfor `@container` faller
-   tilbake på vindusbredden og blir feil.
+   Målene ligger som cqi-baserte clamp()-tokens i globals.css (text-display,
+   p-card, gap-stack …) og regnes mot skjemaets egen bredde — derfor
+   `@container` på scrollflaten under. Skjemaruta er halve skjermen på desktop
+   og hele på mobil, så alt her må holde seg innenfor den beholderen:
+   cqi-verdier utenfor `@container` faller tilbake på vindusbredden og blir feil.
+
+   Hierarkiet følger forsiden: innenfor et kort er avstandene med vilje ujevne.
+   Ingressen ligger tett på overskriften fordi den hører til den, mens feltene
+   får tydelig mer luft over seg — luften sier hvor et nytt trinn begynner. En
+   jevn `gap` gjorde tidligere alle ledd like viktige.
+
+   Klassestrengene må stå som hele literaler — Tailwind leser kildefila som
+   tekst og finner ikke klasser satt sammen med `${...}`.
    ──────────────────────────────────────────────────────────────────────────── */
 
-/** Det hvite kortet. Tre av dem i designet. */
-const CARD = "flex w-full flex-col items-start gap-card rounded-card bg-card p-card";
+/** Det hvite kortet. Ett per trinn. */
+const CARD =
+  "flex w-full flex-col items-start rounded-card border border-ink/10 bg-card p-card " +
+  "shadow-[0_1px_2px_rgba(16,17,16,0.04),0_10px_30px_rgba(16,17,16,0.06)]";
 
-/** Overskriften over hver bolk: «Utfordringen», «Folka», «Bransjen». */
-const EYEBROW = "w-full text-eyebrow font-light text-ink/50";
-const DISPLAY = "w-full text-display font-light text-ink [overflow-wrap:break-word]";
-const LEAD = "m-0 w-full text-lead font-medium text-ink [overflow-wrap:break-word]";
+/* Overskriftsrekka i et kort. Ingressen er ikke lenger `font-medium` — den
+   konkurrerte med overskriften over seg. */
+const EYEBROW = "w-full text-eyebrow font-normal tracking-[0.12em] uppercase text-ink/60";
+const DISPLAY = "mt-[0.5rem] w-full text-display font-light text-ink [overflow-wrap:break-word]";
+const LEAD = "m-0 mt-[0.55rem] w-full text-lead font-normal text-ink-2 [overflow-wrap:break-word]";
+
+/** Feltbolken under ingressen. Den store luften over er trinnskillet. */
+const FIELDS = "mt-[1.6rem] flex w-full flex-col gap-[1.15rem]";
+const GROUP = "mt-[1.6rem] flex w-full flex-col items-start gap-field";
+
+/* Etikettene står nå permanent over feltet. Placeholder alene forsvinner idet
+   man begynner å skrive, og da er det ikke lenger mulig å se hva raden var. */
+const FIELD_LABEL = "text-[0.75rem] font-normal tracking-[0.1em] uppercase text-ink/65";
 
 /* Feltene er en strek under teksten, ikke en boks. Selve inputen er usynlig —
    raden rundt den bærer streken, så den ligger i ro når teksten vokser. */
 const FIELD_ROW =
-  "relative flex w-full items-start border-b-2 border-ink/25 py-field " +
+  "relative flex w-full items-start border-b-2 border-ink/20 pb-[0.5rem] " +
   "after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 " +
   "after:origin-left after:bg-accent-green after:content-[''] " +
   "after:transition-transform after:duration-500 after:ease-out " +
@@ -45,21 +61,24 @@ function fieldRow(filled: boolean) {
 }
 const FIELD =
   "min-w-0 flex-1 border-0 bg-transparent text-field font-normal text-ink " +
-  "placeholder:text-ink/50 outline-none focus:outline-none focus-visible:outline-none";
+  "placeholder:text-ink/40 outline-none focus:outline-none focus-visible:outline-none";
 
 /* Fargene står ikke her, men i av/på-grenene: Tailwind sorterer utilities etter
    egenskap og ikke etter rekkefølgen i strengen, så en `bg-card` her ville slått
-   «på»-fargen uansett hvor den kom. */
+   «på»-fargen uansett hvor den kom.
+   Brikkene var tidligere like store som kortene rundt seg — `p-card` og
+   `text-field` ga dem 60 px høyde. De er tilleggsopplysninger, ikke innhold, og
+   står nå som brikker. */
 const CHIP =
-  "flex shrink-0 flex-col items-start rounded-card border p-card text-field font-light " +
-  "transition-colors duration-150 ease-[ease]";
+  "flex shrink-0 items-center rounded-full border px-[0.95rem] py-[0.48rem] " +
+  "text-[0.95rem] font-normal transition-colors duration-150 ease-[ease] " +
+  /* En finger trenger mer enn en musepeker: ~44 px trykkflate på mobil. */
+  "max-mobile:px-[1.05rem] max-mobile:py-[0.66rem]";
 const CHIP_OFF =
-  "border-ink/70 bg-card text-ink/70 " +
+  "border-ink/25 bg-card text-ink-2 " +
   "hover:border-[var(--hover)] hover:bg-[var(--hover)] hover:text-[var(--hover-ink)] " +
   "active:border-press active:bg-press active:text-bg";
 
-const GROUP = "flex w-full flex-col items-start gap-field";
-const GROUP_LABEL = "w-full text-field font-normal text-ink";
 const CHIP_ROW = "flex w-full flex-wrap content-start items-start gap-chip";
 
 /* Bunnlinja ligger utenfor `@container`, så den holder seg til faste rem. */
@@ -76,16 +95,59 @@ const BTN_GHOST =
   "enabled:active:border-press enabled:active:bg-press enabled:active:text-bg " +
   "disabled:cursor-not-allowed disabled:opacity-30";
 
-function PartnerLogo({ partner }: { partner: Partner }) {
+/** «01 / Utfordringen» — tallet gir bolkene rekkefølge, ikke bare navn. */
+function StepEyebrow({ step, children }: { step: string; children: ReactNode }) {
   return (
-    <Image
-      className="w-auto max-w-[160px] object-contain"
-      src={partner.src}
-      alt={partner.alt}
-      width={partner.width}
-      height={partner.height}
-      style={{ height: partner.displayHeight }}
-    />
+    <span className={EYEBROW}>
+      <span className="font-medium text-ink/85">{step}</span>
+      <span className="mx-[0.55em] text-ink/25">/</span>
+      {children}
+    </span>
+  );
+}
+
+/** Etikett + understreket felt. Etiketten blir stående når feltet fylles ut. */
+function Field({
+  id,
+  label,
+  filled,
+  children,
+}: {
+  id: string;
+  label: string;
+  filled: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex w-full flex-col gap-[0.3rem]">
+      <label className={FIELD_LABEL} htmlFor={id}>
+        {label}
+      </label>
+      <div className={fieldRow(filled)}>{children}</div>
+    </div>
+  );
+}
+
+/* Logoene skal kjennes igjen, ikke konkurrere med feltene. Gråtoner i hvile,
+   full farge når man ser nærmere etter — samme behandling som på forsiden. */
+function PartnerRow() {
+  return (
+    <div className="flex w-full flex-col items-start gap-[0.9rem]">
+      <span className={FIELD_LABEL}>I samarbeid med</span>
+      <div className="group flex flex-wrap items-center gap-x-[1.75rem] gap-y-[1rem]">
+        {PARTNERS.map((p) => (
+          <Image
+            key={p.src}
+            className="w-auto max-w-[130px] object-contain opacity-70 grayscale transition duration-200 group-hover:opacity-100 group-hover:grayscale-0"
+            src={p.src}
+            alt={p.alt}
+            width={p.width}
+            height={p.height}
+            style={{ height: p.displayHeight }}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -147,7 +209,7 @@ export default function Questionnaire({
      rett ut hva som mangler før man kan publisere. */
   const missing: string[] = [];
   if (title.trim().length < 3) missing.push("tittel");
-  if (challenge.trim().length < 10) missing.push("beskrivelse av utfordringen");
+  if (challenge.trim().length < 10) missing.push("beskrivelse");
   if (companyName.trim().length < 2) missing.push("bedrift");
   if (!contactEmail.trim().includes("@")) missing.push("e-post");
   if (!industryKey) missing.push("bransje");
@@ -199,14 +261,14 @@ export default function Questionnaire({
   if (done && showReceipt) {
     return (
       <div className="@container overflow-y-auto">
-        <section className={`${CARD} m-[max(2rem,5cqi)]`}>
+        <section className={`${CARD} m-[max(1.5rem,4cqi)]`}>
           <span className={EYEBROW}>Publisert</span>
           <h2 className={DISPLAY}>Oppgaven er publisert</h2>
           <p className={LEAD}>
             Den ligger nå som en node i kartet ved siden av. Kontaktinformasjonen deres vises ikke
             offentlig — studenter må be om den gjennom oss.
           </p>
-          <div className="flex flex-wrap gap-chip">
+          <div className="mt-[1.6rem] flex flex-wrap gap-[0.6rem]">
             <button
               className={`${BTN_PRIMARY} max-mobile:grow max-mobile:basis-full`}
               style={hoverVars(0) as CSSProperties}
@@ -240,220 +302,222 @@ export default function Questionnaire({
       >
         {/* Luften og avstanden mellom kortene står her, ikke på <form>: cqi på
             selve beholder-elementet ville målt seg mot vinduet. */}
-        <div className="flex flex-col gap-stack p-[max(2rem,5cqi)]">
-        {/* ── hva er dette ───────────────────────────────────────────────── */}
-        <section className="flex w-full flex-col items-start gap-card">
-          <h1 className="w-full text-display font-medium text-ink [overflow-wrap:break-word]">Student Connect 2026</h1>
-          <p className="m-0 w-full text-field leading-[1.45] font-normal text-ink [overflow-wrap:break-word]">
-            Student Connect 2026 kobler bedrifter med studenter som leter etter noe å skrive om.
-            Meld inn en utfordring, et spørsmål eller et tema dere gjerne skulle visst mer om — så
-            blir det en node i et felles kart, gruppert etter bransje og koblet til andre som jobber
-            med det samme.
-          </p>
-          <p className="m-0 w-full text-field leading-[1.45] font-normal text-ink [overflow-wrap:break-word]">
-            Studenter som finner noe de vil ta tak i, sender en forespørsel gjennom oss.
-            Kontaktinformasjonen deres vises aldri offentlig i kartet.
-          </p>
+        <div className="flex flex-col gap-stack p-[max(1.5rem,4cqi)]">
+          {/* ── innledning ───────────────────────────────────────────────── */}
+          {/* Kort. Den som er her har allerede lest forsiden og klikket seg
+              hit; oppgaven nå er å fylle ut, ikke å bli overtalt på nytt. */}
+          <section className="flex w-full flex-col items-start">
+            <Link
+              href="/"
+              className="text-[0.85rem] font-medium text-ink no-underline transition-colors duration-150 hover:text-ink-2"
+            >
+              ← Koblingspunkt
+            </Link>
 
-          <div className={GROUP}>
-            <span className={GROUP_LABEL}>Samarbeidspartnere</span>
-            <div className="flex w-full items-center justify-between">
-              {PARTNERS.filter((p) => p.src !== OSLO_LOGO_SRC).map((p) => (
-                <PartnerLogo key={p.src} partner={p} />
-              ))}
+            <span className="mt-[1.4rem] w-full text-eyebrow font-normal tracking-[0.12em] uppercase text-ink/60">
+              Student Connect 2026
+            </span>
+            {/* Ett trinn større enn kortoverskriftene under — sidens tittel
+                skal ikke være like tung som bolkene den samler. */}
+            <h1 className="mt-[0.5rem] w-full text-[clamp(2rem,5.6cqi,3.4rem)] leading-[1.02] font-light tracking-[-0.02em] text-ink [overflow-wrap:break-word]">
+              Meld inn en utfordring
+            </h1>
+            <p className="m-0 mt-[0.7rem] w-full text-lead font-normal text-ink-2 [overflow-wrap:break-word]">
+              Det dere melder inn blir en node i et felles kart, gruppert etter bransje og koblet
+              til andre som jobber med det samme. Studenter som vil ta tak i noe, sender en
+              forespørsel gjennom oss — kontaktinformasjonen deres vises aldri offentlig.
+            </p>
+          </section>
+
+          {/* ── 1. utfordringen ───────────────────────────────────────────── */}
+          <section className={CARD}>
+            <StepEyebrow step="01">Utfordringen</StepEyebrow>
+            <h2 className={DISPLAY}>Hva vil dere utforske?</h2>
+            <p className={LEAD}>
+              En utfordring, et spørsmål eller et tema dere gjerne skulle visst mer om. Det trenger
+              ikke være ferdig formulert som en oppgave.
+            </p>
+
+            <div className={FIELDS}>
+              <Field id="title" label="Kort tittel" filled={title.trim().length > 0}>
+                <input
+                  id="title"
+                  className={FIELD}
+                  placeholder="Ombruk av stål i rehabiliteringsprosjekter"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={120}
+                />
+              </Field>
+
+              <Field
+                id="challenge"
+                label="Beskriv utfordringen"
+                filled={challenge.trim().length > 0}
+              >
+                <textarea
+                  id="challenge"
+                  className={`${FIELD} min-h-editor resize-none leading-[1.45]`}
+                  placeholder="Hva er problemet, hvorfor er det interessant, og hva slags svar hadde vært nyttig for dere?"
+                  value={challenge}
+                  onChange={(e) => setChallenge(e.target.value)}
+                  maxLength={4000}
+                />
+              </Field>
             </div>
-          </div>
-          {osloPartner && (
+
             <div className={GROUP}>
-              <span className={GROUP_LABEL}>i samarbeid med</span>
-              <div className="flex flex-wrap items-center gap-x-card gap-y-field">
-                <PartnerLogo partner={osloPartner} />
+              <span className={FIELD_LABEL}>Dette kan være en</span>
+              <div className={CHIP_ROW}>
+                {LEVELS.map((l, i) => (
+                  <button
+                    key={l.key}
+                    type="button"
+                    className={`${CHIP} ${
+                      levels.includes(l.key)
+                        ? "border-accent-green bg-accent-green text-ink"
+                        : CHIP_OFF
+                    }`}
+                    style={hoverVars(i) as CSSProperties}
+                    aria-pressed={levels.includes(l.key)}
+                    onClick={() => toggleLevel(l.key)}
+                  >
+                    {l.label}
+                  </button>
+                ))}
               </div>
             </div>
-          )}
-        </section>
+          </section>
 
-        {/* ── 1. utfordringen ─────────────────────────────────────────────── */}
-        <section className={CARD}>
-          <span className={EYEBROW}>Utfordringen</span>
-          <h2 className={DISPLAY}>Hva vil dere utforske?</h2>
-          <p className={LEAD}>
-            En utfordring, et spørsmål eller et tema dere gjerne skulle visst mer om. Det trenger
-            ikke være ferdig formulert som en oppgave.
-          </p>
+          {/* ── 2. kontakt ────────────────────────────────────────────────── */}
+          <section className={CARD}>
+            <StepEyebrow step="02">Folka</StepEyebrow>
+            <h2 className={DISPLAY}>Hvem er dere?</h2>
+            <p className={LEAD}>
+              Dette vises ikke i kartet. Studenter som vil ta kontakt sender en forespørsel, og vi
+              formidler den videre til dere.
+            </p>
 
-          <div className={fieldRow(title.trim().length > 0)}>
-            <label className="sr-only" htmlFor="title">
-              Kort tittel
-            </label>
-            <input
-              id="title"
-              className={FIELD}
-              placeholder="Ombruk av stål i rehabiliteringsprosjekter"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              maxLength={120}
-            />
-          </div>
+            <div className={FIELDS}>
+              <Field id="company" label="Bedrift" filled={companyName.trim().length > 0}>
+                <input
+                  id="company"
+                  className={FIELD}
+                  placeholder="Navnet på bedriften"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                />
+              </Field>
 
-          <div className={fieldRow(challenge.trim().length > 0)}>
-            <label className="sr-only" htmlFor="challenge">
-              Beskriv utfordringen
-            </label>
-            <textarea
-              id="challenge"
-              className={`${FIELD} min-h-editor resize-none leading-[1.35]`}
-              placeholder="Hva er problemet, hvorfor er det interessant, og hva slags svar hadde vært nyttig for dere?"
-              value={challenge}
-              onChange={(e) => setChallenge(e.target.value)}
-              maxLength={4000}
-            />
-          </div>
+              <Field id="cname" label="Kontaktperson" filled={contactName.trim().length > 0}>
+                <input
+                  id="cname"
+                  className={FIELD}
+                  placeholder="Fornavn og etternavn"
+                  value={contactName}
+                  onChange={(e) => setContactName(e.target.value)}
+                />
+              </Field>
 
-          <div className={GROUP}>
-            <span className={GROUP_LABEL}>Dette kan være en:</span>
-            <div className={CHIP_ROW}>
-              {LEVELS.map((l, i) => (
-                <button
-                  key={l.key}
-                  type="button"
-                  className={`${CHIP} ${
-                    levels.includes(l.key) ? "border-accent-green bg-accent-green text-ink" : CHIP_OFF
-                  }`}
-                  style={hoverVars(i) as CSSProperties}
-                  onClick={() => toggleLevel(l.key)}
-                >
-                  {l.label}
-                </button>
-              ))}
+              <Field id="cmail" label="E-post" filled={contactEmail.trim().length > 0}>
+                <input
+                  id="cmail"
+                  className={FIELD}
+                  type="email"
+                  placeholder="navn@bedrift.no"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                />
+              </Field>
+
+              <Field
+                id="cphone"
+                label="Telefon (valgfritt)"
+                filled={contactPhone.trim().length > 0}
+              >
+                <input
+                  id="cphone"
+                  className={FIELD}
+                  placeholder="+47 000 00 000"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                />
+              </Field>
             </div>
-          </div>
-        </section>
 
-        {/* ── 2. kontakt ──────────────────────────────────────────────────── */}
-        {/* Skyggen ligger bare på dette kortet i Figma-fila. */}
-        <section className={`${CARD} shadow-[0_1.14cqi_0.6cqi_rgba(0,0,0,0.25)]`}>
-          <span className={EYEBROW}>Folka</span>
-          <h2 className={DISPLAY}>Hvem er dere?</h2>
-          <p className={LEAD}>
-            Dette vises ikke i kartet. Studenter som vil ta kontakt sender en forespørsel, og vi
-            formidler den videre til dere.
-          </p>
+            {error && (
+              <p className="m-0 mt-[1.1rem] w-full text-[0.9rem] font-normal text-danger">
+                {error}
+              </p>
+            )}
+          </section>
 
-          <div className={fieldRow(companyName.trim().length > 0)}>
-            <label className="sr-only" htmlFor="company">
-              Bedrift
-            </label>
-            <input
-              id="company"
-              className={FIELD}
-              placeholder="Bedrift"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-            />
-          </div>
+          {/* ── 3. bransje ────────────────────────────────────────────────── */}
+          <section className={CARD}>
+            <StepEyebrow step="03">Bransjen</StepEyebrow>
+            <h2 className={DISPLAY}>Hvilken bransje jobber dere innenfor?</h2>
+            <p className={LEAD}>
+              Velg den som passer best — den bestemmer hvor i kartet dere havner.
+            </p>
 
-          <div className={fieldRow(contactName.trim().length > 0)}>
-            <label className="sr-only" htmlFor="cname">
-              Kontaktperson
-            </label>
-            <input
-              id="cname"
-              className={FIELD}
-              placeholder="Kontaktperson"
-              value={contactName}
-              onChange={(e) => setContactName(e.target.value)}
-            />
-          </div>
-
-          <div className={fieldRow(contactEmail.trim().length > 0)}>
-            <label className="sr-only" htmlFor="cmail">
-              E-post
-            </label>
-            <input
-              id="cmail"
-              className={FIELD}
-              type="email"
-              placeholder="E-post"
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
-            />
-          </div>
-
-          <div className={fieldRow(contactPhone.trim().length > 0)}>
-            <label className="sr-only" htmlFor="cphone">
-              Telefon (valgfritt)
-            </label>
-            <input
-              id="cphone"
-              className={FIELD}
-              placeholder="Telefon (valgfritt)"
-              value={contactPhone}
-              onChange={(e) => setContactPhone(e.target.value)}
-            />
-          </div>
-
-          {error && <p className="m-0 w-full text-field font-normal text-danger">{error}</p>}
-        </section>
-
-        {/* ── 3. bransje ──────────────────────────────────────────────────── */}
-        <section className={CARD}>
-          <span className={EYEBROW}>Bransjen</span>
-          <h2 className={DISPLAY}>Hvilken bransje jobber dere innenfor?</h2>
-
-          <div className={GROUP}>
-            <span className={GROUP_LABEL}>
-              Velg den som passer best — den bestemmer hvor i kartet dere havner:
-            </span>
-            <div className={CHIP_ROW}>
-              {INDUSTRIES.map((ind) => (
-                <button
-                  key={ind.key}
-                  type="button"
-                  className={`${CHIP} ${
-                    industryKey === ind.key
-                      ? "border-[var(--opt-color)] bg-[var(--opt-color)] text-[var(--opt-ink)]"
-                      : CHIP_OFF
-                  }`}
-                  style={
-                    {
-                      /* Hover, valgt tilstand og prikken i kartet leser alle
-                         `ind.color`, så de kan ikke komme i utakt. */
-                      ["--hover"]: ind.color,
-                      ["--hover-ink"]: contrastingInk(ind.color),
-                      ["--opt-color"]: ind.color,
-                      ["--opt-ink"]: contrastingInk(ind.color),
-                    } as CSSProperties
-                  }
-                  onMouseEnter={() => onIndustryPreview?.(ind.key)}
-                  onMouseLeave={() => onIndustryPreview?.(industryKey)}
-                  onClick={() => {
-                    setIndustryKey(ind.key);
-                    onIndustryPreview?.(ind.key);
-                  }}
-                >
-                  {ind.label}
-                </button>
-              ))}
+            <div className={GROUP}>
+              <div className={CHIP_ROW}>
+                {INDUSTRIES.map((ind) => (
+                  <button
+                    key={ind.key}
+                    type="button"
+                    className={`${CHIP} ${
+                      industryKey === ind.key
+                        ? "border-[var(--opt-color)] bg-[var(--opt-color)] text-[var(--opt-ink)]"
+                        : CHIP_OFF
+                    }`}
+                    style={
+                      {
+                        /* Hover, valgt tilstand og prikken i kartet leser alle
+                           `ind.color`, så de kan ikke komme i utakt. */
+                        ["--hover"]: ind.color,
+                        ["--hover-ink"]: contrastingInk(ind.color),
+                        ["--opt-color"]: ind.color,
+                        ["--opt-ink"]: contrastingInk(ind.color),
+                      } as CSSProperties
+                    }
+                    aria-pressed={industryKey === ind.key}
+                    onMouseEnter={() => onIndustryPreview?.(ind.key)}
+                    onMouseLeave={() => onIndustryPreview?.(industryKey)}
+                    onClick={() => {
+                      setIndustryKey(ind.key);
+                      onIndustryPreview?.(ind.key);
+                    }}
+                  >
+                    {ind.label}
+                  </button>
+                ))}
+              </div>
             </div>
+          </section>
+
+          <PartnerRow />
+
+          {/* Publiseringslinja følger med nedover. Skjemaet er langt nok til at
+              knappen ellers ligger utenfor skjermen hele veien, og da er det
+              heller ikke synlig hva som mangler. */}
+          <div className="sticky bottom-[max(0.85rem,env(safe-area-inset-bottom))] z-10 flex items-center justify-between gap-4 rounded-[1.75rem] border border-line bg-card/92 px-[1.15rem] py-[0.8rem] shadow-[0_6px_24px_rgba(16,17,16,0.12)] backdrop-blur-md max-mobile:flex-col max-mobile:items-stretch max-mobile:gap-[0.7rem]">
+            <p
+              className="m-0 min-w-0 text-[0.85rem] text-ink-2 max-mobile:text-center"
+              aria-live="polite"
+            >
+              {hint}
+            </p>
+            <button
+              type="button"
+              className={`${BTN_PRIMARY} flex-none max-mobile:w-full max-mobile:py-[0.8rem]`}
+              style={hoverVars(5) as CSSProperties}
+              disabled={!canSubmit || saving}
+              onClick={submit}
+            >
+              {saving ? "Publiserer…" : "Publiser oppgaven"}
+            </button>
           </div>
-        </section>
-
-        <div className="flex items-center justify-between gap-4 max-mobile:flex-col max-mobile:items-stretch max-mobile:gap-[0.6rem] max-mobile:pb-[max(0.9rem,env(safe-area-inset-bottom))]">
-          <p className="m-0 min-w-0 text-[0.85rem] text-ink-3 max-mobile:text-center" aria-live="polite">
-            {hint}
-          </p>
-          <button
-            type="button"
-            className={`${BTN_PRIMARY} flex-none max-mobile:w-full max-mobile:py-[0.8rem]`}
-            style={hoverVars(5) as CSSProperties}
-            disabled={!canSubmit || saving}
-            onClick={submit}
-          >
-            {saving ? "Publiserer…" : "Publiser oppgaven"}
-          </button>
-        </div>
-
         </div>
 
         {/* Enter i et tekstfelt skal sende inn — knappen under gjør det samme. */}

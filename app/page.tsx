@@ -2,104 +2,90 @@ import Link from "next/link";
 import Image from "next/image";
 import Aurora from "@/components/Aurora";
 import { PARTNERS } from "@/lib/partners";
-import type { CSSProperties } from "react";
-import { hoverVars } from "@/lib/color";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Figma «Editorial» (node 130:177) — modalen på forsiden.
+   Forsiden.
 
-   Rammen er 468 px bred i Figma. Som i skjemaet er hvert mål tatt som sin andel
-   av den bredden og skrevet i `cqi`, mot modalens egen bredde — `@container`
-   ligger derfor på innpakningen utenfor, ikke på kortet selv (et element kan
-   ikke måle seg mot sin egen beholder).
-   Beholderen har max-width, så andelene trenger bare et gulv: `max()` holder
-   teksten lesbar på smal skjerm, og max-width setter taket. Andelen bak hver
-   verdi står i kommentaren.
+   Det er hierarkiet som bærer siden, ikke bakgrunnen. Rekkefølgen er
+   kjennemerke → tittel → ingress → utdypning → én handling → finskrift →
+   partnere, og hvert trinn er tydelig svakere enn det over: størrelse, vekt og
+   farge faller sammen, og luften over et element sier hvor et nytt trinn
+   begynner. Derfor er avstandene med vilje ujevne — jevn `gap` ville gjort alle
+   trinnene like viktige.
 
-   Klassestrengene må stå som hele literaler — Tailwind leser kildefila som
-   tekst og finner ikke klasser satt sammen med `${...}`.
+   Bare ÉN fylt knapp. «Vis kartet» står som tekstlenke ved siden av: den er
+   like lett å finne, men den konkurrerer ikke med innmeldingen, som er det
+   siden faktisk vil at bedriftene skal gjøre. De to like store kortene som lå
+   her før ba besøkende velge mellom to jevnbyrdige ting.
+
+   Kortet rundt innholdet er borte — teksten står rett på flaten, slik
+   referansene gjør det, og luften rundt gjør jobben kortet gjorde. Auroraen
+   ligger igjen, men nedtonet til en anelse (se `.home` i globals.css).
    ──────────────────────────────────────────────────────────────────────────── */
-
-/* 12.948/468 padding · 13.745/468 luft · 0.199 px kant → hårstrek */
-const CARD =
-  "flex min-w-0 flex-1 flex-col items-start gap-[max(0.6rem,2.937cqi)] rounded-[max(0.9rem,2.724cqi)] " +
-  "border border-ink/70 bg-card p-[max(0.75rem,2.767cqi)] leading-[0.87] text-ink/70 no-underline " +
-  "transition-[background-color,border-color,color,transform] duration-150 ease-[ease] " +
-  "hover:-translate-y-0.5 hover:border-[var(--hover)] hover:bg-[var(--hover)] hover:text-[var(--hover-ink)] " +
-  "active:border-press active:bg-press active:text-bg";
-
-const CARD_TITLE = "w-full text-[max(0.95rem,3.205cqi)] font-medium"; /* 15/468 */
-const CARD_BODY = "w-full text-sm font-normal"; /* 7.968/468 */
-
-/* Brødteksten står som tre avsnitt i designet, skilt av blanke linjer. Her er
-   de tre <p> med luft imellom — setningene brytes da der bredden tilsier, ikke
-   der de tilfeldigvis brøt i en 468 px ramme. */
-const BODY =
-  "m-0 w-full text-center text-[max(0.85rem,2.35cqi)] leading-[1.35] font-medium text-ink"; /* 9.562/468 */
 
 export default function Home() {
   return (
     <main className="home">
       <Aurora />
 
-      <div className="@container w-full max-w-[700px]">
-        <div className="flex w-full flex-col items-start gap-[max(1rem,5.128cqi)] rounded-[max(0.9rem,2.724cqi)] bg-card p-[max(0.9rem,2.724cqi)]">
-          <p className="m-0 w-full text-[max(0.78rem,2.043cqi)] leading-[0.87] font-light text-ink/50">
-            Student Connect 2026
-          </p>
+      <header className="home-bar">
+        <span className="home-wordmark">Koblingspunkt</span>
+        <span className="home-meta">Oslo · 2026</span>
+      </header>
 
-          <h1 className="w-full text-center text-[max(1.8rem,11.5cqi)] leading-[0.87] font-light text-ink [overflow-wrap:break-word]">
-            Hva vil dere utforske?
-          </h1>
+      <div className="home-hero">
+        <p className="home-eyebrow">Student Connect 2026</p>
 
-          <div className="flex w-full flex-col gap-[max(0.7rem,2.043cqi)]">
-            <p className={BODY}>
-              Vi inviterer bedrifter i Oslo til å melde inn temaer de gjerne vil vite mer om, eller
-              utfordringer de vil ha løst.
-            </p>
-            <p className={BODY}>
-              Koblingspunkt matcher utfordringer med studenter eller studentteam. Disse kan skape
-              nye løsninger, gi nye perspektiver og energi inn i bedriftenes innovasjonsarbeid.
-            </p>
-            <p className={BODY}>
-              Det er uforpliktende å registrere utfordringer. Ved å registrere godkjenner dere at
-              Koblingspunkt kan kontakt for å bidra med studenter som kan løse utfordringen.
-            </p>
-          </div>
+        <h1 className="home-title">Hva vil dere utforske?</h1>
 
-          {/* Like brede (flex-1) og like høye (items-stretch). I Figma er det
-              venstre kortet høyere fordi teksten er lengre — her skal de matche. */}
-          <div className="flex w-full items-stretch gap-[max(0.5rem,2.564cqi)]">
-            <Link href="/edit" className={CARD} style={hoverVars(1) as CSSProperties}>
-              <span className={CARD_TITLE}>Fyll inn deres utfordringer →</span>
-              <span className={CARD_BODY}>
-                Kartet til høyre vokser for hver utfordring som sendes inn. Hva som er sendt inn, og
-                av hvem – er kun tilgjengelig for oss i Koblingspunkt.
-              </span>
-            </Link>
-            <Link href="/presentation" className={CARD} style={hoverVars(4) as CSSProperties}>
-              <span className={CARD_TITLE}>Vis kartet →</span>
-              <span className={CARD_BODY}>Fullskjerm for storskjerm og stand.</span>
-            </Link>
-          </div>
+        <p className="home-lead">
+          Vi inviterer bedrifter i Oslo til å melde inn temaer de gjerne vil vite mer om, eller
+          utfordringer de vil ha løst.
+        </p>
+
+
+        <div className="home-actions">
+          <Link href="/edit" className="btn-primary home-cta">
+            Meld inn en utfordring
+            <span aria-hidden="true">→</span>
+          </Link>
+          <Link href="/presentation" className="home-secondary">
+            Vis kartet
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
+
+        {/* Finskriften bærer samtykket, så den skal stå — men under handlingen
+            og i minste trinn, ikke som et tredje avsnitt på linje med ingressen
+            slik den gjorde før. */}
+        <p className="home-fineprint">
+          Koblingspunkt matcher utfordringene med studenter og studentteam. De kan skape nye
+          løsninger, gi nye perspektiver og energi inn i innovasjonsarbeidet deres.
+        </p>
+        <p className="home-fineprint">
+          Det er uforpliktende å registrere. Hva som meldes inn, og av hvem, er kun tilgjengelig for
+          oss i Koblingspunkt — og ved å registrere godkjenner dere at vi kan ta kontakt for å bidra
+          med studenter som kan løse utfordringen.
+        </p>
       </div>
 
-      {/* Samarbeidspartnerne nederst, utenfor modalen. Høyden per logo er satt
-          i lib/partners.ts — lik høyde gir ikke lik tyngde. */}
-      <div className="flex w-full flex-wrap items-center justify-center gap-x-10 gap-y-6">
-        {PARTNERS.map((p) => (
-          <Image
-            key={p.src}
-            className="w-auto max-w-[160px] object-contain"
-            src={p.src}
-            alt={p.alt}
-            width={p.width}
-            height={p.height}
-            style={{ height: p.displayHeight }}
-          />
-        ))}
-      </div>
+      {/* Samarbeidspartnerne nederst. Høyden per logo er satt i lib/partners.ts
+          — lik høyde gir ikke lik tyngde. */}
+      <footer className="home-partners">
+        <p className="home-partners-label">I samarbeid med</p>
+        <div className="home-logos">
+          {PARTNERS.map((p) => (
+            <Image
+              key={p.src}
+              src={p.src}
+              alt={p.alt}
+              width={p.width}
+              height={p.height}
+              style={{ height: p.displayHeight }}
+            />
+          ))}
+        </div>
+      </footer>
     </main>
   );
 }

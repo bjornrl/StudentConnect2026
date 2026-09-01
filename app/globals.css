@@ -120,26 +120,30 @@
    bredde — ikke vindusbredden. Skjemaruta er halve skjermen på desktop og hele
    på mobil, så `vw` ville skalert mot feil referanse; `container-type` står
    derfor på scrollflaten i Questionnaire.
-   clamp()-gulvet holder teksten lesbar når ruta blir smal, taket treffer
-   Figma-verdien når den er bred nok. Kommentaren bak hver linje er px-en fra
-   designet. */
+   clamp()-gulvet holder teksten lesbar når ruta blir smal, taket hindrer at den
+   vokser ut av proporsjon når den er bred.
+
+   Verdiene er skrudd ned fra px-ene i Figma-fila. Artboardet var 2013 px bredt,
+   og tatt rått ga andelene en display på 128 px, 64 px luft i kortene og 156 px
+   mellom dem — i en rute som i praksis er 600 px bred ble bolkene liggende
+   langt fra hverandre, og brikkene ble like store som kortene rundt seg. */
 @theme {
-  --text-eyebrow: clamp(0.8rem, 2.38cqi, 2.667rem); /* 48px */
-  --text-eyebrow--line-height: 0.87;
-  --text-display: clamp(1.9rem, 6.36cqi, 7.111rem); /* 128px */
-  --text-display--line-height: 0.87;
-  --text-lead: clamp(1rem, 2.38cqi, 2.667rem); /* 48px */
-  --text-lead--line-height: 1;
-  --text-field: clamp(0.95rem, 1.99cqi, 2.222rem); /* 40px */
-  --text-field--line-height: 0.87;
+  --text-eyebrow: clamp(0.72rem, 1.45cqi, 0.92rem);
+  --text-eyebrow--line-height: 1.25;
+  --text-display: clamp(1.7rem, 4.4cqi, 2.8rem);
+  --text-display--line-height: 1.05;
+  --text-lead: clamp(0.95rem, 1.85cqi, 1.08rem);
+  --text-lead--line-height: 1.5;
+  --text-field: clamp(0.95rem, 1.8cqi, 1.1rem);
+  --text-field--line-height: 1.4;
 
-  --spacing-card: clamp(1.25rem, 3.18cqi, 3.556rem); /* 64px — kortets luft */
-  --spacing-stack: clamp(1.75rem, 7.75cqi, 8.667rem); /* 156px — mellom kortene */
-  --spacing-field: clamp(0.6rem, 1.59cqi, 1.778rem); /* 32px */
-  --spacing-chip: clamp(0.35rem, 0.6cqi, 0.667rem); /* 12px */
-  --spacing-editor: clamp(9rem, 32cqi, 35.833rem); /* 645px — høyden på fritekstfeltet */
+  --spacing-card: clamp(1.25rem, 3cqi, 1.9rem); /* kortets luft */
+  --spacing-stack: clamp(1.25rem, 2.8cqi, 1.85rem); /* mellom kortene */
+  --spacing-field: clamp(0.6rem, 1.3cqi, 0.9rem);
+  --spacing-chip: clamp(0.4rem, 0.8cqi, 0.6rem);
+  --spacing-editor: clamp(7rem, 15cqi, 10rem); /* høyden på fritekstfeltet */
 
-  --radius-card: clamp(1.25rem, 3.18cqi, 3.556rem); /* 64px */
+  --radius-card: clamp(1rem, 2cqi, 1.5rem);
 }
 
 /* Elementreglene ligger i @layer base, slik at Tailwind-utilities (som er
@@ -268,21 +272,31 @@
 
 /* ── forside ──────────────────────────────────────────────────────────────── */
 
+/* Tre rader: linja på toppen, teksten i midten, partnerne nederst. Midtraden
+   er `1fr` og får all plassen som blir til overs, så innholdet står i ro midt
+   på skjermen mens topp og bunn blir liggende i kantene uansett vindushøyde. */
 .home {
   min-height: 100%;
   display: grid;
-  /* To rader: modalen sentreres i den øvre, logoene ligger i ro nederst.
-     `1fr auto` gjør at logoene blir stående på bunnen uansett vindushøyde,
-     mens modalen fortsatt står midt i plassen som er igjen. */
-  grid-template-rows: 1fr auto;
+  grid-template-rows: auto 1fr auto;
   justify-items: center;
-  align-items: center;
   gap: 2.5rem;
-  padding: 3rem 1.5rem;
+  padding: 1.75rem clamp(1.25rem, 5vw, 3rem) 2.5rem;
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background: linear-gradient(160deg, #d7fec2 0%, #cff9f0 48%, #e3fdc4 100%);
+  /* Nesten flat. Den mettede grønngradienten er byttet mot husets egen lyse
+     flate, med et grønnskjær igjen nederst — nok til at flaten ikke er død,
+     lite nok til at typografien er det man ser først. */
+  background:
+    radial-gradient(125% 78% at 50% 108%, rgba(203, 248, 99, 0.3) 0%, transparent 62%),
+    linear-gradient(180deg, #fbfbfa 0%, var(--bg) 46%, #f1f4ec 100%);
+}
+
+/* Auroraen deles med .edit-pane, der den fortsatt skal stå i full styrke.
+   Nedtoningen gjelder derfor bare forsiden. */
+.home .aurora {
+  opacity: 0.13;
 }
 
 /* Flytende gradient. Brukes av .home og .edit-pane (se components/Aurora.tsx).
@@ -338,13 +352,209 @@
   50% { transform: translate3d(9%, -14%, 0) scale(1.22); }
 }
 
-.home-eyebrow {
-  display: block;
-  color: var(--ink-3);
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
+/* ── forsiden: topplinje ──────────────────────────────────────────────────── */
+
+/* Avsenderen står her oppe, ikke i heltekstblokken. Da slipper tittelen å dele
+   plass med den, og «Student Connect 2026» kan være hendelsen i midten mens
+   «Koblingspunkt» er den som inviterer. */
+.home-bar {
+  width: 100%;
+  max-width: 1180px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.home-wordmark {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.home-meta {
+  font-size: 0.76rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  text-align: left;
+  color: var(--ink-2);
+}
+
+/* ── forsiden: heltekst ───────────────────────────────────────────────────── */
+
+.home-hero {
+  align-self: center;
+  display: flex;
+  width: 100%;
+  max-width: 58rem;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.home-eyebrow {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* Aeonik Light i stor grad. Negativ letter-spacing strammer de store
+   bokstavene, og `balance` fordeler ordene jevnt over linjene i stedet for å la
+   siste linje bli et enslig ord. */
+.home-title {
+  margin: 0.85rem 0 0;
+  font-size: clamp(2.5rem, 6.8vw, 5rem);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+/* Ingressen er ett trinn ned fra tittelen, men fortsatt i full ink — det er
+   den setningen som forklarer hva siden ber om. Samme bredde som tittelen,
+   ikke et smalere mål i `ch`. */
+.home-lead {
+  margin: 1.25rem 0 0;
+  width: 70ch;
+  font-size: clamp(1.08rem, 1.55vw, 1.32rem);
+  font-weight: 400;
+  line-height: 1.45;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+.home-support {
+  margin: 0.9rem 0 0;
+  max-width: 46ch;
+  font-size: clamp(0.92rem, 1.1vw, 1rem);
+  font-weight: 400;
+  line-height: 1.55;
+  text-wrap: pretty;
+  color: var(--ink-2);
+}
+
+/* ── forsiden: handlinger ─────────────────────────────────────────────────── */
+
+.home-actions {
+  display: flex;
+  margin: 1.9rem 0 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 1.75rem;
+}
+
+/* Arver flate, farge og hover fra .btn-primary — her settes bare det som gjør
+   den til sidens hovedhandling: større trykkflate, og ingen understrek slik
+   lenker ellers får. */
+.home-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.85rem 1.7rem;
+  font-size: 1.02rem;
+  text-decoration: none;
+}
+
+.home-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.home-secondary:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+/* Pila skyves litt ut ved hover. Ren tilbakemelding på at lenken lever. */
+.home-cta span,
+.home-secondary span {
+  transition: transform 0.15s ease;
+}
+.home-cta:hover span,
+.home-secondary:hover span {
+  transform: translateX(2px);
+}
+
+/* Nederste trinn i teksten: minst, men fortsatt i --ink-2 slik at kontrasten
+   holder. Samtykket skal være lesbar finskrift, ikke grå pynt. */
+.home-fineprint {
+  margin: 1.15rem 0 0;
+  max-width: 62ch;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+  color: var(--ink-2);
+}
+
+/* ── forsiden: partnere ───────────────────────────────────────────────────── */
+
+.home-partners {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.15rem;
+}
+
+.home-partners-label {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.home-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem 2.75rem;
+}
+
+/* Logoene skal kjennes igjen, ikke trekke blikket vekk fra handlingen. De sterke
+   flatefargene (oransje, rødt) veide tyngre enn knappen før. Gråtoner i hvile
+   — en halvveis avmetning ga bare støvete farger — og full farge ved hover. */
+.home-logos img {
+  width: auto;
+  max-width: 150px;
+  object-fit: contain;
+  opacity: 0.72;
+  filter: grayscale(1);
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+.home-logos:hover img {
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+@media (max-width: 620px) {
+  .home {
+    gap: 2.25rem;
+  }
+  .home-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .home-cta {
+    width: 100%;
+    justify-content: center;
+  }
+  .home-logos {
+    gap: 1.25rem 2rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -378,7 +588,15 @@
   /* Uten min-height: 0 vokser griden forbi 100vh og skjemaets scrollflate
      slutter å scrolle — alt står under hverandre og er høyere enn ruta. */
   min-height: 0;
-  background: linear-gradient(160deg, #d7fec2 0%, #cff9f0 48%, #e3fdc4 100%);
+  /* Samme nedtoning som forsiden: den mettede gradienten trakk blikket vekk fra
+     feltene, som er det man faktisk er her for. */
+  background:
+    radial-gradient(120% 60% at 50% 104%, rgba(203, 248, 99, 0.26) 0%, transparent 62%),
+    linear-gradient(180deg, #fbfbfa 0%, var(--bg) 48%, #f1f4ec 100%);
+}
+
+.edit-pane .aurora {
+  opacity: 0.13;
 }
 
 .edit-map {
