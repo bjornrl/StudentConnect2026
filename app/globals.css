@@ -27,7 +27,10 @@
   /* skrift */
   --ink: #101110;
   --ink-2: rgba(16, 17, 16, 0.7);
-  --ink-3: rgba(16, 17, 16, 0.45);
+  /* Svakeste trinn i teksten. 0,55 og ikke lavere: under det faller 12–13 px
+     grå tekst på #f5f5f5 under kontrastkravet på 4,5:1, og finskriften her
+     bærer faktisk et forbehold. */
+  --ink-3: rgba(16, 17, 16, 0.55);
   --line: rgba(16, 17, 16, 0.28);
   --danger: #ab2346;
 
@@ -39,6 +42,9 @@
   --blue: #4896fc;
   --blue-hover: #2f86fb;
   --orange: #ff8048;
+  /* «Om oss» er formet som en lapp, og låner den ene fargen i paletten som
+     ikke allerede har en jobb i grensesnittet. */
+  --about: #ffb3f3;
 
   --float: 0 1px 2px rgba(16, 17, 16, 0.05), 0 10px 32px rgba(16, 17, 16, 0.08);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -127,7 +133,14 @@
 }
 
 .nav-wordmark {
+  color: var(--ink);
   letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.nav-wordmark:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .nav-link {
@@ -207,6 +220,13 @@
   box-shadow:
     0 2px 4px rgba(16, 17, 16, 0.09),
     0 14px 32px rgba(16, 17, 16, 0.14);
+}
+
+/* Uten dra-håndtak er lappen dekorasjon og skal verken se ut som eller
+   oppføre seg som noe man kan ta i. */
+.note.is-decorative {
+  cursor: default;
+  pointer-events: none;
 }
 
 /* Løftet mens man drar. Posisjonen settes i px og har med vilje ingen
@@ -589,83 +609,116 @@
   backdrop-filter: blur(3px);
 }
 
+/* Lappen. Ikke et systemvindu: samme hjørner, samme skygge og samme skakke
+   som på tavla — bare mindre helning, fordi et helt tekstavsnitt på skrå er
+   noe annet enn et kort sitat på skrå. */
 .about-card {
   position: relative;
-  width: min(560px, calc(100vw - 32px));
-  max-height: calc(100dvh - 64px);
-  overflow-y: auto;
-  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  width: min(540px, calc(100vw - 40px));
+  max-height: calc(100dvh - 96px);
   border-radius: 24px;
-  background: var(--panel);
-  box-shadow: 0 30px 80px rgba(16, 17, 16, 0.3);
-  animation: about-in 260ms var(--ease-out) both;
+  background: var(--about);
+  color: var(--ink);
+  /* Hjørnene skal klippe scrollflaten, og lukkeknappen skal ligge i ro
+     utenfor den. */
+  overflow: hidden;
+  box-shadow:
+    0 2px 6px rgba(16, 17, 16, 0.12),
+    0 34px 80px rgba(16, 17, 16, 0.34);
+  transform: rotate(-1.4deg);
+  animation: about-in 320ms var(--ease-out) both;
 }
 
 @keyframes about-in {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.98);
+    transform: rotate(-1.4deg) translateY(14px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: none;
+    transform: rotate(-1.4deg);
   }
+}
+
+.about-scroll {
+  overflow-y: auto;
+  padding: 28px;
 }
 
 .about-close {
   position: absolute;
-  top: 18px;
-  right: 18px;
-  width: 34px;
-  height: 34px;
+  top: 16px;
+  right: 16px;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
   border: 0;
   border-radius: 100px;
-  background: rgba(16, 17, 16, 0.06);
+  background: rgba(16, 17, 16, 0.14);
   color: var(--ink);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1;
-  transition: background-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
 }
 
 .about-close:hover {
-  background: rgba(16, 17, 16, 0.12);
+  background: var(--ink);
+  color: var(--about);
 }
 
+/* Den samme svarte brikka som signerer lappene på tavla. */
 .about-eyebrow {
-  margin: 0 0 6px;
-  font-size: 12px;
+  display: inline-block;
+  margin: 0;
+  padding: 5px 11px;
+  border-radius: 100px;
+  background: var(--ink);
+  color: var(--about);
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink-3);
 }
 
 .about-title {
-  font-size: 30px;
+  margin: 18px 0 0;
+  font-size: 34px;
+  /* Halvfet og tett, som en lapp-tittel — ikke som en sideoverskrift. */
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
 }
 
 .about-lead {
-  margin: 16px 0 0;
-  font-size: 16px;
-  line-height: 1.5;
+  margin: 14px 0 0;
+  font-size: 19px;
+  line-height: 1.28;
+  letter-spacing: -0.012em;
 }
 
 .about-body {
-  margin: 12px 0 0;
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--ink-2);
+  margin: 14px 0 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: rgba(16, 17, 16, 0.72);
 }
 
+/* Hvit stripe: logoene er tegnet for lys bakgrunn, og et par av dem har sin
+   egen flate. Rett på rosa blir de grå firkanter. */
 .about-partners {
-  margin-top: 28px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
+  margin-top: 26px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: #ffffff;
 }
 
 .about-partners-label {
   margin: 0 0 14px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -676,13 +729,11 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 18px 26px;
+  gap: 14px 24px;
 }
 
-/* Gråtoner i hvile, farge når man ser nærmere etter — logoene skal kjennes
-   igjen uten å konkurrere med teksten over. */
 .about-logos img {
-  opacity: 0.7;
+  opacity: 0.75;
   filter: grayscale(1);
   transition:
     opacity 200ms ease,
@@ -690,6 +741,162 @@
 }
 
 .about-logos:hover img {
+  opacity: 1;
+  filter: none;
+}
+
+/* ── forsiden ─────────────────────────────────────────────────────────────── */
+
+.home {
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+/* Scenen rommer både heltekstblokka og veggen. Lappene ligger absolutt
+   plassert inni den, teksten står i flyt — og det er teksten som gir scenen
+   minstehøyden sin når det er få lapper å vise. */
+.home-stage {
+  position: relative;
+  isolation: isolate;
+}
+
+.home-wall {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /* Her er veggen et bilde av tavla, ikke tavla. Det eneste å trykke på på
+     forsiden er knappen. */
+  pointer-events: none;
+  /* Lappene kommer fra basen og er ikke der ved første maling. De toner inn i
+     stedet for å sprette fram. */
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.home-wall.is-ready {
+  opacity: 1;
+}
+
+.home-hero {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 150px 24px 0;
+  text-align: center;
+}
+
+.home-eyebrow {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.home-title {
+  margin: 14px 0 0;
+  font-size: clamp(2.4rem, 5.6vw, 4.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.home-lead {
+  margin: 20px auto 0;
+  max-width: 30em;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* Trinnskillet. Luften over handlingen er tydelig større enn luften inne i
+   teksten — det er dét som gjør knappen til et eget trinn og ikke et fjerde
+   avsnitt. */
+.home-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 38px;
+  padding: 16px 26px;
+  border-radius: 100px;
+  background: var(--lime);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow:
+    0 1px 2px rgba(16, 17, 16, 0.06),
+    0 12px 28px rgba(204, 232, 72, 0.45);
+  transition:
+    background-color 150ms ease,
+    box-shadow 200ms ease,
+    transform 150ms ease;
+}
+
+.home-cta:hover {
+  background: var(--lime-hover);
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(16, 17, 16, 0.07),
+    0 18px 38px rgba(204, 232, 72, 0.55);
+}
+
+.home-cta:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.home-cta span {
+  transition: transform 150ms ease;
+}
+
+.home-cta:hover span {
+  transform: translateX(4px);
+}
+
+/* Finskriften bærer forbeholdet, så den skal stå — men under handlingen og i
+   minste trinn, ikke som et avsnitt på linje med ingressen. */
+.home-fineprint {
+  margin: 24px auto 0;
+  max-width: 34em;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.home-partners {
+  position: relative;
+  z-index: 2;
+  padding: 56px 24px 44px;
+  text-align: center;
+}
+
+.home-partners-label {
+  margin: 0 0 16px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.home-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 18px 32px;
+}
+
+.home-logos img {
+  opacity: 0.7;
+  filter: grayscale(1);
+  transition:
+    opacity 200ms ease,
+    filter 200ms ease;
+}
+
+.home-logos:hover img {
   opacity: 1;
   filter: none;
 }
@@ -739,8 +946,28 @@
     font-size: 14px;
   }
 
-  .about-card {
-    padding: 24px;
+  .about-scroll {
+    padding: 22px;
+  }
+
+  .about-title {
+    font-size: 28px;
+  }
+
+  .about-lead {
+    font-size: 17px;
+  }
+
+  .home-hero {
+    padding-top: 116px;
+  }
+
+  .home-lead {
+    font-size: 16px;
+  }
+
+  .home-partners {
+    padding-top: 44px;
   }
 }
 

@@ -7,9 +7,20 @@ import { PARTNERS } from "@/lib/partners";
 /* ─────────────────────────────────────────────────────────────────────────────
    «Om oss».
 
-   Forsiden er borte — tavla er forsiden. Det som sto der og fortsatt må sies
-   (hva Koblingspunkt er, hva som skjer med det man melder inn, og hvem vi gjør
-   det sammen med) ligger her i stedet, ett klikk unna og uten å stå i veien.
+   Forsiden forteller hva dette er; her ligger resten — hva Koblingspunkt gjør
+   med det man melder inn, og hvem vi gjør det sammen med. Ett klikk unna, og
+   uten å stå i veien.
+
+   Ruta er formet som en av lappene på tavla: samme rosa fra paletten, samme
+   24 px hjørner, en anelse på skakke, og merkelappen øverst er den samme
+   svarte brikka som signerer lappene. Da leser den som noe som hører hjemme
+   på tavla i stedet for som et systemvindu lagt oppå den. Helningen er
+   mindre enn på lappene med vilje — fire grader på en liten lapp er sjarm,
+   fire grader på et helt tekstavsnitt er slitsomt å lese.
+
+   Partnerlogoene står på en hvit stripe inni. De er tegnet for lys bakgrunn,
+   og flere av dem har sin egen flate — rett på rosa hadde de blitt grå
+   firkanter.
 
    Native <dialog> er brukt med vilje: den gir fokusfelle, Escape og
    bakgrunnsblokkering uten at vi må skrive det selv — og gjør det riktigere
@@ -33,44 +44,46 @@ export default function AboutDialog({ open, onClose }: Props) {
       ref={ref}
       className="about"
       onClose={onClose}
-      /* Klikk utenfor kortet lukker. Selve <dialog> fyller skjermen, så et
+      /* Klikk utenfor lappen lukker. Selve <dialog> fyller skjermen, så et
          treff på den og ikke på innholdet betyr «ved siden av». */
       onClick={(e) => {
         if (e.target === ref.current) onClose();
       }}
     >
       <div className="about-card">
+        {/* Utenfor scrollflaten, så den blir stående når teksten rulles. */}
         <button className="about-close" onClick={onClose} aria-label="Lukk">
           ✕
         </button>
 
-        <p className="about-eyebrow">Student Connect 2026</p>
-        <h2 className="about-title">Koblingspunkt</h2>
+        <div className="about-scroll">
+          <p className="about-eyebrow">Student Connect 2026</p>
+          <h2 className="about-title">Koblingspunkt</h2>
 
-        <p className="about-lead">
-          Vi inviterer bedrifter i Oslo til å melde inn temaer de gjerne vil vite mer om, eller
-          utfordringer de vil ha løst. Hver innmelding blir en lapp på tavla.
-        </p>
-        <p className="about-body">
-          Koblingspunkt matcher utfordringene med studenter og studentteam. De kan skape nye
-          løsninger, gi nye perspektiver og energi inn i innovasjonsarbeidet deres. Det er
-          uforpliktende å registrere, og ved å registrere godkjenner dere at vi kan ta kontakt for
-          å bidra med studenter som kan løse utfordringen.
-        </p>
+          <p className="about-lead">
+            Vi inviterer bedrifter i Oslo til å melde inn temaer de gjerne vil vite mer om, eller
+            utfordringer de vil ha løst. Hver innmelding blir en lapp på tavla.
+          </p>
+          <p className="about-body">
+            Koblingspunkt matcher utfordringene med studenter og studentteam. De kan skape nye
+            løsninger, gi nye perspektiver og energi inn i innovasjonsarbeidet deres. Det er
+            uforpliktende å melde inn, og lappene henger anonymt på tavla.
+          </p>
 
-        <div className="about-partners">
-          <p className="about-partners-label">I samarbeid med</p>
-          <div className="about-logos">
-            {PARTNERS.map((p) => (
-              <Image
-                key={p.src}
-                src={p.src}
-                alt={p.alt}
-                width={p.width}
-                height={p.height}
-                style={{ height: p.displayHeight, width: "auto" }}
-              />
-            ))}
+          <div className="about-partners">
+            <p className="about-partners-label">I samarbeid med</p>
+            <div className="about-logos">
+              {PARTNERS.map((p) => (
+                <Image
+                  key={p.src}
+                  src={p.src}
+                  alt={p.alt}
+                  width={p.width}
+                  height={p.height}
+                  style={{ height: p.displayHeight, width: "auto" }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

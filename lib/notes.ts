@@ -151,11 +151,28 @@ export function noteStyle(submission: PublicSubmission, maxWidth = Infinity): No
 export type Placement = { x: number; y: number };
 
 /**
+ * Et felt midt på flaten som skal stå fritt. Forsiden bruker det til
+ * heltekstblokka: kolonnene som ligger bak den starter under den i stedet for
+ * øverst, og de som går klar av den holder seg utenfor kanten hele veien.
+ * Uten dette havner sitatene under overskriften, og ingen av delene leses.
+ */
+export type ClearArea = { width: number; height: number };
+
+/**
  * Luft over lappene. Den øverste raden får trekke seg 40 px opp (se y-spennet
  * under), så tallet må ha rom for det og fortsatt klare navigasjonslinja, som
  * slutter på 57.
  */
 const TOP = 118;
+
+/**
+ * Loddrett slingringsmonn per lapp. `Y_LIFT` er hvor langt den får trekke seg
+ * OPP i naboen over — det er den som lager overlappingen — og `Y_DROP` hvor
+ * mye luft den kan få i stedet. Tallene står her fordi de også bestemmer hvor
+ * langt ned et fritt felt må starte for å faktisk bli fritt.
+ */
+const Y_LIFT = 40;
+const Y_DROP = 90;
 const SIDE = 24;
 /**
  * Smaleste kolonne vi godtar. Luften er rikelig med vilje — den er
@@ -183,7 +200,8 @@ const MAX_COLUMN = Math.round(MIN_COLUMN * 1.4);
  */
 export function scatter(
   notes: { id: string; style: NoteStyle }[],
-  canvasWidth: number
+  canvasWidth: number,
+  clear?: ClearArea
 ): { placements: Map<string, Placement>; height: number } {
   const usable = Math.max(1, canvasWidth - SIDE * 2);
   const columns = Math.max(1, Math.floor(usable / MIN_COLUMN));
@@ -198,7 +216,23 @@ export function scatter(
   /* Det som eventuelt blir til overs fordeles likt, så veggen står midt på
      flaten i stedet for å klistre seg til venstre kant. */
   const left = SIDE + Math.max(0, usable - columns * colWidth) / 2;
-  const bottoms = new Array<number>(columns).fill(TOP);
+
+  /* Feltet som skal stå fritt, i x-koordinater. En kolonne er «bak» det så
+     snart den så vidt overlapper — halve lapper inn i overskriften er verre
+     enn ingen. */
+  const band =
+    clear && clear.width > 0
+      ? { from: canvasWidth / 2 - clear.width / 2, to: canvasWidth / 2 + clear.width / 2 }
+      : null;
+  const colLeft = (c: number) => left + c * colWidth;
+  const behindClear = (c: number) =>
+    band !== null && colLeft(c) < band.to && colLeft(c) + colWidth > band.from;
+
+  /* Kolonnene bak det frie feltet starter under det — pluss Y_LIFT, ellers
+     ville den første lappen i kolonnen trukket seg opp i feltet igjen. */
+  const bottoms = Array.from({ length: columns }, (_, c) =>
+    behindClear(c) && clear ? Math.max(TOP, clear.height + Y_LIFT) : TOP
+  );
   const placements = new Map<string, Placement>();
 
   for (const { id, style } of notes) {
@@ -215,15 +249,24 @@ export function scatter(
        to kolonner gå over hverandre. Klemmen holder den innenfor flaten. */
     const slack = Math.max(0, colWidth - style.width);
     const drift = (unit(seed, 7) - 0.5) * colWidth * 0.36;
-    const x = clamp(
-      left + col * colWidth + unit(seed, 5) * slack + drift,
-      SIDE,
-      Math.max(SIDE, canvasWidth - SIDE - style.width)
-    );
+    let x = left + col * colWidth + unit(seed, 5) * slack + drift;
 
-    /* −40 til +90: noen lapper skyver seg godt opp i naboen over, andre får
-       luft. Spennet er bredt fordi det er her den loddrette uroen kommer fra. */
-    const y = bottoms[col] + (-40 + unit(seed, 6) * 130);
+    /* Går kolonnen klar av det frie feltet, skal drivet ikke få bære lappen
+       inn i det likevel. En kolonne som går klar har per definisjon plass til
+       den bredeste lappen sin utenfor kanten, så klemmen kan ikke skyve den
+       ut av flaten. */
+    if (band && !behindClear(col)) {
+      x =
+        colLeft(col) + colWidth / 2 < canvasWidth / 2
+          ? Math.min(x, band.from - style.width)
+          : Math.max(x, band.to);
+    }
+
+    x = clamp(x, SIDE, Math.max(SIDE, canvasWidth - SIDE - style.width));
+
+    /* Noen lapper skyver seg godt opp i naboen over, andre får luft. Spennet
+       er bredt fordi det er her den loddrette uroen kommer fra. */
+    const y = bottoms[col] + (-Y_LIFT + unit(seed, 6) * (Y_LIFT + Y_DROP));
 
     placements.set(id, { x: Math.round(x), y: Math.round(y) });
     bottoms[col] = y + style.height;

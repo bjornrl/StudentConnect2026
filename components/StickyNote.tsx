@@ -14,6 +14,10 @@ import type { PublicSubmission } from "@/lib/types";
 
    Komponenten er `memo`-et med vilje: mens én lapp dras, oppdateres posisjonen
    mange ganger i sekundet, og da skal ikke de nitti andre tegnes på nytt.
+
+   Uten dra-håndtakene er lappen ren dekorasjon. Slik brukes den på forsiden,
+   der veggen er et bilde av tavla og ikke tavla selv — der skal det bare være
+   én ting å ta på, og det er knappen.
    ──────────────────────────────────────────────────────────────────────────── */
 
 type Props = {
@@ -22,11 +26,11 @@ type Props = {
   x: number;
   y: number;
   z: number;
-  dragging: boolean;
-  onGrab: (event: PointerEvent<HTMLElement>, id: string) => void;
-  onMove: (event: PointerEvent<HTMLElement>, id: string) => void;
-  onDrop: (event: PointerEvent<HTMLElement>, id: string) => void;
-  register: (id: string, el: HTMLElement | null) => void;
+  dragging?: boolean;
+  onGrab?: (event: PointerEvent<HTMLElement>, id: string) => void;
+  onMove?: (event: PointerEvent<HTMLElement>, id: string) => void;
+  onDrop?: (event: PointerEvent<HTMLElement>, id: string) => void;
+  register?: (id: string, el: HTMLElement | null) => void;
 };
 
 /**
@@ -54,11 +58,12 @@ function StickyNote({
      bare når raden faktisk har en bransje vi kjenner igjen — eldre
      innmeldinger har det. */
   const industry = getIndustry(submission.industry_key);
+  const decorative = !onGrab;
 
   return (
     <article
-      ref={(el) => register(submission.id, el)}
-      className={`note${dragging ? " is-dragging" : ""}`}
+      ref={register ? (el) => register(submission.id, el) : undefined}
+      className={`note${dragging ? " is-dragging" : ""}${decorative ? " is-decorative" : ""}`}
       style={
         {
           "--note-bg": style.color.bg,
@@ -72,10 +77,10 @@ function StickyNote({
           fontSize: `${style.fontSize}px`,
         } as CSSProperties
       }
-      onPointerDown={(e) => onGrab(e, submission.id)}
-      onPointerMove={(e) => onMove(e, submission.id)}
-      onPointerUp={(e) => onDrop(e, submission.id)}
-      onPointerCancel={(e) => onDrop(e, submission.id)}
+      onPointerDown={onGrab && ((e) => onGrab(e, submission.id))}
+      onPointerMove={onMove && ((e) => onMove(e, submission.id))}
+      onPointerUp={onDrop && ((e) => onDrop(e, submission.id))}
+      onPointerCancel={onDrop && ((e) => onDrop(e, submission.id))}
     >
       {/* Tittelen er valgfri. Den står i samme grad som sitatet — bare halvfet
           — slik at den leses som en overskrift uten å bli et eget nivå. */}
