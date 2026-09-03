@@ -1,98 +1,108 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Aurora from "@/components/Aurora";
-import NodeMap from "@/components/NodeMap";
+import StickyBoard from "@/components/StickyBoard";
+import SentNote from "@/components/SentNote";
 import Questionnaire from "@/components/Questionnaire";
-import NodeDetail from "@/components/NodeDetail";
+import BoardNav from "@/components/BoardNav";
+import AboutDialog from "@/components/AboutDialog";
 import { useIsMobile } from "@/lib/useMediaQuery";
-import { setJustPublished } from "@/lib/justPublished";
 import type { PublicSubmission } from "@/lib/types";
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Tavla — hele siden.
+
+   Skjermen er ikke delt i to. Den ER kanvaset: lappene ligger fritt utover
+   hele flaten, og panelet med skjemaet svever oppå og kan slås av.
+
+   VIKTIG: lappene er eksempler (lib/examples.ts). Det som meldes inn går rett
+   til Koblingspunkt og blir ALDRI en lapp. Derfor henter denne siden ingenting
+   fra basen — den skriver bare til den. Skulle noen finne på å la tavla lese
+   innmeldinger igjen, er skillet borte, og da lyver både merkelappen i
+   navigasjonslinja og teksten i panelet.
+
+   Innsendingen er ett sammenhengende sveip: kortet løfter seg ut av feltet man
+   skrev i, får farge og driver ut av bildet. Det lander ikke noe sted — for
+   det gjør det ikke i virkeligheten heller.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/** Innmeldingen som er på vei ut av bildet, og ruta den løfter seg fra. */
+type Sent = { submission: PublicSubmission; from: DOMRect };
+
 export default function EditPage() {
-  const router = useRouter();
   const isMobile = useIsMobile();
 
-  const [submissions, setSubmissions] = useState<PublicSubmission[]>([]);
-  const [selected, setSelected] = useState<PublicSubmission | null>(null);
-  const [highlightId, setHighlightId] = useState<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(true);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [sent, setSent] = useState<Sent | null>(null);
+  const [justSent, setJustSent] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch("/api/submissions", { cache: "no-store" });
-      const json = await res.json();
-      if (Array.isArray(json.submissions)) setSubmissions(json.submissions);
-    } catch {
-      /* kartet står bare tomt hvis nettet svikter */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  /* Panelet dekker halve skjermen på en telefon, så der starter tavla åpen.
+     Justeres under render slik at brukeren fortsatt kan åpne panelet selv. */
+  const [prevMobile, setPrevMobile] = useState(isMobile);
+  if (isMobile !== prevMobile) {
+    setPrevMobile(isMobile);
+    setPanelOpen(!isMobile);
+  }
 
+  // kvitteringen skal si fra og så gi seg
   useEffect(() => {
-    // på mobil vises ikke kartet her, så da er det ingenting å hente
-    if (isMobile) {
-      setLoading(false);
-      return;
-    }
-    load();
-    // andre kan fylle ut samtidig — hent inn nye noder jevnlig
-    const t = setInterval(load, 20_000);
-    return () => clearInterval(t);
-  }, [load, isMobile]);
+    if (!justSent) return;
+    const t = setTimeout(() => setJustSent(false), 6000);
+    return () => clearTimeout(t);
+  }, [justSent]);
 
-  useEffect(() => {
-    router.prefetch("/presentation");
-  }, [router]);
-
-  const onPublished = (submission: PublicSubmission) => {
-    /* Mobil: skjemaet står alene på siden, så kvitteringen er kartet selv.
-       Desktop: kartet ligger allerede ved siden av — bli stående. */
-    if (isMobile) {
-      setJustPublished(submission.id);
-      router.push("/presentation");
-      return;
-    }
-    setSubmissions((prev) =>
-      prev.some((s) => s.id === submission.id) ? prev : [...prev, submission]
-    );
-    setHighlightId(submission.id);
-    setTimeout(() => setHighlightId(null), 7000);
+  /* Panelet blir stående åpent: det er ingen lapp å se lande, og den som har
+     meldt inn én utfordring melder ofte inn to. */
+  const onPublished = (submission: PublicSubmission, from: DOMRect) => {
+    setSent({ submission, from });
+    setJustSent(true);
   };
+
+  /* Stabil identitet: `SentNote` har den i effekt-avhengighetene sine, og en
+     ny funksjon for hver render ville startet animasjonen på nytt midtveis. */
+  const onSentDone = useCallback(() => setSent(null), []);
 
   return (
     <main className="edit">
-      <section className="edit-pane">
-        <Aurora />
-        <Questionnaire
-          onPublished={onPublished}
-          onIndustryPreview={setPreview}
-          /* mobil hopper videre til kartet i stedet for å vise kvittering her */
-          showReceipt={!isMobile}
-        />
-      </section>
+      <StickyBoard />
 
-      {/* Kartet tas helt ut på mobil — ikke bare skjules — så animasjonsløkka
-          ikke maler batteriet mens man fyller ut skjemaet. */}
-      {!isMobile && (
-        <section className="edit-map">
-          <div className="edit-map-badge">
-            <strong>{submissions.length}</strong> {submissions.length === 1 ? "oppgave" : "oppgaver"} i kartet
-            {loading && " · laster…"}
-          </div>
-          <NodeMap
-            submissions={submissions}
-            activeIndustries={preview ? [preview] : []}
-            selectedId={selected?.id ?? null}
-            onSelect={setSelected}
-            highlightId={highlightId}
-          />
-          <NodeDetail submission={selected} onClose={() => setSelected(null)} />
-        </section>
+      {/* Merkelappen i linja sier at dette er en demo — se BoardNav. */}
+      <BoardNav onAbout={() => setAboutOpen(true)} demo />
+
+      {/* Panelet blir stående montert når det er skjult, så teksten man holder
+          på med ikke går tapt av å lukke det. `inert` tar det ut av
+          tabrekkefølgen mens det ligger utenfor kanten. */}
+      <div className={`panel${panelOpen ? " is-open" : ""}`} inert={!panelOpen}>
+        <Questionnaire onPublished={onPublished} onCollapse={() => setPanelOpen(false)} />
+      </div>
+
+      {!panelOpen && (
+        <button className="panel-reopen" onClick={() => setPanelOpen(true)}>
+          <span className="panel-reopen-icon" aria-hidden>
+            <span />
+            <span />
+            <span />
+          </span>
+          Meld inn en utfordring
+        </button>
       )}
+
+      {sent && (
+        <SentNote
+          submission={sent.submission}
+          from={sent.from}
+          onDone={onSentDone}
+        />
+      )}
+
+      {justSent && (
+        <p className="toast" role="status">
+          Takk — utfordringen er sendt til Koblingspunkt.
+        </p>
+      )}
+
+      <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
     </main>
   );
 }
