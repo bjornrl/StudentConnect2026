@@ -62,12 +62,13 @@ export default function AboutDialog({ open, onClose }: Props) {
 
           <p className="about-lead">
             Vi inviterer bedrifter i Oslo til å melde inn temaer de gjerne vil vite mer om, eller
-            utfordringer de vil ha løst. Hver innmelding blir en lapp på tavla.
+            utfordringer de vil ha løst. Lappene på tavla er eksempler på hva en utfordring kan
+            være.
           </p>
           <p className="about-body">
             Koblingspunkt matcher utfordringene med studenter og studentteam. De kan skape nye
             løsninger, gi nye perspektiver og energi inn i innovasjonsarbeidet deres. Det er
-            uforpliktende å melde inn, og lappene henger anonymt på tavla.
+            uforpliktende å melde inn, og det dere sender inn er kun tilgjengelig for oss.
           </p>
 
           <div className="about-partners">

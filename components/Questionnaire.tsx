@@ -17,7 +17,7 @@ import type { PublicSubmission } from "@/lib/types";
    utfordringsfeltet fordi de hører sammen; en bolk starter med en hårstrek og
    tydelig mer luft, fordi det er dét som sier at et nytt trinn begynner.
 
-   Publiseringslinja ligger UTENFOR scrollflaten, ikke nederst i den. Skjemaet
+   Innsendingslinja ligger UTENFOR scrollflaten, ikke nederst i den. Skjemaet
    er langt nok til at knappen ellers ville ligget utenfor ruta hele veien —
    og da ser man heller ikke hva som mangler.
 
@@ -118,7 +118,7 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
   }
 
   /* Alt står framme samtidig, så i stedet for å sperre veien videre sier vi
-     rett ut hva som mangler før man kan publisere. Tittelen er ikke med —
+     rett ut hva som mangler før man kan sende inn. Tittelen er ikke med —
      den er valgfri. */
   const missing: string[] = [];
   if (challenge.trim().length < MIN_CHALLENGE) missing.push("utfordringen");
@@ -161,15 +161,15 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
     }
   }
 
-  /* Kvitteringen etter publisering ligger på siden, ikke her: panelet trekker
-     seg unna i det lappen flyr ut, så en melding i denne linja ville
-     forsvunnet samtidig med at den kom.
+  /* Kvitteringen etter innsending ligger på siden, ikke her: kortet som løfter
+     seg ut av feltet og toasten sier fra sammen, og en tredje melding i denne
+     linja hadde bare vært støy.
      Hele lista blir tre linjer grå tekst på en smal rute. To navn og et antall
      sier like mye, og holder seg på én linje. */
   const hint = error
     ? error
     : canSubmit
-      ? "Klar til å henges opp."
+      ? "Klar til å sendes."
       : missing.length <= 2
         ? `Mangler ${joinNo(missing)}.`
         : `Mangler ${missing.slice(0, 2).join(", ")} og ${missing.length - 2} felt til.`;
@@ -201,8 +201,8 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
 
           <h1 className="panel-title">Hva vil dere utforske?</h1>
           <p className="panel-lead">
-            En utfordring, et spørsmål eller et tema dere gjerne skulle visst mer om. Det henges opp
-            som en lapp på tavla, og studenter kan ta tak i den.
+            En utfordring, et spørsmål eller et tema dere gjerne skulle visst mer om. Den går rett
+            til oss i Koblingspunkt. Lappene rundt er eksempler — deres egen havner ikke på tavla.
           </p>
         </header>
 
@@ -239,8 +239,8 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
         {/* ── 02 folka ─────────────────────────────────────────────────────── */}
         <Step n="02">Folka</Step>
         <p className="panel-note">
-          Dette vises ikke på tavla. Studenter som vil ta kontakt sender en forespørsel, og vi
-          formidler den videre til dere.
+          Vi trenger dette for å kunne komme tilbake til dere. Ingenting av det dere fyller ut
+          vises offentlig.
         </p>
 
         <Field id="company" label="Bedrift" filled={companyName.trim().length > 0}>
@@ -291,7 +291,7 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
         {/* ── 03 bransjen ──────────────────────────────────────────────────── */}
         <Step n="03">Bransjen</Step>
         <p className="panel-note">
-          Velg den som passer best. Den blir stående som brikka nederst på lappen.
+          Velg den som passer best. Den hjelper oss å finne studenter med riktig fagbakgrunn.
         </p>
 
         <div className="chip-row" role="group" aria-label="Bransje">
@@ -299,8 +299,8 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
             <button
               key={ind.key}
               type="button"
-              /* Valgt bransje blir den samme svarte brikka som signerer lappen
-                 på tavla — chippen er en forhandsvisning av taggen. */
+              /* Valgt bransje er den samme svarte brikka som signerer
+                 eksempellappene — samme språk, ett valg om gangen. */
               className={`chip${industryKey === ind.key ? " is-on" : ""}`}
               aria-pressed={industryKey === ind.key}
               onClick={() => setIndustryKey(ind.key)}
@@ -340,7 +340,7 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
           {hint}
         </p>
         <button className="publish-btn" type="submit" disabled={!canSubmit || saving}>
-          {saving ? "Publiserer…" : "Publiser oppgaven"}
+          {saving ? "Sender…" : "Send inn utfordringen"}
         </button>
       </div>
     </form>

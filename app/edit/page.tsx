@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import StickyBoard, { type Arrival } from "@/components/StickyBoard";
+import StickyBoard from "@/components/StickyBoard";
+import SentNote from "@/components/SentNote";
 import Questionnaire from "@/components/Questionnaire";
 import BoardNav from "@/components/BoardNav";
 import AboutDialog from "@/components/AboutDialog";
@@ -11,58 +12,30 @@ import type { PublicSubmission } from "@/lib/types";
 /* ─────────────────────────────────────────────────────────────────────────────
    Tavla — hele siden.
 
-   Skjermen er ikke lenger delt i to. Den ER kanvaset: lappene ligger fritt
-   utover hele flaten, og panelet med skjemaet svever oppå og kan slås av.
-   Da får man både lest tavla og skrevet på den uten å bytte side, og
-   /presentation trengs ikke lenger.
+   Skjermen er ikke delt i to. Den ER kanvaset: lappene ligger fritt utover
+   hele flaten, og panelet med skjemaet svever oppå og kan slås av.
 
-   Publiseringen er ett sammenhengende sveip: panelet trekker seg unna i det
-   lappen flyr ut av feltet man skrev i, får farge underveis og lander på
-   tavla. Derfor eier siden både panelets av/på og innflygingen — de to må
-   skje i takt.
+   VIKTIG: lappene er eksempler (lib/examples.ts). Det som meldes inn går rett
+   til Koblingspunkt og blir ALDRI en lapp. Derfor henter denne siden ingenting
+   fra basen — den skriver bare til den. Skulle noen finne på å la tavla lese
+   innmeldinger igjen, er skillet borte, og da lyver både merkelappen i
+   navigasjonslinja og teksten i panelet.
+
+   Innsendingen er ett sammenhengende sveip: kortet løfter seg ut av feltet man
+   skrev i, får farge og driver ut av bildet. Det lander ikke noe sted — for
+   det gjør det ikke i virkeligheten heller.
    ──────────────────────────────────────────────────────────────────────────── */
+
+/** Innmeldingen som er på vei ut av bildet, og ruta den løfter seg fra. */
+type Sent = { submission: PublicSubmission; from: DOMRect };
 
 export default function EditPage() {
   const isMobile = useIsMobile();
 
-  const [submissions, setSubmissions] = useState<PublicSubmission[]>([]);
-  const [arrival, setArrival] = useState<Arrival | null>(null);
   const [panelOpen, setPanelOpen] = useState(true);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [justPublished, setJustPublished] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch("/api/submissions", { cache: "no-store" });
-      const json = await res.json();
-      if (!Array.isArray(json.submissions)) return;
-
-      setSubmissions((prev) => {
-        const server = json.submissions as PublicSubmission[];
-        /* En lapp vi nettopp har publisert kan ligge her før basen rekker å
-           svare med den. Da skal den bli stående — ellers ville den blinket
-           bort og kommet tilbake. */
-        const seen = new Set(server.map((s) => s.id));
-        return [...server, ...prev.filter((s) => !seen.has(s.id))];
-      });
-    } catch {
-      /* behold det vi allerede viser */
-    } finally {
-      setLoaded(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    /* `load` er async — den setter ingen state før nettverket har svart, så
-       den kaskaderende rendringen regelen advarer mot kan ikke oppstå her.
-       Regelen ser bare at en funksjon som kaller setState kalles i kroppen. */
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-    // andre kan henge opp lapper samtidig — hent inn nye jevnlig
-    const t = setInterval(load, 20_000);
-    return () => clearInterval(t);
-  }, [load]);
+  const [sent, setSent] = useState<Sent | null>(null);
+  const [justSent, setJustSent] = useState(false);
 
   /* Panelet dekker halve skjermen på en telefon, så der starter tavla åpen.
      Justeres under render slik at brukeren fortsatt kan åpne panelet selv. */
@@ -74,32 +47,25 @@ export default function EditPage() {
 
   // kvitteringen skal si fra og så gi seg
   useEffect(() => {
-    if (!justPublished) return;
-    const t = setTimeout(() => setJustPublished(false), 6000);
+    if (!justSent) return;
+    const t = setTimeout(() => setJustSent(false), 6000);
     return () => clearTimeout(t);
-  }, [justPublished]);
+  }, [justSent]);
 
-  const onArrived = useCallback(() => setArrival(null), []);
-
+  /* Panelet blir stående åpent: det er ingen lapp å se lande, og den som har
+     meldt inn én utfordring melder ofte inn to. */
   const onPublished = (submission: PublicSubmission, from: DOMRect) => {
-    setSubmissions((prev) =>
-      prev.some((s) => s.id === submission.id) ? prev : [...prev, submission]
-    );
-    /* Panelet må vekk før lappen lander — ellers lander den bak panelet, og
-       hele poenget med bevegelsen er at man ser hvor tanken tok veien. */
-    setPanelOpen(false);
-    setArrival({ id: submission.id, from });
-    setJustPublished(true);
+    setSent({ submission, from });
+    setJustSent(true);
   };
+
+  /* Stabil identitet: `SentNote` har den i effekt-avhengighetene sine, og en
+     ny funksjon for hver render ville startet animasjonen på nytt midtveis. */
+  const onSentDone = useCallback(() => setSent(null), []);
 
   return (
     <main className="edit">
-      <StickyBoard
-        submissions={submissions}
-        arrival={arrival}
-        onArrived={onArrived}
-        loaded={loaded}
-      />
+      <StickyBoard />
 
       {/* Merkelappen i linja sier at dette er en demo — se BoardNav. */}
       <BoardNav onAbout={() => setAboutOpen(true)} demo />
@@ -122,9 +88,17 @@ export default function EditPage() {
         </button>
       )}
 
-      {justPublished && (
+      {sent && (
+        <SentNote
+          submission={sent.submission}
+          from={sent.from}
+          onDone={onSentDone}
+        />
+      )}
+
+      {justSent && (
         <p className="toast" role="status">
-          Lappen er hengt opp på tavla.
+          Takk — utfordringen er sendt til Koblingspunkt.
         </p>
       )}
 

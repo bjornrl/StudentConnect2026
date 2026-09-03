@@ -5,9 +5,10 @@ import Link from "next/link";
 /* Den flytende linja øverst. Navnet til venstre, én vei ut til høyre — mer
    skal det ikke være, for alt annet på siden er tavla.
 
-   `demo` slår på merkelappen i midten. Den står bare på /edit: det er der
-   knappen sier «Publiser» og lappene ser ekte ut, og da må det stå et sted
-   man ikke kan unngå å se at ingen av delene gjelder ennå. */
+   `demo` slår på merkelappen i midten. Den står bare på /edit: lappene der ser
+   ut som ekte innmeldinger, men er eksempler — og det man selv melder inn
+   havner aldri på tavla. Begge deler må stå et sted man ikke kan unngå å se
+   det. */
 type Props = {
   onAbout: () => void;
   demo?: boolean;
@@ -27,9 +28,9 @@ export default function BoardNav({ onAbout, demo = false }: Props) {
               ut av tilgjengelighetstreet også, så skjermlesere leser bare den
               som faktisk vises. */}
           <span className="nav-tag-long">
-            Lappene er eksempelforslag — det som meldes inn blir ikke publisert
+            Lappene er eksempler — det dere melder inn havner ikke på tavla
           </span>
-          <span className="nav-tag-short">Demo · publiseres ikke</span>
+          <span className="nav-tag-short">Eksempler, ikke innmeldinger</span>
         </p>
       )}
 

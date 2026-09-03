@@ -223,17 +223,6 @@
      flaten vokser med veggen. */
 }
 
-.board-empty {
-  position: absolute;
-  top: 45%;
-  left: 0;
-  right: 0;
-  margin: 0;
-  text-align: center;
-  font-size: 20px;
-  color: var(--ink-3);
-}
-
 /* ── post-it ──────────────────────────────────────────────────────────────── */
 
 .note {
@@ -273,6 +262,23 @@
 .note.is-decorative {
   cursor: default;
   pointer-events: none;
+}
+
+/* Kortet som løfter seg ut av skjemaet og sendes av gårde. Det ligger ikke på
+   tavla — det svever over hele siden og finnes bare mens bevegelsen varer.
+   Overgangene er av: animasjonen styrer transform selv. */
+.note.is-sent {
+  --tilt: 0deg;
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  cursor: default;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow:
+    0 4px 10px rgba(16, 17, 16, 0.1),
+    0 24px 56px rgba(16, 17, 16, 0.24);
+  transition: none;
 }
 
 /* Løftet mens man drar. Posisjonen settes i px og har med vilje ingen
@@ -930,14 +936,6 @@
   /* Her er veggen et bilde av tavla, ikke tavla. Det eneste å trykke på på
      forsiden er knappen. */
   pointer-events: none;
-  /* Lappene kommer fra basen og er ikke der ved første maling. De toner inn i
-     stedet for å sprette fram. */
-  opacity: 0;
-  transition: opacity 700ms ease;
-}
-
-.home-wall.is-ready {
-  opacity: 1;
 }
 
 .home-hero {

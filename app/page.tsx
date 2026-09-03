@@ -1,14 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import BoardNav from "@/components/BoardNav";
 import AboutDialog from "@/components/AboutDialog";
 import StickyNote from "@/components/StickyNote";
 import { noteStyle, scatter, type ClearArea } from "@/lib/notes";
+import { EXAMPLE_NOTES } from "@/lib/examples";
 import { PARTNERS } from "@/lib/partners";
-import type { PublicSubmission } from "@/lib/types";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Forsiden.
@@ -19,10 +19,11 @@ import type { PublicSubmission } from "@/lib/types";
    i. Her er veggen et bilde av tavla, ikke tavla selv, og da skal det bare
    være ett sted å trykke.
 
-   Lappene er ekte. De hentes fra basen som på /edit, så forsiden viser hva
-   folk faktisk har hengt opp i stedet for oppdiktede eksempler. Utlegget får
-   beskjed om å holde midten fri (`clear`), ellers hadde sitatene lagt seg
-   under overskriften og ingen av delene vært til å lese.
+   Lappene er de samme eksemplene som på /edit (lib/examples.ts) — ikke
+   innmeldinger. Det noen skriver inn i skjemaet havner aldri på en lapp, og
+   det gjelder her også. Utlegget får beskjed om å holde midten fri (`clear`),
+   ellers hadde sitatene lagt seg under overskriften og ingen av delene vært
+   til å lese.
 
    Hierarkiet er kjennemerke → spørsmål → ingress → én handling → finskrift →
    partnere, og hvert trinn er svakere enn det over. Avstandene er ujevne med
@@ -32,32 +33,15 @@ import type { PublicSubmission } from "@/lib/types";
 /** Nok til å lese som en vegg, få nok til at forsiden ikke blir uendelig lang. */
 const WALL_SIZE = 18;
 
+const NOTES = EXAMPLE_NOTES.slice(0, WALL_SIZE);
+
 export default function Home() {
-  const [submissions, setSubmissions] = useState<PublicSubmission[]>([]);
   const [aboutOpen, setAboutOpen] = useState(false);
 
   const stageRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const [stageWidth, setStageWidth] = useState(0);
   const [clear, setClear] = useState<ClearArea>({ width: 0, height: 0 });
-
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch("/api/submissions", { cache: "no-store" });
-      const json = await res.json();
-      if (!Array.isArray(json.submissions)) return;
-      // de nyeste ligger sist i lista fra basen
-      setSubmissions((json.submissions as PublicSubmission[]).slice(-WALL_SIZE));
-    } catch {
-      /* forsiden står fint uten lapper også */
-    }
-  }, []);
-
-  useEffect(() => {
-    // `load` er async og setter ingen state før nettverket har svart
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-  }, [load]);
 
   /* Flatens bredde styrer kolonnene, og heltekstblokkas mål styrer hvor stort
      hull utlegget må la stå. Begge måles — å gjette på dem ville betydd at
@@ -87,12 +71,12 @@ export default function Home() {
 
   const styled = useMemo(
     () =>
-      submissions.map((s) => ({
-        id: s.id,
-        submission: s,
-        style: noteStyle(s, canvasWidth - 48),
+      NOTES.map((note) => ({
+        id: note.id,
+        note,
+        style: noteStyle(note, canvasWidth - 48),
       })),
-    [submissions, canvasWidth]
+    [canvasWidth]
   );
 
   const { placements, height } = useMemo(
@@ -137,13 +121,13 @@ export default function Home() {
           </p>
         </div>
 
-        <div className={`home-wall${submissions.length > 0 ? " is-ready" : ""}`} aria-hidden>
-          {styled.map(({ id, submission, style }, i) => {
+        <div className="home-wall" aria-hidden>
+          {styled.map(({ id, note, style }, i) => {
             const at = placements.get(id) ?? { x: 0, y: 0 };
             return (
               <StickyNote
                 key={id}
-                submission={submission}
+                submission={note}
                 style={style}
                 x={at.x}
                 y={at.y}
