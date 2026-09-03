@@ -124,6 +124,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   padding: 0 24px;
   border-radius: 1000px;
   background: var(--nav);
@@ -141,6 +142,51 @@
 .nav-wordmark:hover {
   text-decoration: underline;
   text-underline-offset: 4px;
+}
+
+/* Merkelappen som sier at dette er en demo.
+
+   Formen er den samme svarte brikka som signerer lappene på tavla, så den
+   hører hjemme her i stedet for å se ut som en feilmelding. Den ligger som
+   midterste flex-element og ikke absolutt sentrert: da kan den aldri legge
+   seg oppå navnet eller «Om oss», uansett skjermbredde. */
+.nav-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 13px 6px 10px;
+  border-radius: 100px;
+  background: var(--ink);
+  color: #f5f5f5;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.nav-tag-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 100px;
+  background: var(--orange);
+}
+
+.nav-tag-short {
+  display: none;
+}
+
+/* Under dette er det ikke plass til hele setningen ved siden av navnet og
+   «Om oss». Den korte varianten bærer fortsatt begge poengene. */
+@media (max-width: 620px) {
+  .nav-tag-long {
+    display: none;
+  }
+
+  .nav-tag-short {
+    display: inline;
+  }
 }
 
 .nav-link {
@@ -433,18 +479,56 @@
 
 /* ── felt ─────────────────────────────────────────────────────────────────── */
 
+/* Streken under feltet er hele rammen — det er ingen boks. I hvile er den en
+   hårstrek. */
 .field {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--line);
-  transition: border-color 180ms ease;
 }
 
-/* Streken under feltet er hele rammen. Da må den svare når man skriver i det. */
-.field:focus-within {
-  border-color: var(--ink);
+/* Strek nummer to, i farge, ligger oppå hårstreken og stryker inn fra venstre
+   når feltet får fokus. Den blir stående når feltet er fylt ut — det er dét
+   som er poenget: i en rute med sju felt vil man vite hvilke man er ferdig
+   med, ikke bare hvilket man står i.
+
+   Lime er den samme fargen som publiseringsknappen, så en fylt strek leser som
+   «ett skritt nærmere». */
+.field::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--lime);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition:
+    transform 500ms var(--ease-out),
+    height 150ms ease;
+  pointer-events: none;
+}
+
+.field:focus-within::after,
+.field.is-filled::after {
+  transform: scaleX(1);
+}
+
+/* Fokus må synes selv når streken allerede er farget — ellers ser en som
+   tabber seg gjennom skjemaet ingen forskjell på «her står jeg» og «denne er
+   ferdig». Feltene har `outline: none` fordi en boks rundt dem ville brutt med
+   at streken er hele rammen, så streken blir litt tyngre og etiketten mørkere
+   i stedet. */
+.field:focus-within::after {
+  height: 3px;
+}
+
+.field:focus-within .field-label {
+  color: var(--ink);
 }
 
 .field-label {
@@ -453,6 +537,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-2);
+  transition: color 150ms ease;
 }
 
 .field-optional {

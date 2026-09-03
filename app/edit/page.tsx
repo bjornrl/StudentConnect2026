@@ -101,7 +101,8 @@ export default function EditPage() {
         loaded={loaded}
       />
 
-      <BoardNav onAbout={() => setAboutOpen(true)} />
+      {/* Merkelappen i linja sier at dette er en demo — se BoardNav. */}
+      <BoardNav onAbout={() => setAboutOpen(true)} demo />
 
       {/* Panelet blir stående montert når det er skjult, så teksten man holder
           på med ikke går tapt av å lukke det. `inert` tar det ut av

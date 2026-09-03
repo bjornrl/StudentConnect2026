@@ -54,6 +54,40 @@ function Step({ n, children }: { n: string; children: string }) {
   );
 }
 
+/**
+ * Etikett over en strek. Streken ER hele rammen — ingen boks.
+ *
+ * `filled` er det som gjør at fargestreken blir stående etter at man har
+ * forlatt feltet. Uten den ville man bare sett hvilket felt man står i, og
+ * ikke hvilke man er ferdig med — og i en rute med sju felt er dét det man
+ * lurer på.
+ */
+function Field({
+  id,
+  label,
+  optional = false,
+  filled,
+  innerRef,
+  children,
+}: {
+  id: string;
+  label: string;
+  optional?: boolean;
+  filled: boolean;
+  innerRef?: React.Ref<HTMLDivElement>;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={`field${filled ? " is-filled" : ""}`} ref={innerRef}>
+      <label className="field-label" htmlFor={id}>
+        {label}
+        {optional && <span className="field-optional"> — valgfritt</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
 export default function Questionnaire({ onPublished, onCollapse }: Props) {
   const [title, setTitle] = useState("");
   const [challenge, setChallenge] = useState("");
@@ -175,10 +209,7 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
         {/* ── 01 utfordringen ──────────────────────────────────────────────── */}
         <Step n="01">Utfordringen</Step>
 
-        <div className="field">
-          <label className="field-label" htmlFor="title">
-            Kort tittel <span className="field-optional">— valgfritt</span>
-          </label>
+        <Field id="title" label="Kort tittel" optional filled={title.trim().length > 0}>
           <input
             id="title"
             className="field-input"
@@ -187,12 +218,14 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
             onChange={(e) => setTitle(e.target.value)}
             maxLength={120}
           />
-        </div>
+        </Field>
 
-        <div className="field" ref={flightRef}>
-          <label className="field-label" htmlFor="challenge">
-            Beskriv utfordringen
-          </label>
+        <Field
+          id="challenge"
+          label="Beskriv utfordringen"
+          filled={challenge.trim().length > 0}
+          innerRef={flightRef}
+        >
           <textarea
             id="challenge"
             className="field-input field-textarea"
@@ -201,7 +234,7 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
             onChange={(e) => setChallenge(e.target.value)}
             maxLength={4000}
           />
-        </div>
+        </Field>
 
         {/* ── 02 folka ─────────────────────────────────────────────────────── */}
         <Step n="02">Folka</Step>
@@ -210,10 +243,7 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
           formidler den videre til dere.
         </p>
 
-        <div className="field">
-          <label className="field-label" htmlFor="company">
-            Bedrift
-          </label>
+        <Field id="company" label="Bedrift" filled={companyName.trim().length > 0}>
           <input
             id="company"
             className="field-input"
@@ -222,12 +252,9 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
             onChange={(e) => setCompanyName(e.target.value)}
             maxLength={120}
           />
-        </div>
+        </Field>
 
-        <div className="field">
-          <label className="field-label" htmlFor="cname">
-            Kontaktperson <span className="field-optional">— valgfritt</span>
-          </label>
+        <Field id="cname" label="Kontaktperson" optional filled={contactName.trim().length > 0}>
           <input
             id="cname"
             className="field-input"
@@ -236,12 +263,9 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
             onChange={(e) => setContactName(e.target.value)}
             maxLength={120}
           />
-        </div>
+        </Field>
 
-        <div className="field">
-          <label className="field-label" htmlFor="cmail">
-            E-post
-          </label>
+        <Field id="cmail" label="E-post" filled={contactEmail.trim().length > 0}>
           <input
             id="cmail"
             className="field-input"
@@ -251,12 +275,9 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
             onChange={(e) => setContactEmail(e.target.value)}
             maxLength={200}
           />
-        </div>
+        </Field>
 
-        <div className="field">
-          <label className="field-label" htmlFor="cphone">
-            Telefon <span className="field-optional">— valgfritt</span>
-          </label>
+        <Field id="cphone" label="Telefon" optional filled={contactPhone.trim().length > 0}>
           <input
             id="cphone"
             className="field-input"
@@ -265,7 +286,7 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
             onChange={(e) => setContactPhone(e.target.value)}
             maxLength={40}
           />
-        </div>
+        </Field>
 
         {/* ── 03 bransjen ──────────────────────────────────────────────────── */}
         <Step n="03">Bransjen</Step>
