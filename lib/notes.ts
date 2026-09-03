@@ -36,8 +36,8 @@ export const NOTE_COLORS: NoteColor[] = [
 /* ── grunnverdiene ────────────────────────────────────────────────────────── */
 
 /** Bredde, høyde og tekst har hver sin grunnverdi og varierer 80–120 % rundt den. */
-const BASE_WIDTH = 360;
-const BASE_HEIGHT = 240;
+const BASE_WIDTH = 310;
+const BASE_HEIGHT = 200;
 export const BASE_TEXT = 28;
 const MIN_TEXT = 22;
 const MAX_TEXT = 34;
@@ -150,11 +150,19 @@ export function noteStyle(submission: PublicSubmission, maxWidth = Infinity): No
 
 export type Placement = { x: number; y: number };
 
-/** Luft over lappene, så de ikke havner under den flytende navigasjonslinja. */
-const TOP = 92;
+/**
+ * Luft over lappene. Den øverste raden får trekke seg 40 px opp (se y-spennet
+ * under), så tallet må ha rom for det og fortsatt klare navigasjonslinja, som
+ * slutter på 57.
+ */
+const TOP = 118;
 const SIDE = 24;
-/** Smaleste kolonne vi godtar: bredeste mulige lapp pluss et minimum av luft. */
-const MIN_COLUMN = Math.round(BASE_WIDTH * (1 + SPREAD)) + 30;
+/**
+ * Smaleste kolonne vi godtar. Luften er rikelig med vilje — den er
+ * slingringsmonnet lappene sprer seg i. Krymper kolonnen i takt med lappene,
+ * får vi bare flere og tettere kolonner, og veggen blir et rutenett igjen.
+ */
+const MIN_COLUMN = Math.round(BASE_WIDTH * (1 + SPREAD)) + 90;
 /**
  * Og bredeste. Uten et tak fordeles all overskuddsplass på en vid skjerm som
  * mellomrom, og veggen faller fra hverandre i enkeltstående øyer.
@@ -200,10 +208,22 @@ export function scatter(
     }
 
     const seed = hash32(id);
+
+    /* Kolonnene holder veggen i balanse, men de skal ikke SYNES. Lappen får
+       først spille på ledig plass i sin egen kolonne, og deretter drive et
+       stykke ut av den — det er drivet som bryter rutenettet og lar naboer i
+       to kolonner gå over hverandre. Klemmen holder den innenfor flaten. */
     const slack = Math.max(0, colWidth - style.width);
-    const x = left + col * colWidth + unit(seed, 5) * slack;
-    /* −22 til +56: noen lapper skyver seg opp i naboen over, andre får luft. */
-    const y = bottoms[col] + (-22 + unit(seed, 6) * 78);
+    const drift = (unit(seed, 7) - 0.5) * colWidth * 0.36;
+    const x = clamp(
+      left + col * colWidth + unit(seed, 5) * slack + drift,
+      SIDE,
+      Math.max(SIDE, canvasWidth - SIDE - style.width)
+    );
+
+    /* −40 til +90: noen lapper skyver seg godt opp i naboen over, andre får
+       luft. Spennet er bredt fordi det er her den loddrette uroen kommer fra. */
+    const y = bottoms[col] + (-40 + unit(seed, 6) * 130);
 
     placements.set(id, { x: Math.round(x), y: Math.round(y) });
     bottoms[col] = y + style.height;
