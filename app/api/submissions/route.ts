@@ -8,17 +8,23 @@ export const dynamic = "force-dynamic";
 const VALID_LEVELS = new Set<string>(LEVELS.map((l) => l.key));
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Sentineler.
+   Hva som MÅ fylles ut, bestemmes i skjemaet — ikke her.
 
-   Skjemaet spør bare om utfordringen nå. Bransje, bedrift og tittel er enten
-   kommentert ut eller gjort valgfrie — men kolonnene i basen er fortsatt
-   `not null`, og `title` har i tillegg en check på 3–120 tegn. Å endre
-   skjemaet i Supabase krever en migrering på et produksjonsmiljø, så i stedet
-   skriver vi en avtalt verdi for «ikke oppgitt» og oversetter den tilbake til
-   tomt igjen når raden leses ut. Samme grep som `subarea_key = OTHER_KEY`,
-   som allerede sto her.
+   Kravene har flyttet seg flere ganger nå (tittel var påkrevd, så valgfri;
+   bransje og kontaktinfo var ute, så inne igjen). Ligger listen begge steder,
+   glir de to fra hverandre, og da avvises innmeldinger med en feilmelding som
+   ikke stemmer med det skjemaet nettopp sa. Derfor validerer ruta her FORMEN
+   på det som kommer inn — lengder, gyldige nøkler — og ikke om alt er med.
+   Det eneste som er absolutt påkrevd er utfordringen: uten den er det ingen
+   lapp.
 
-   Skal feltene tilbake i skjemaet, er det bare å slutte å sende sentinelen.
+   Sentineler: `title`, `company_name` og `industry_key` er `not null` i basen,
+   og `title` har i tillegg en check på 3–120 tegn. Kommer de ikke med, skriver
+   vi en avtalt verdi for «ikke oppgitt» og oversetter den tilbake til tomt
+   igjen når raden leses ut. Samme grep som `subarea_key = OTHER_KEY`, som
+   allerede sto her. Skjemaet krever nå bedrift og bransje, så i praksis er det
+   bare `title` som treffer dette — men eldre klienter og direkte POST-er gjør
+   det fortsatt.
    ──────────────────────────────────────────────────────────────────────────── */
 const NO_TITLE = "(uten tittel)";
 const NO_COMPANY = "(ikke oppgitt)";

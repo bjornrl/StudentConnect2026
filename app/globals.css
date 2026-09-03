@@ -319,13 +319,26 @@
     visibility 0s;
 }
 
+/* Skjemaet er en kolonne med en rullende kropp og en fast bunn. Med alle tre
+   bolkene inne er ruta lengre enn skjermen, og da må publiseringslinja bli
+   stående — ellers ligger knappen utenfor hele veien, og man ser ikke hva som
+   mangler. */
 .panel-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
   width: 100%;
+  min-height: 0;
+}
+
+.panel-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
   padding: 24px;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .panel-head {
@@ -360,6 +373,35 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* Bolkskillet.
+
+   Ingen strek her, bare luft. Feltene i ruta ER understreker, og en
+   bolkstrek i samme vekt rett over en feltstrek gir to linjer 12 px fra
+   hverandre som ikke betyr det samme. Luften over er det som sier at et nytt
+   trinn begynner — nummeret sier hvor mange det er igjen. */
+.panel-step {
+  margin: 6px 0 -8px;
+  padding-top: 22px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.panel-step span {
+  margin-right: 0.7em;
+  color: var(--ink-3);
+}
+
+/* Forklaringen under en bolktittel. Hører til bolken, så den ligger tett. */
+.panel-note {
+  margin: -10px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
   color: var(--ink-2);
 }
 
@@ -440,15 +482,51 @@
   resize: none;
 }
 
+/* ── bransjebrikkene ──────────────────────────────────────────────────────── */
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.2;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.chip:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* Valgt bransje er den samme svarte brikka som signerer lappen på tavla.
+   Chippen er altså en forhåndsvisning av taggen innmeldingen får — derfor
+   svart og ikke en femte aksentfarge. */
+.chip.is-on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #f5f5f5;
+}
+
 /* ── publiseringslinja ────────────────────────────────────────────────────── */
 
 .publish {
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  /* Litt ekstra luft over: dette er et annet slags trinn enn feltene. */
-  margin-top: 4px;
+  margin: 0 20px 20px;
   padding: 9px 9px 9px 18px;
   border: 1px solid var(--line);
   border-radius: 100px;
@@ -920,15 +998,21 @@
     font-size: 26px;
   }
 
-  .panel-form {
+  .panel-scroll {
     padding: 20px;
     gap: 20px;
+  }
+
+  /* En finger trenger mer enn en musepeker: ~44 px trykkflate. */
+  .chip {
+    padding: 11px 16px;
   }
 
   .publish {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
+    margin: 0 16px 16px;
     padding: 12px;
     border-radius: 24px;
   }
