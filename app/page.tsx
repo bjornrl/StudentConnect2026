@@ -34,13 +34,12 @@ export default function Home() {
       </header>
 
       <div className="home-hero">
-        <p className="home-eyebrow">Student Connect 2026</p>
+        <p className="home-eyebrow">Vi jakter utfordringer fra bedrifter</p>
 
         <h1 className="home-title">Hva vil dere utforske?</h1>
 
         <p className="home-lead">
-          Vi inviterer bedrifter i Oslo til å melde inn temaer de gjerne vil vite mer om, eller
-          utfordringer de vil ha løst.
+         Koblingspunkt tilbyr tilgang på innovative studenter som kan gi bedrifter nye perspektiver, tilgang på ny kompetanse og helt nye løsninger.
         </p>
 
 
@@ -50,7 +49,7 @@ export default function Home() {
             <span aria-hidden="true">→</span>
           </Link>
           <Link href="/presentation" className="home-secondary">
-            Vis kartet
+            Se hva andre har meldt inn
             <span aria-hidden="true">→</span>
           </Link>
         </div>
