@@ -1021,7 +1021,11 @@
    minste trinn, ikke som et avsnitt på linje med ingressen. */
 .home-fineprint {
   margin: 24px auto 0;
-  max-width: 34em;
+  /* Bredere enn ingressen over, ikke smalere: finskriften er nå et helt
+     avsnitt, og sentrert tekst med lasede kanter på begge sider blir tung å
+     lese så snart den passerer fire–fem linjer. Bredden holder den nede på
+     fire. */
+  max-width: 48em;
   font-size: 13px;
   line-height: 1.5;
   color: var(--ink-2);

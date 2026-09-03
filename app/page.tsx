@@ -108,14 +108,13 @@ export default function Home() {
         {/* Teksten står først i dokumentet fordi den er det siden handler om.
             Lappene ligger under her i markupen, men bak i lagene. */}
         <div className="home-hero" ref={heroRef}>
-          <p className="home-eyebrow">Student Connect 2026</p>
+          <p className="home-eyebrow">Vi jakter utfordringer fra bedrifter</p>
 
           <h1 className="home-title">Hva vil dere utforske?</h1>
 
           <p className="home-lead">
-            Vi inviterer bedrifter i Oslo til å melde inn temaer de gjerne vil vite mer om, eller
-            utfordringer de vil ha løst. Hver innmelding blir en lapp på tavla, og studenter kan ta
-            tak i den.
+            Koblingspunkt tilbyr tilgang på innovative studenter som kan gi bedrifter nye
+            perspektiver, tilgang på ny kompetanse og helt nye løsninger.
           </p>
 
           {/* Én fylt knapp. Alt annet på siden er tekst. */}
@@ -124,12 +123,17 @@ export default function Home() {
             <span aria-hidden="true">→</span>
           </Link>
 
-          {/* NB: teksten under stemmer med skjemaet slik det står nå. Kommer
-              «hvem er dere» tilbake i Questionnaire.tsx, må den skrives om —
-              da samler vi kontaktinformasjon igjen. */}
+          {/* Finskriften bærer forbeholdet om kontaktinformasjonen, så den skal
+              stå — men under handlingen og i minste trinn, ikke som et tredje
+              avsnitt på linje med ingressen. Den forutsetter at bolk 02 «Folka»
+              i Questionnaire.tsx faktisk spør om bedrift og e-post; blir den
+              kommentert ut igjen, må denne skrives om. */}
           <p className="home-fineprint">
-            Det er uforpliktende. Vi ber ikke om kontaktinformasjon — lappene henger anonymt på
-            tavla.
+            Dere trenger ikke vite hvordan en masteroppgave eller et studentprosjekt skal se ut —
+            dere trenger kun et ønske om å løse utfordringen. Koblingspunkt hjelper dere fra første
+            idé til et konkret samarbeid og verdiskaping. Det er uforpliktende å registrere
+            utfordringer. Hva som meldes inn, og av hvem, er kun tilgjengelig for oss i
+            Koblingspunkt.
           </p>
         </div>
 
