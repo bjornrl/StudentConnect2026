@@ -1,12 +1,15 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   Student Connect 2026 — oppgavekartlegging
-   Aeonik på #f5f5f5 og #101110. Farge bærer informasjon: bransjene
-   i kartet, og de tre sekundærfargene til status (grønn = fullført, blå =
-   fokus og lenker, rød = feil).
+   Student Connect 2026 — tavla
+
+   Hele skjermen er ett kanvas i #f5f5f5. Lappene ligger fritt utover det,
+   panelet svever oppå, og navigasjonslinja svever over igjen. Det er hele
+   hierarkiet: flate → innhold → verktøy → sted.
+
+   Målene under er hentet rett fra Figma-fila og står derfor i px. Rot-
+   skriftstørrelsen er 16 px nettopp for at de skal stemme 1:1.
    ──────────────────────────────────────────────────────────────────────────── */
 
-/* Tailwind. Preflight er bevisst utelatt — resten av appen har egne
-   grunnstiler, og en reset ville dratt dem med seg. */
+/* Tailwind. Preflight er bevisst utelatt — grunnstilene står her under. */
 @layer theme, base, components, utilities;
 
 @import "tailwindcss/theme.css" layer(theme);
@@ -15,140 +18,41 @@
 @source "../app";
 @source "../components";
 
-/* Aeonik (CoType Foundry) ligger i public/fonts/.
-   Light (300) til display og etiketter, Regular (400) til feltene,
-   Medium (500) til ingressene og knappene. Familien har ingen 600 — der
-   filen tidligere ba om 600 står det nå 500. */
-@font-face {
-  font-family: "Aeonik";
-  src: url("/fonts/Aeonik-Light.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Aeonik";
-  src: url("/fonts/Aeonik-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Aeonik";
-  src: url("/fonts/Aeonik-Medium.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
-  --bg: #f5f5f5;
-  --surface: #f5f5f5;
-  --surface-2: #e0e0e0;
-  --line: #d7d8d7;
-  --ink: #101110;
-  --ink-2: #575957;
-  --ink-3: #101110;
-  --accent-ink: #101110;
-  --map-bg: #efefef;
-  --map-node-ring: #f5f5f5;
+  /* flater */
+  --bg: #f5f5f5;      /* kanvaset */
+  --panel: #fefefe;   /* panelet med skjemaet */
+  --nav: #ffffff;     /* navigasjonslinja */
 
-  /* Sekundærfarger. Grønn er sterk og lys — den brukes som flate med mørk
-     tekst oppå, aldri som tekst på lyst underlag. */
-  --accent-green: #cbf863;
-  --press: #0a1d06;
-  --accent-blue: #5899e2;
-  --accent-red: #ab2346;
-  /* Blå og rød må bære tekst på #f5f5f5 også, og trenger å mørknes litt der. */
-  --link: #2f6fb8;
+  /* skrift */
+  --ink: #101110;
+  --ink-2: rgba(16, 17, 16, 0.7);
+  --ink-3: rgba(16, 17, 16, 0.45);
+  --line: rgba(16, 17, 16, 0.28);
   --danger: #ab2346;
 
-  --card: #ffffff;
+  /* Aksentene fra post-it-paletten. Lime er handlingen, blå er verktøyet,
+     oransje er merkelappen — samme farger som lappene, så panelet hører
+     hjemme på tavla i stedet for å ligge oppå den som noe annet. */
+  --lime: #cce848;
+  --lime-hover: #d8f05f;
+  --blue: #4896fc;
+  --blue-hover: #2f86fb;
+  --orange: #ff8048;
 
-  --radius: 32px;
-  --radius-sm: 9px;
-  --shadow: 0 1px 2px rgba(16, 17, 16, 0.05), 0 8px 28px rgba(16, 17, 16, 0.07);
+  --float: 0 1px 2px rgba(16, 17, 16, 0.05), 0 10px 32px rgba(16, 17, 16, 0.08);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-[data-theme="dark"] {
-  --bg: #101110;
-  --surface: #1b1c1b;
-  --surface-2: #262726;
-  --line: #313231;
-  --ink: #f5f5f5;
-  --ink-2: #a9aba9;
-  --ink-3: #6f716f;
-  --map-bg: #0a0b0a;
-  --map-node-ring: rgba(245, 245, 245, 0.22);
-  --card: #1b1c1b;
-  /* På mørk flate bærer originalfargene tekst fint som de er. */
-  --link: #5899e2;
-  --danger: #e4657f;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 34px rgba(0, 0, 0, 0.45);
-}
-
-/* Tokenene over gjort tilgjengelige som Tailwind-utilities: bg-ink, text-ink-2,
-   border-line, rounded-card … `inline` gjør at utilities peker på `var(--…)`,
-   så [data-theme="dark"] fortsatt bytter dem ut. */
 @theme inline {
   --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-card: var(--card);
-  --color-line: var(--line);
   --color-ink: var(--ink);
-  --color-ink-2: var(--ink-2);
-  --color-ink-3: var(--ink-3);
-  --color-accent-ink: var(--accent-ink);
-  --color-accent-green: var(--accent-green);
-  --color-press: var(--press);
-  --color-accent-blue: var(--accent-blue);
-  --color-accent-red: var(--accent-red);
-  --color-link: var(--link);
-  --color-danger: var(--danger);
-
-  --radius-note: var(--radius-sm);
-
-  /* Bruddpunktene skjemaet allerede bruker, som max-mobile:/max-narrow:. */
+  --color-line: var(--line);
   --breakpoint-mobile: 900px;
-  --breakpoint-narrow: 620px;
 }
 
-/* ── Figma «Editorial» ────────────────────────────────────────────────────────
-   Designet er tegnet på et 2013 px bredt artboard. Hvert mål er tatt som sin
-   andel av den bredden og skrevet i `cqi`, altså prosent av skjemaets EGEN
-   bredde — ikke vindusbredden. Skjemaruta er halve skjermen på desktop og hele
-   på mobil, så `vw` ville skalert mot feil referanse; `container-type` står
-   derfor på scrollflaten i Questionnaire.
-   clamp()-gulvet holder teksten lesbar når ruta blir smal, taket hindrer at den
-   vokser ut av proporsjon når den er bred.
+/* ── grunnstiler ──────────────────────────────────────────────────────────── */
 
-   Verdiene er skrudd ned fra px-ene i Figma-fila. Artboardet var 2013 px bredt,
-   og tatt rått ga andelene en display på 128 px, 64 px luft i kortene og 156 px
-   mellom dem — i en rute som i praksis er 600 px bred ble bolkene liggende
-   langt fra hverandre, og brikkene ble like store som kortene rundt seg. */
-@theme {
-  --text-eyebrow: clamp(0.72rem, 1.45cqi, 0.92rem);
-  --text-eyebrow--line-height: 1.25;
-  --text-display: clamp(1.7rem, 4.4cqi, 2.8rem);
-  --text-display--line-height: 1.05;
-  --text-lead: clamp(0.95rem, 1.85cqi, 1.08rem);
-  --text-lead--line-height: 1.5;
-  --text-field: clamp(0.95rem, 1.8cqi, 1.1rem);
-  --text-field--line-height: 1.4;
-
-  --spacing-card: clamp(1.25rem, 3cqi, 1.9rem); /* kortets luft */
-  --spacing-stack: clamp(1.25rem, 2.8cqi, 1.85rem); /* mellom kortene */
-  --spacing-field: clamp(0.6rem, 1.3cqi, 0.9rem);
-  --spacing-chip: clamp(0.4rem, 0.8cqi, 0.6rem);
-  --spacing-editor: clamp(7rem, 15cqi, 10rem); /* høyden på fritekstfeltet */
-
-  --radius-card: clamp(1rem, 2cqi, 1.5rem);
-}
-
-/* Elementreglene ligger i @layer base, slik at Tailwind-utilities (som er
-   lagdelt) kan overstyre dem. Alt annet i denne filen står utenfor lag og
-   ligger derfor fortsatt over utilities. */
 @layer base {
   * {
     box-sizing: border-box;
@@ -159,31 +63,32 @@
     margin: 0;
     padding: 0;
     height: 100%;
+    /* Tavla er flaten man drar i. Sideveis gummistrikk i nettleseren gjør at
+       lappene ser ut til å henge etter fingeren. */
+    overscroll-behavior: none;
   }
 
-  /* Typografien styres herfra. Nesten alle størrelser i filen er i `rem`, så
-     dette tallet skalerer hele grensesnittet samlet. Kartets egne etiketter er
-     med vilje satt i `px` og følger ikke med — der er tett stoff poenget. */
+  /* Alle mål i denne filen kommer fra Figma og er i px. 16 px rot gjør at de
+     stemmer, og at post-it-teksten på 22–34 px er nøyaktig det den sier. */
   html {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   body {
     background: var(--bg);
     color: var(--ink);
-    font-family: "Aeonik", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 1.06rem;
+    font-family: var(--font-sc), "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1rem;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
 
   h1,
-  h2,
-  h3 {
+  h2 {
     margin: 0;
     font-weight: 500;
-    letter-spacing: -0.018em;
-    line-height: 1.2;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
 
   button {
@@ -191,1117 +96,667 @@
     cursor: pointer;
   }
 
-  /* Preflight er av, så skjemafeltene arver ikke skriften av seg selv. */
   input,
-  textarea,
-  select {
+  textarea {
     font: inherit;
   }
 
-  a {
-    color: var(--link);
-    text-underline-offset: 0.18em;
-    text-decoration-thickness: 1px;
-  }
-  a:hover {
-    color: var(--ink);
-  }
-
-  /* Tastaturfokus skal alltid være synlig, og bruker sekundærblå. */
+  /* Tastaturfokus skal alltid synes — også oppå en farget lapp. */
   :focus-visible {
-    outline: 2px solid var(--accent-blue);
-    outline-offset: 2px;
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
   }
 }
 
-/* ── knapper ──────────────────────────────────────────────────────────────── */
+/* ── navigasjonslinja ─────────────────────────────────────────────────────── */
 
-.btn-primary {
-  --hover: var(--accent-green);
-  --hover-ink: var(--ink);
-  background: var(--ink);
-  color: var(--bg);
-  border: 1px solid var(--ink);
-  border-radius: 999px;
-  padding: 0.62rem 1.35rem;
-  font-weight: 500;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
-}
-.btn-primary:hover:not(:disabled) {
-  background: var(--hover);
-  border-color: var(--hover);
-  color: var(--hover-ink);
-  opacity: 1;
-}
-.btn-primary:active:not(:disabled) {
-  background: var(--press);
-  border-color: var(--press);
-  color: var(--bg);
-  opacity: 1;
-}
-.btn-primary:disabled {
-  opacity: 0.28;
-  cursor: not-allowed;
-}
-
-.btn-ghost {
-  --hover: #71fbb4;
-  --hover-ink: var(--ink);
-  background: transparent;
-  color: var(--ink-2);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.62rem 1.35rem;
-  font-weight: 500;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-.btn-ghost:hover:not(:disabled) {
-  background: var(--hover);
-  border-color: var(--hover);
-  color: var(--hover-ink);
-}
-.btn-ghost:active:not(:disabled) {
-  background: var(--press);
-  border-color: var(--press);
-  color: var(--bg);
-}
-.btn-ghost:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-/* ── forside ──────────────────────────────────────────────────────────────── */
-
-/* Tre rader: linja på toppen, teksten i midten, partnerne nederst. Midtraden
-   er `1fr` og får all plassen som blir til overs, så innholdet står i ro midt
-   på skjermen mens topp og bunn blir liggende i kantene uansett vindushøyde. */
-.home {
-  min-height: 100%;
-  /* dvh følger den synlige høyden når adresselinja på mobil glir inn og ut. */
-  min-height: 100dvh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  justify-items: center;
-  /* Radavstanden er også det som skyver midtraden oppover: alt som ligger
-     under den er reservert plass. Strammere her = overskriften lenger ned. */
-  gap: 2rem;
-  padding: 1.75rem clamp(1.25rem, 5vw, 3rem) 2.5rem;
-  position: relative;
-  isolation: isolate;
-  /* `overflow: hidden` klippet alt som ikke fikk plass — på en telefon ble
-     logoene og finskriften utilgjengelige. Bare den vannrette aksen klippes nå;
-     `clip` (ikke `hidden`) lar den loddrette være synlig og rullbar. */
-  overflow-x: clip;
-  /* Nesten flat. Den mettede grønngradienten er byttet mot husets egen lyse
-     flate, med et grønnskjær igjen nederst — nok til at flaten ikke er død,
-     lite nok til at typografien er det man ser først. */
-  background:
-    radial-gradient(125% 78% at 50% 108%, rgba(203, 248, 99, 0.3) 0%, transparent 62%),
-    linear-gradient(180deg, #fbfbfa 0%, var(--bg) 46%, #f1f4ec 100%);
-}
-
-/* Auroraen deles med .edit-pane, der den fortsatt skal stå i full styrke.
-   Nedtoningen gjelder derfor bare forsiden.
-
-   `fixed` fordi forsiden ikke lenger klipper loddrett: flatene stikker 25 %
-   utenfor kanten, og som `absolute` ville de lagt til rulleplass under
-   innholdet. Fixed-elementer regnes ikke med i rulleflaten, og siden `.home`
-   ikke har noen transform er det vinduet de måler seg mot. */
-.home .aurora {
+.nav {
   position: fixed;
-  opacity: 0.13;
-}
-
-/* Flytende gradient. Brukes av .home og .edit-pane (se components/Aurora.tsx).
-   Fargene er de samme som før, men hver av dem er nå sin egen flate med sin
-   egen bane og omløpstid. Før lå alle ni i ett bilde som ble flyttet under ett
-   — da beveget hele bakgrunnen seg som et fotografi. Nå driver de fra
-   hverandre, og siden omløpstidene ikke går opp i hverandre møtes fargene i
-   stadig nye kombinasjoner.
-   Ingen blur: flatene tones allerede ut i kanten (`closest-side` mot
-   transparent), og et blur-filter over hele vinduet er dyrt å animere. */
-.aurora {
-  position: absolute;
-  inset: -25%;
-  z-index: -1;
-  pointer-events: none;
-  /* Fargene beholdes som de er, men slipper mindre igjennom — sammen med den
-     lysere grunngradienten gir det en dus bakgrunn i stedet for en mettet. */
-  opacity: 0.45;
-}
-.aurora span {
-  position: absolute;
-  display: block;
-  background: radial-gradient(closest-side, var(--c) 0%, transparent 100%);
-  will-change: transform;
-  animation: var(--anim) var(--dur) var(--delay) ease-in-out infinite;
-}
-
-/* Plassering og størrelse er de samme ellipsene som lå i den gamle
-   background-lista: en flate er dobbelt så bred som radiusen, forskjøvet slik
-   at midtpunktet lander der fargen sto før. */
-.aurora span:nth-child(1) { --c: #cbf863; left: -30%; top: -14%; width: 84%; height: 72%; --anim: aurora-a; --dur: 34s; --delay: -3s; }
-.aurora span:nth-child(2) { --c: #71fbb4; left: 44%; top: -36%; width: 76%; height: 88%; --anim: aurora-b; --dur: 41s; --delay: -11s; }
-.aurora span:nth-child(3) { --c: #9ff3e2; left: -32%; top: 40%; width: 80%; height: 76%; --anim: aurora-c; --dur: 47s; --delay: -19s; }
-.aurora span:nth-child(4) { --c: #e2c38e; left: 52%; top: 30%; width: 72%; height: 84%; --anim: aurora-a; --dur: 53s; --delay: -27s; }
-.aurora span:nth-child(5) { --c: #c8fb89; left: 18%; top: 14%; width: 68%; height: 68%; --anim: aurora-b; --dur: 61s; --delay: -7s; }
-.aurora span:nth-child(6) { --c: #7fb447; left: 8%; top: 42%; width: 60%; height: 80%; --anim: aurora-c; --dur: 43s; --delay: -33s; }
-.aurora span:nth-child(7) { --c: #6d906e; left: 40%; top: -4%; width: 56%; height: 64%; --anim: aurora-a; --dur: 67s; --delay: -15s; }
-.aurora span:nth-child(8) { --c: #a1a19b; left: -2%; top: 18%; width: 52%; height: 60%; --anim: aurora-b; --dur: 59s; --delay: -23s; }
-.aurora span:nth-child(9) { --c: #0a1d06; left: 72%; top: 14%; width: 44%; height: 56%; --anim: aurora-c; --dur: 73s; --delay: -41s; }
-
-@keyframes aurora-a {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  33% { transform: translate3d(12%, 8%, 0) scale(1.16); }
-  66% { transform: translate3d(-9%, -11%, 0) scale(0.9); }
-}
-@keyframes aurora-b {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1.06); }
-  40% { transform: translate3d(-14%, 10%, 0) scale(0.88); }
-  75% { transform: translate3d(10%, -13%, 0) scale(1.2); }
-}
-@keyframes aurora-c {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(0.94); }
-  50% { transform: translate3d(9%, -14%, 0) scale(1.22); }
-}
-
-/* ── forsiden: topplinje ──────────────────────────────────────────────────── */
-
-/* Avsenderen står her oppe, ikke i heltekstblokken. Da slipper tittelen å dele
-   plass med den, og «Student Connect 2026» kan være hendelsen i midten mens
-   «Koblingspunkt» er den som inviterer. */
-.home-bar {
-  width: 100%;
-  max-width: 1180px;
+  inset: 10px 10px auto 10px;
+  z-index: 40;
+  height: 47px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  padding: 0 24px;
+  border-radius: 1000px;
+  background: var(--nav);
+  box-shadow: var(--float);
+  font-size: 18px;
+  font-weight: 500;
 }
 
-.home-wordmark {
-  font-size: 0.95rem;
-  font-weight: 500;
+.nav-wordmark {
   letter-spacing: -0.01em;
+}
+
+.nav-link {
+  border: 0;
+  background: none;
   color: var(--ink);
+  padding: 0;
+  border-radius: 6px;
+  transition: opacity 150ms ease;
 }
 
-.home-meta {
-  font-size: 0.76rem;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
-
-/* ── forsiden: heltekst ───────────────────────────────────────────────────── */
-
-.home-hero {
-  align-self: center;
-  display: flex;
-  width: 100%;
-  max-width: 58rem;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-/* Blokka sentreres om sin egen midte, og alt som står under overskriften —
-   handlingen, finskriften — drar den midten nedover. Overskriften havner
-   dermed godt over midten av siden. Her skyves hele blokka ned igjen.
-   `transform` er med vilje: den endrer ikke layouten, så raden er like høy som
-   før og lave vinduer får ikke innholdet dyttet ned i partnerlogoene. Under
-   700 px høyde er det ikke plass til å flytte noe, og da står den i ro. */
-/* Hvor mye som er trygt å skyve avhenger av hvor mye slark raden har, og den
-   krymper både når vinduet blir lavere og når det blir smalere (teksten brekker
-   på flere linjer). Derfor står forskyvningen bare på når det er rom for den i
-   begge retninger — ellers sentreres blokka som før, uten å legge seg oppå
-   partnerlogoene. */
-@media (min-width: 700px) and (min-height: 700px) {
-  .home-hero {
-    transform: translateY(clamp(0rem, 5vh, 4rem));
-  }
-}
-
-.home-eyebrow {
-  margin: 0;
-  font-size: 0.78rem;
-  font-weight: 400;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
-
-/* Aeonik Light i stor grad. Negativ letter-spacing strammer de store
-   bokstavene, og `balance` fordeler ordene jevnt over linjene i stedet for å la
-   siste linje bli et enslig ord. */
-.home-title {
-  margin: 0.85rem 0 0;
-  font-size: clamp(2.5rem, 6.8vw, 5rem);
-  font-weight: 300;
-  line-height: 0.95;
-  letter-spacing: -0.05em;
-  text-wrap: balance;
-  color: var(--ink);
-}
-
-/* Ingressen er ett trinn ned fra tittelen, men fortsatt i full ink — det er
-   den setningen som forklarer hva siden ber om.
-
-   `max-width`, ikke `width`: et fast `70ch` er ~830 px og kan ikke krympe, så
-   den sprengte skjermen på en telefon. Med `width: 100%` og et tak følger den
-   spalten ned. */
-.home-lead {
-  margin: 1.25rem 0 0;
-  width: 120%;
-  max-width: 70ch;
-  font-size: clamp(1.08rem, 1.55vw, 1.32rem);
-  font-weight: 400;
-  line-height: 1.2;
-  text-wrap: balance;
-  color: var(--ink);
-}
-
-.home-support {
-  margin: 0.9rem 0 0;
-  max-width: 46ch;
-  font-size: clamp(0.92rem, 1.1vw, 1rem);
-  font-weight: 400;
-  line-height: 1.55;
-  text-wrap: pretty;
-  color: var(--ink-2);
-}
-
-/* ── forsiden: handlinger ─────────────────────────────────────────────────── */
-
-.home-actions {
-  display: flex;
-  margin: 1.9rem 0 0;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem 1.75rem;
-}
-
-/* Arver flate, farge og hover fra .btn-primary — her settes bare det som gjør
-   den til sidens hovedhandling: større trykkflate, og ingen understrek slik
-   lenker ellers får. */
-.home-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.85rem 1.7rem;
-  font-size: 1.02rem;
-  text-decoration: none;
-}
-
-.home-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.98rem;
-  font-weight: 500;
-  color: var(--ink-2);
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-.home-secondary:hover {
-  color: var(--ink);
+.nav-link:hover {
   text-decoration: underline;
-}
-/* Pila skyves litt ut ved hover. Ren tilbakemelding på at lenken lever. */
-.home-cta span,
-.home-secondary span {
-  transition: transform 0.15s ease;
-}
-.home-cta:hover span,
-.home-secondary:hover span {
-  transform: translateX(2px);
+  text-underline-offset: 4px;
 }
 
-/* Nederste trinn i teksten: minst, men fortsatt i --ink-2 slik at kontrasten
-   holder. Samtykket skal være lesbar finskrift, ikke grå pynt. */
-.home-fineprint {
-  margin: 1.15rem 0 0;
-  /* Bredere enn før: på 62ch ble de to avsnittene sju linjer til sammen og
-     skjøv overskriften oppover. */
-  width: 100%;
-  max-width: 92ch;
-  font-size: 0.8rem;
-  line-height: 1.5;
-  text-wrap: pretty;
-  color: var(--ink-2);
-}
-/* Avsnitt to hører til det første — de trenger ikke like mye luft mellom seg
-   som det første trenger ned fra knappen. */
-.home-fineprint + .home-fineprint {
-  margin-top: 0.7rem;
-}
+/* ── tavla ────────────────────────────────────────────────────────────────── */
 
-/* ── forsiden: partnere ───────────────────────────────────────────────────── */
-
-.home-partners {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.home-partners-label {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 400;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
-
-.home-logos {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem 2.5rem;
-}
-
-/* Logoene skal kjennes igjen, ikke trekke blikket vekk fra handlingen. De sterke
-   flatefargene (oransje, rødt) veide tyngre enn knappen før. Gråtoner i hvile
-   — en halvveis avmetning ga bare støvete farger — og full farge ved hover. */
-.home-logos img {
-  width: auto;
-  max-width: 150px;
-  object-fit: contain;
-  opacity: 0.72;
-  filter: grayscale(1);
-  transition: opacity 0.2s ease, filter 0.2s ease;
-}
-.home-logos:hover img {
-  opacity: 1;
-  filter: grayscale(0);
-}
-
-@media (max-width: 620px) {
-  .home {
-    gap: 1.75rem;
-    padding: 1.25rem 1.25rem 2rem;
-  }
-  /* Vinduet er for smalt til at overskriften kan holde desktop-gulvet på
-     2.5rem — den ble stående og sprenge spalten. Her styrer vw-leddet. */
-  .home-title {
-    font-size: clamp(2rem, 10.5vw, 3.1rem);
-    letter-spacing: -0.03em;
-  }
-  .home-lead {
-    margin-top: 1rem;
-    font-size: 1.02rem;
-  }
-  .home-actions {
-    width: 100%;
-    margin-top: 1.6rem;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  /* Etiketten er lang; på 320 px brakk den i to med pila hengende for seg
-     selv. Litt mindre grad og strammere sideluft holder den på én linje. */
-  .home-cta {
-    width: 100%;
-    justify-content: center;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    font-size: 0.98rem;
-  }
-  .home-fineprint {
-    font-size: 0.78rem;
-  }
-  .home-logos {
-    gap: 1.1rem 1.75rem;
-  }
-  /* Fem logoer på tvers av en telefon blir frimerker uansett; de får litt
-     mindre tak hver, så raden brekker på to linjer i stedet for fire. */
-  .home-logos img {
-    max-width: 104px;
-  }
-}
-
-/* Under ~380 px står «Oslo · 2026» i veien for avsenderen i topplinja. */
-@media (max-width: 380px) {
-  .home-meta {
-    display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .aurora span {
-    animation: none;
-  }
-}
-
-/* ── /edit: delt skjerm ───────────────────────────────────────────────────── */
-
-.edit {
-  display: grid;
-  grid-template-columns: minmax(420px, 46%) 1fr;
-  /* 100vh regner med adresselinja på mobil, så publiseringslinja havner
-     utenfor skjermen. dvh følger den synlige høyden; vh står som reserve. */
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-}
-
-.edit-pane {
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--line);
-  min-width: 0;
-  /* Samme bevegelige gradient som forsiden. `isolation` holder flatene over
-     ruta sin egen bakgrunn men under skjemaet, `overflow` klipper dem i kanten. */
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  /* Uten min-height: 0 vokser griden forbi 100vh og skjemaets scrollflate
-     slutter å scrolle — alt står under hverandre og er høyere enn ruta. */
-  min-height: 0;
-  /* Samme nedtoning som forsiden: den mettede gradienten trakk blikket vekk fra
-     feltene, som er det man faktisk er her for. */
-  background:
-    radial-gradient(120% 60% at 50% 104%, rgba(203, 248, 99, 0.26) 0%, transparent 62%),
-    linear-gradient(180deg, #fbfbfa 0%, var(--bg) 48%, #f1f4ec 100%);
-}
-
-.edit-pane .aurora {
-  opacity: 0.13;
-}
-
-.edit-map {
-  position: relative;
-  min-width: 0;
-  background: var(--map-bg);
-}
-
-.edit-map-badge {
-  position: absolute;
-  top: 1.25rem;
-  left: 1.25rem;
-  z-index: 3;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.4rem 0.95rem;
-  font-size: 0.82rem;
-  color: var(--ink-2);
-  box-shadow: var(--shadow);
-}
-.edit-map-badge strong {
-  color: var(--ink);
-}
-
-/* ── skjemafelter ─────────────────────────────────────────────────────────── */
-/* Alt som bare gjaldt Questionnaire.tsx er borte — den komponenten står på
-   Tailwind nå. Det som blir igjen her deles med NodeDetail. */
-
-.q-input,
-.q-textarea {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 0.85rem 1rem;
-  color: var(--ink);
-  font: inherit;
-  outline: none;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-.q-input:focus,
-.q-textarea:focus {
-  border-color: var(--accent-blue);
-  background: var(--bg);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-blue) 22%, transparent);
-}
-.q-textarea {
-  resize: vertical;
-  line-height: 1.55;
-}
-.q-input::placeholder,
-.q-textarea::placeholder {
-  color: color-mix(in srgb, var(--ink) 38%, transparent);
-  font-weight: 500;
-  opacity: 1;
-}
-
-.q-chip {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--ink-2);
-  transition: all 0.15s ease;
-}
-.q-chip.is-static {
-  cursor: default;
-}
-
-.q-error {
-  color: var(--danger);
-  font-size: 0.88rem;
-  margin: 0.9rem 0 0;
-}
-
-/* ── nodekartet ───────────────────────────────────────────────────────────── */
-
-.nodemap {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: var(--map-bg);
-  touch-action: none;
-  cursor: grab;
-}
-.nodemap:active {
-  cursor: grabbing;
-}
-.nodemap svg {
-  display: block;
-}
-
-.nodemap-cluster-label {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  /* Ingen opacity her: fargen er alt dempet til 4.5:1 mot kartflata, og et
-     slør oppå ville spist opp den kontrasten igjen. */
-}
-.nodemap-cluster-count {
-  fill: var(--ink-3);
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-.nodemap-node-label {
-  font-size: 12px;
-  font-weight: 500;
-  fill: var(--ink);
-  paint-order: stroke;
-  stroke: var(--map-bg);
-  stroke-width: 4px;
-  stroke-linejoin: round;
-}
-
-.nodemap-pulse {
-  animation: nodepulse 1.6s ease-out 4;
-  transform-origin: center;
-}
-@keyframes nodepulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(3.4);
-    opacity: 0;
-  }
-}
-
-.nodemap-empty {
-  position: absolute;
+.board {
+  position: fixed;
   inset: 0;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  pointer-events: none;
-  color: var(--ink-3);
-}
-.nodemap-empty p {
-  margin: 0 0 0.3rem;
-  color: var(--ink-2);
-  font-size: 1rem;
-}
-.nodemap-empty span {
-  font-size: 0.88rem;
-}
-
-.nodemap-controls {
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  z-index: 3;
-}
-.nodemap-controls button {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
+  overflow: auto;
   background: var(--bg);
-  color: var(--ink-2);
-  display: grid;
-  place-items: center;
-  font-size: 0.95rem;
-  box-shadow: var(--shadow);
-}
-.nodemap-controls button:hover {
-  color: var(--ink);
+  /* Lappene får stigende z-index etter hvert som de dras fram, og uten et eget
+     stablingslag her ville de før eller siden kravlet opp over panelet og
+     navigasjonslinja. `z-index: 0` lukker dem inne i tavla. */
+  z-index: 0;
 }
 
-/* ── /presentation ────────────────────────────────────────────────────────── */
-
-.present {
+.board-canvas {
   position: relative;
-  height: 100vh;
-  height: 100dvh;
   width: 100%;
-  overflow: hidden;
-  background: var(--map-bg);
+  /* Lappene ligger absolutt plassert her. Høyden settes fra utlegget, så
+     flaten vokser med veggen. */
 }
 
-.present-topbar {
+.board-empty {
   position: absolute;
-  top: 0;
+  top: 45%;
   left: 0;
   right: 0;
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.15rem 1.5rem;
-  pointer-events: none;
-}
-.present-title {
-  pointer-events: auto;
-}
-.present-title strong {
-  display: block;
-  font-size: 1rem;
-  font-weight: 500;
-}
-.present-title span {
-  font-size: 0.8rem;
+  margin: 0;
+  text-align: center;
+  font-size: 20px;
   color: var(--ink-3);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.present-actions {
-  pointer-events: auto;
-  display: flex;
-  gap: 0.4rem;
-}
-.present-actions button,
-.present-actions a {
-  border: 1px solid var(--line);
-  background: var(--bg);
-  color: var(--ink-2);
-  border-radius: 999px;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.82rem;
-  text-decoration: none;
-  box-shadow: var(--shadow);
-}
-.present-actions button:hover,
-.present-actions a:hover {
-  color: var(--ink);
 }
 
-/* ── filtermeny ───────────────────────────────────────────────────────────── */
+/* ── post-it ──────────────────────────────────────────────────────────────── */
 
-/* Kvittering etter publisering fra mobil — kartet er kvitteringen, dette er
-   bare beskjeden om hvor noden ble av og veien videre. */
-.present-published {
+.note {
   position: absolute;
-  z-index: 6;
-  left: 1rem;
-  right: 1rem;
-  bottom: max(1rem, env(safe-area-inset-bottom));
-  margin: 0 auto;
-  max-width: 540px;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  border-left: 4px solid var(--accent-green);
-  padding: 1rem 1.1rem;
-  box-shadow: var(--shadow);
-  animation: publishedin 0.32s cubic-bezier(0.32, 0.72, 0, 1);
-}
-@keyframes publishedin {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-}
-.present-published-text {
-  flex: 1;
-  min-width: 0;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 24px;
+  background: var(--note-bg);
+  color: var(--note-ink);
+  /* Helningen ligger i --tilt og varierer −4° til +4°. Det er akkurat nok til
+     at veggen ser lagt opp for hånd ut, og lite nok til at teksten leses. */
+  transform: rotate(var(--tilt));
+  box-shadow:
+    0 1px 2px rgba(16, 17, 16, 0.08),
+    0 8px 22px rgba(16, 17, 16, 0.1);
+  cursor: grab;
+  /* Uten dette drar nettleseren siden i stedet for lappen på berøring. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    box-shadow 200ms ease,
+    transform 260ms var(--ease-out);
 }
-.present-published-text strong {
-  font-size: 0.95rem;
+
+.note:hover {
+  transform: rotate(var(--tilt)) translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(16, 17, 16, 0.09),
+    0 14px 32px rgba(16, 17, 16, 0.14);
 }
-.present-published-text span {
-  color: var(--ink-2);
-  font-size: 0.85rem;
+
+/* Løftet mens man drar. Posisjonen settes i px og har med vilje ingen
+   overgang — den skal ligge klistret til fingeren. */
+.note.is-dragging {
+  cursor: grabbing;
+  transform: rotate(var(--tilt)) scale(1.04);
+  box-shadow:
+    0 4px 8px rgba(16, 17, 16, 0.1),
+    0 24px 54px rgba(16, 17, 16, 0.24);
+  transition: box-shadow 140ms ease;
 }
-.present-published .btn-primary {
-  flex: none;
-  text-decoration: none;
-  font-size: 0.88rem;
-  padding: 0.55rem 1.15rem;
+
+/* Tittelen er valgfri og står i SAMME grad som sitatet, bare halvfet. Den er
+   en inngang til teksten, ikke et eget nivå over den. */
+.note-title {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  hyphens: auto;
+  hyphenate-limit-chars: 11 5 4;
+  overflow-wrap: break-word;
+}
+
+.note-quote {
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  /* Norsk er fullt av lange sammensetninger, og en post-it er smal. Uten
+     orddeling brekker de midt i ordet («kollektivknutepunk tene»); med
+     orddeling på alt blir hver eneste linje delt. `hyphenate-limit-chars`
+     treffer midt imellom: bare ord på 14 tegn eller mer deles. */
+  hyphens: auto;
+  hyphenate-limit-chars: 14 6 5;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+
+/* Bransjebrikka signerer lappen nederst. `margin-top: auto` skyver den til
+   bunnen, og det er dét som gjør at den varierende høyden på lappene synes. */
+.note-tag {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 4px 9px;
+  border-radius: 100px;
+  background: var(--ink);
+  color: var(--note-bg);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
   white-space: nowrap;
 }
-.present-published-close {
-  position: absolute;
-  top: 0.35rem;
-  right: 0.5rem;
-  border: none;
-  background: transparent;
-  color: var(--ink-3);
-  font-size: 0.85rem;
-  padding: 0.35rem;
-}
-.present-published-close:hover {
-  color: var(--ink);
-}
-@media (prefers-reduced-motion: reduce) {
-  .present-published {
-    animation: none;
-  }
+
+/* ── panelet ──────────────────────────────────────────────────────────────── */
+
+.panel {
+  position: fixed;
+  left: 10px;
+  top: 67px; /* navigasjonslinja (10 + 47) pluss samme luft igjen */
+  z-index: 30;
+  display: flex;
+  width: 441px;
+  max-width: calc(100vw - 20px);
+  max-height: calc(100dvh - 77px);
+  border-radius: 24px;
+  background: var(--panel);
+  box-shadow: var(--float);
+  overflow: hidden;
+
+  /* Av: ut til venstre. `visibility` slås av FØRST etter at sveipet er ferdig,
+     ellers forsvinner panelet med ett i stedet for å gli ut. */
+  transform: translateX(calc(-100% - 20px));
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 420ms var(--ease-out),
+    opacity 240ms ease,
+    visibility 0s linear 420ms;
 }
 
-.filters {
-  position: absolute;
-  left: 1.5rem;
-  top: 5.2rem;
-  z-index: 4;
-  width: 292px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 0.9rem;
-  box-shadow: var(--shadow);
-  max-height: calc(100vh - 7.5rem);
+.panel.is-open {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform 420ms var(--ease-out),
+    opacity 200ms ease,
+    visibility 0s;
+}
+
+.panel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  padding: 24px;
   overflow-y: auto;
 }
-.filters.is-collapsed {
-  width: auto;
+
+.panel-head {
+  display: flex;
+  flex-direction: column;
+  /* Tett: merkelappen, spørsmålet og forklaringen er ett trinn. */
+  gap: 14px;
 }
 
-.filters-head {
+.panel-head-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
-  font-size: 0.86rem;
-  color: var(--ink-2);
-  padding: 0 0.15rem 0.15rem;
-}
-.filters-head strong {
-  color: var(--ink);
-  font-size: 1rem;
-}
-.filters-collapse {
-  border: none;
-  background: transparent;
-  color: var(--ink-3);
-  font-size: 0.95rem;
-  padding: 0 0.2rem;
+  gap: 12px;
 }
 
-.filters-search {
-  width: 100%;
-  margin: 0.7rem 0;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.7rem;
+.panel-badge {
+  padding: 5px 11px;
+  border-radius: 100px;
+  background: var(--orange);
   color: var(--ink);
-  font: inherit;
-  font-size: 0.88rem;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.panel-title {
+  font-size: 34px;
+}
+
+.panel-lead {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* Hamburgeren slår panelet av. Blå sirkel — samme blå som lappene. */
+.panel-toggle {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 38px;
+  height: 38px;
+  padding: 10px 9px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--blue);
+  transition: background-color 150ms ease;
+}
+
+.panel-toggle:hover {
+  background: var(--blue-hover);
+}
+
+.panel-toggle span {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* ── felt ─────────────────────────────────────────────────────────────────── */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  transition: border-color 180ms ease;
+}
+
+/* Streken under feltet er hele rammen. Da må den svare når man skriver i det. */
+.field:focus-within {
+  border-color: var(--ink);
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.field-optional {
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-3);
+}
+
+.field-input {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 15px;
   outline: none;
 }
-.filters-search:focus {
-  border-color: var(--accent-blue);
+
+.field-input::placeholder {
+  color: var(--ink-3);
 }
 
-.filters-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+.field-textarea {
+  min-height: 104px;
+  line-height: 1.45;
+  resize: none;
 }
-.filters-item {
-  --opt-color: var(--ink);
-  width: 100%;
+
+/* ── publiseringslinja ────────────────────────────────────────────────────── */
+
+.publish {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 0.45rem 0.55rem;
-  color: var(--ink-2);
-  font-size: 0.87rem;
-  text-align: left;
-  transition: background 0.13s ease, color 0.13s ease;
-}
-.filters-item:hover:not(:disabled) {
-  background: var(--hover, var(--accent-green));
-  color: var(--hover-ink, var(--ink));
-}
-.filters-item:active:not(:disabled) {
-  background: var(--press);
-  color: var(--bg);
-}
-.filters-item.is-on {
-  background: var(--surface-2);
-  color: var(--ink);
-  font-weight: 500;
-}
-.filters-item.is-empty {
-  opacity: 0.35;
-  cursor: default;
-}
-.filters-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--opt-color);
-  flex: none;
-}
-.filters-name {
-  flex: 1;
-  min-width: 0;
-}
-.filters-count {
-  color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
-  font-size: 0.8rem;
-}
-.filters-clear {
-  width: 100%;
-  margin-top: 0.6rem;
-  padding: 0.45rem;
-  font-size: 0.83rem;
-}
-
-/* ── detaljpanel ──────────────────────────────────────────────────────────── */
-
-/* Skuff som glir inn fra høyre kant av kartet. Den ligger montert etter
-   første åpning, slik at den kan gli ut igjen i stedet for å forsvinne. */
-.detail {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 5;
-  width: min(470px, 100%);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  background: var(--bg);
-  border-left: 3px solid var(--accent);
-  padding: 1.5rem 1.6rem 2rem;
-  box-shadow: -14px 0 34px rgb(0 0 0 / 0.09);
-  transform: translateX(100%);
-  visibility: hidden;
-  transition:
-    transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
-    visibility 0.3s;
-}
-.detail.is-open {
-  transform: none;
-  visibility: visible;
-}
-@media (prefers-reduced-motion: reduce) {
-  .detail {
-    transition: none;
-  }
-}
-
-.detail-close {
-  position: absolute;
-  top: 0.85rem;
-  right: 0.9rem;
-  border: none;
-  background: transparent;
-  color: var(--ink-3);
-  font-size: 0.9rem;
-  padding: 0.2rem;
-}
-.detail-close:hover {
-  color: var(--ink);
-}
-.detail-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-bottom: 0.8rem;
-  padding-right: 1.5rem;
-}
-.detail-tag {
-  font-size: 0.74rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  background: var(--surface);
+  justify-content: space-between;
+  gap: 12px;
+  /* Litt ekstra luft over: dette er et annet slags trinn enn feltene. */
+  margin-top: 4px;
+  padding: 9px 9px 9px 18px;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.22rem 0.65rem;
-  color: var(--ink-2);
-}
-.detail-tag-industry {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.detail-title {
-  font-size: 1.28rem;
-  margin-bottom: 0.65rem;
-}
-.detail-challenge {
-  color: var(--ink-2);
-  margin: 0 0 1rem;
-  white-space: pre-wrap;
-}
-.detail-levels {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-bottom: 1.1rem;
+  border-radius: 100px;
+  background: #ffffff;
 }
 
-.detail-contact {
-  border-top: 1px solid var(--line);
-  padding-top: 1.1rem;
+.publish-hint {
+  margin: 0;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--ink-2);
 }
-.detail-hidden-note {
-  color: var(--ink-3);
-  font-size: 0.85rem;
-  margin: 0 0 0.8rem;
+
+.publish.is-error .publish-hint {
+  color: var(--danger);
 }
-.detail-ask {
-  width: 100%;
+
+.publish-btn {
+  flex: none;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--lime);
+  /* Figma har hvit tekst her, men hvitt på lime gir ca. 1,5:1 og er ikke
+     lesbar. Samme lime, mørk skrift — det holder kravet og ser likt ut. */
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease,
+    opacity 150ms ease;
 }
-.detail-form h3 {
-  font-size: 0.95rem;
-  margin-bottom: 0.7rem;
+
+.publish-btn:hover:not(:disabled) {
+  background: var(--lime-hover);
+  transform: translateY(-1px);
 }
-.detail-form .q-input,
-.detail-form .q-textarea {
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+
+.publish-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
 }
-.detail-form-actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-  margin-top: 0.4rem;
+
+.publish-btn:disabled {
+  opacity: 0.34;
+  cursor: not-allowed;
 }
-.detail-form-actions button {
-  padding: 0.5rem 1rem;
-  font-size: 0.88rem;
+
+/* ── knappen som henter panelet tilbake ───────────────────────────────────── */
+
+/* Ikonet alene ville vært en gåte. Teksten står ved siden av, så det er tydelig
+   hva som skjer — og den ligger nøyaktig der panelet forsvant fra. */
+.panel-reopen {
+  position: fixed;
+  left: 10px;
+  top: 67px;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 22px 8px 8px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--nav);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: var(--float);
+  animation: pop-in 320ms var(--ease-out) both;
+  transition: transform 150ms ease;
 }
-.detail-sent {
+
+.panel-reopen:hover {
+  transform: translateY(-1px);
+}
+
+.panel-reopen-icon {
+  flex: none;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.9rem;
+  justify-content: space-between;
+  width: 38px;
+  height: 38px;
+  padding: 10px 9px;
+  border-radius: 100px;
+  background: var(--blue);
 }
-.detail-sent span {
+
+.panel-reopen-icon span {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* ── kvittering ───────────────────────────────────────────────────────────── */
+
+.toast {
+  position: fixed;
+  top: 68px;
+  left: 50%;
+  z-index: 45;
+  margin: 0;
+  padding: 10px 20px;
+  border-radius: 100px;
+  background: var(--ink);
+  color: #f5f5f5;
+  font-size: 14px;
+  box-shadow: 0 10px 30px rgba(16, 17, 16, 0.24);
+  animation: toast-in 320ms var(--ease-out) both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ── «Om oss» ─────────────────────────────────────────────────────────────── */
+
+.about {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.about[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about::backdrop {
+  background: rgba(16, 17, 16, 0.4);
+  backdrop-filter: blur(3px);
+}
+
+.about-card {
+  position: relative;
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 64px);
+  overflow-y: auto;
+  padding: 32px;
+  border-radius: 24px;
+  background: var(--panel);
+  box-shadow: 0 30px 80px rgba(16, 17, 16, 0.3);
+  animation: about-in 260ms var(--ease-out) both;
+}
+
+@keyframes about-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.about-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 100px;
+  background: rgba(16, 17, 16, 0.06);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1;
+  transition: background-color 150ms ease;
+}
+
+.about-close:hover {
+  background: rgba(16, 17, 16, 0.12);
+}
+
+.about-eyebrow {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.about-title {
+  font-size: 30px;
+}
+
+.about-lead {
+  margin: 16px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.about-body {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
   color: var(--ink-2);
 }
 
-/* ── mobil ────────────────────────────────────────────────────────────────
-   Ligger sist i filen med vilje: en mediespørring har samme spesifisitet som
-   regelen den skal overstyre, så den må komme etter for å vinne. Sto denne
-   blokken lenger opp, ble halve innholdet stille overstyrt igjen lenger ned. */
+.about-partners {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.about-partners-label {
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.about-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 26px;
+}
+
+/* Gråtoner i hvile, farge når man ser nærmere etter — logoene skal kjennes
+   igjen uten å konkurrere med teksten over. */
+.about-logos img {
+  opacity: 0.7;
+  filter: grayscale(1);
+  transition:
+    opacity 200ms ease,
+    filter 200ms ease;
+}
+
+.about-logos:hover img {
+  opacity: 1;
+  filter: none;
+}
+
+/* ── mobil ────────────────────────────────────────────────────────────────── */
+
 @media (max-width: 900px) {
-  /* Kartet tas ut av DOM-en på mobil (se app/edit/page.tsx), så skjemaet står
-     alene i én kolonne og fyller høyden. */
-  .edit {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
-  }
-  .edit-pane {
-    border-right: none;
-  }
-  /* Trykkflater: en finger trenger mer enn en musepeker. */
-  .q-chip {
-    padding: 0.5rem 0.95rem;
+  .nav {
+    font-size: 16px;
+    padding: 0 18px;
   }
 
-  /* ── /presentation på mobil ──────────────────────────────────────────── */
-  .present-topbar {
-    padding: 0.9rem 1rem;
-    padding-top: max(0.9rem, env(safe-area-inset-top));
-    gap: 0.6rem;
-  }
-  .present-title strong {
-    font-size: 0.95rem;
-  }
-  .present-title span {
-    font-size: 0.7rem;
-  }
-  /* Fullskjerm-API-et finnes ikke på iOS Safari — knappen ville bare lyve. */
-  .present-fullscreen {
-    display: none;
-  }
-  /* .present-actions a er sterkere enn .present-cta alene, så den må med. */
-  .present-actions .present-cta {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--bg);
-    font-weight: 500;
+  /* Panelet legger seg over hele bredden. Det er greit her: på en telefon er
+     man enten i ferd med å skrive, eller i ferd med å lese tavla. */
+  .panel {
+    right: 10px;
+    width: auto;
   }
 
-  .present-published {
+  .panel-title {
+    font-size: 26px;
+  }
+
+  .panel-form {
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .publish {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.8rem;
-    border-left: 1px solid var(--line);
-    border-top: 4px solid var(--accent-green);
+    gap: 10px;
+    padding: 12px;
+    border-radius: 24px;
   }
-  .present-published .btn-primary {
-    width: 100%;
+
+  .publish-hint {
     text-align: center;
   }
 
-  .filters {
-    left: 1rem;
-    right: 1rem;
-    top: 4.6rem;
-    top: calc(4.6rem + env(safe-area-inset-top));
-    width: auto;
-    max-height: 40vh;
-  }
-  .filters.is-collapsed {
-    right: auto;
+  .publish-btn {
+    width: 100%;
+    padding: 14px 18px;
   }
 
-  /* Skuffen tar hele bredden, og lukkeknappen må ligge klar av hakket. */
-  .detail {
-    width: 100%;
-    border-left: none;
-    border-top: 3px solid var(--accent);
-    padding-top: max(1.5rem, calc(env(safe-area-inset-top) + 0.6rem));
-    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  .panel-reopen {
+    font-size: 14px;
   }
-  /* Eneste veien ut av skuffen på en telefon — da må den være til å treffe. */
-  .detail-close {
-    top: max(0.55rem, env(safe-area-inset-top));
-    right: 0.55rem;
-    font-size: 1.15rem;
-    padding: 0;
-    min-width: 44px;
-    min-height: 44px;
-    display: grid;
-    place-items: center;
+
+  .about-card {
+    padding: 24px;
+  }
+}
+
+/* ── mindre bevegelse ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Løftet på hover er ren bevegelse — da er skyggen nok. */
+  .note:hover {
+    transform: rotate(var(--tilt));
   }
 }
