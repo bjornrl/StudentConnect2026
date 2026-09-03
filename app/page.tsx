@@ -152,7 +152,7 @@ export default function Home() {
 
       {/* Høyden per logo er satt i lib/partners.ts — lik høyde gir ikke lik tyngde. */}
       <footer className="home-partners">
-        <p className="home-partners-label">I samarbeid med</p>
+        <p className="home-partners-label">Koblingspunkt utvikles avd</p>
         <div className="home-logos">
           {PARTNERS.map((p) => (
             <Image
