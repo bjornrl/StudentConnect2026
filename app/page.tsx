@@ -57,17 +57,14 @@ export default function Home() {
         {/* Finskriften bærer samtykket, så den skal stå — men under handlingen
             og i minste trinn, ikke som et tredje avsnitt på linje med ingressen
             slik den gjorde før. */}
-        <p className="home-fineprint">Koblingspunkt matcher utfordringene med studenter og studentteam. De kan skape nye
-          løsninger, gi nye perspektiver og energi inn i innovasjonsarbeidet deres. Det er uforpliktende å registrere. Hva som meldes inn, og av hvem, er kun tilgjengelig for
-          oss i Koblingspunkt — og ved å registrere godkjenner dere at vi kan ta kontakt for å bidra
-          med studenter som kan løse utfordringen.
+        <p className="home-fineprint">Dere trenger ikke vite hvordan en masteroppgave eller et studentprosjekt skal se ut - dere trenger kun et ønske om å løse utfordringen. Koblingspunkt hjelper dere fra første idé til et konkret samarbeid og verdiskaping. Det er uforpliktende å registrere utfordringer. Hva som meldes inn, og av hvem, er kun tilgjengelig for oss i Koblingspunkt. 
         </p>
       </div>
 
       {/* Samarbeidspartnerne nederst. Høyden per logo er satt i lib/partners.ts
           — lik høyde gir ikke lik tyngde. */}
       <footer className="home-partners">
-        <p className="home-partners-label">I samarbeid med</p>
+        <p className="home-partners-label">Koblingspunkt utvikles avd</p>
         <div className="home-logos">
           {PARTNERS.map((p) => (
             <Image
