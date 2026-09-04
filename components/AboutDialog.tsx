@@ -71,18 +71,37 @@ export default function AboutDialog({ open, onClose }: Props) {
             uforpliktende å melde inn, og det dere sender inn er kun tilgjengelig for oss.
           </p>
 
+          <div className="about-more">
+            <p className="about-more-label">Les mer om prosjektet her:</p>
+            <a
+              className="about-more-btn"
+              href="https://www.punktoslo.no/artikler/koblingspunkt-oslo-kobler-studentene-og-naeringslivet"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Les mer
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+
           <div className="about-partners">
             <p className="about-partners-label">I samarbeid med</p>
             <div className="about-logos">
               {PARTNERS.map((p) => (
-                <Image
+                <a
                   key={p.src}
-                  src={p.src}
-                  alt={p.alt}
-                  width={p.width}
-                  height={p.height}
-                  style={{ height: p.displayHeight, width: "auto" }}
-                />
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image
+                    src={p.src}
+                    alt={p.alt}
+                    width={p.width}
+                    height={p.height}
+                    style={{ height: p.displayHeight, width: "auto" }}
+                  />
+                </a>
               ))}
             </div>
           </div>

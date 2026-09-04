@@ -15,6 +15,7 @@
 export type Partner = {
   src: string;
   alt: string;
+  href: string;
   /**
    * Filens faktiske pikselmål. Reserverer plass mens bildet laster, og styrer
    * hvilken størrelse next/image henter — må stemme med filen på disk.
@@ -30,9 +31,44 @@ export type Partner = {
 };
 
 export const PARTNERS: Partner[] = [
-  { src: "/logos/oslo-kommune.png", alt: "Oslo kommune", width: 235, height: 160, displayHeight: 40 },
-  { src: "/logos/punkt-oslo.png", alt: "Punkt Oslo", width: 255, height: 168, displayHeight: 42 },
-  { src: "/logos/grundergarasjen.png", alt: "Gründergarasjen", width: 192, height: 192, displayHeight: 38 },
-  { src: "/logos/sefio.png", alt: "SEFiO", width: 261, height: 104, displayHeight: 26 },
-  { src: "/logos/comte.png", alt: "Comte", width: 337, height: 96, displayHeight: 24 },
+  {
+    src: "/logos/oslo-kommune.png",
+    alt: "Oslo kommune",
+    href: "https://www.oslo.kommune.no/",
+    width: 235,
+    height: 160,
+    displayHeight: 40,
+  },
+  {
+    src: "/logos/punkt-oslo.png",
+    alt: "Punkt Oslo",
+    href: "https://www.punktoslo.no/",
+    width: 255,
+    height: 168,
+    displayHeight: 42,
+  },
+  {
+    src: "/logos/grundergarasjen.png",
+    alt: "Gründergarasjen",
+    href: "https://grundergarasjen.no/",
+    width: 192,
+    height: 192,
+    displayHeight: 38,
+  },
+  {
+    src: "/logos/sefio.png",
+    alt: "SEFiO",
+    href: "https://sefio.no/",
+    width: 261,
+    height: 104,
+    displayHeight: 26,
+  },
+  {
+    src: "/logos/comte.png",
+    alt: "Comte",
+    href: "https://comte.no/",
+    width: 337,
+    height: 96,
+    displayHeight: 24,
+  },
 ];
