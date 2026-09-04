@@ -107,6 +107,29 @@ export default function Home() {
             <span aria-hidden="true">→</span>
           </Link>
 
+          {/* Hva innmeldingen fører til. Den som nettopp har lest hva vi ber om,
+              lurer med rette på hvor det havner — og svaret er ikke «hos oss»,
+              men et arrangement med en dato og en side å se på.
+
+              Lenken er en ANNEN slags knapp enn CTA-en over: omriss og ingen
+              farge. Én fylt knapp er hele hierarkiet på denne siden, og to
+              lime knapper under hverandre hadde gjort begge to til ingenting. */}
+          <div className="home-next">
+            <p className="home-next-text">
+              <strong className="home-next-label">Hva skjer etterpå?</strong> Vi tar med oss
+              utfordringene til Student Connect 2026 for å teste modellen med studenter. Se:
+            </p>
+            <a
+              className="home-next-btn"
+              href="https://visionary-gingersnap-ad7609.netlify.app/#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Student Connect 2026
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+
           {/* Finskriften bærer forbeholdet om kontaktinformasjonen, så den skal
               stå — men under handlingen og i minste trinn, ikke som et tredje
               avsnitt på linje med ingressen. Den forutsetter at bolk 02 «Folka»

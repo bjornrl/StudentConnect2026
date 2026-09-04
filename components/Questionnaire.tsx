@@ -239,7 +239,7 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
           <textarea
             id="challenge"
             className="field-input field-textarea"
-            placeholder="Hva er problemet, hvorfor er det interessant, og hva slags svar hadde vært nyttig for dere?"
+            placeholder="Hva er problemet, hvorfor er det interessant?"
             value={challenge}
             onChange={(e) => setChallenge(e.target.value)}
             maxLength={4000}

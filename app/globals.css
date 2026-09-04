@@ -1220,6 +1220,71 @@
 
 /* Finskriften bærer forbeholdet, så den skal stå — men under handlingen og i
    minste trinn, ikke som et avsnitt på linje med ingressen. */
+/* ── hva skjer etterpå ────────────────────────────────────────────────────── */
+
+/* Ligger mellom handlingen og finskriften: etter at man vet hva man skal
+   gjøre, men før forbeholdene. Kolonne og ikke rad — setningen ender på «Se:»,
+   og da skal knappen stå der blikket allerede har landet, på neste linje. */
+.home-next {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin: 34px auto 0;
+  max-width: 34em;
+}
+
+.home-next-text {
+  margin: 0;
+  font-size: 0.9375rem; /* 15 px */
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* Spørsmålet er ikke en overskrift — det er første ord i setningen, bare
+   tyngre. En ekte overskrift her hadde delt helten i to. */
+.home-next-label {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* Sekundærknapp: omriss, ingen flate. Den skal kunne stå rett under den lime
+   uten å slåss med den om hvem som er handlingen på siden. */
+.home-next-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  color: var(--ink);
+  font-size: 0.875rem; /* 14 px */
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.home-next-btn:hover {
+  border-color: var(--ink);
+  background: var(--nav);
+  transform: translateY(-1px);
+}
+
+.home-next-btn:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.home-next-btn span {
+  transition: transform 150ms ease;
+}
+
+.home-next-btn:hover span {
+  transform: translateX(3px);
+}
+
 .home-fineprint {
   margin: 24px auto 0;
   /* Bredere enn ingressen over, ikke smalere: finskriften er nå et helt
