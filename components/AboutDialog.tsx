@@ -57,7 +57,7 @@ export default function AboutDialog({ open, onClose }: Props) {
         </button>
 
         <div className="about-scroll">
-          <p className="about-eyebrow">Student Connect 2026</p>
+          {/* <p className="about-eyebrow">Student Connect 2026</p> */}
           <h2 className="about-title">Koblingspunkt</h2>
 
           <p className="about-lead">
