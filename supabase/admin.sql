@@ -23,7 +23,13 @@ order by r.created_at desc;
 
 
 -- ── 2. Alle innmeldinger med bedrift (full oversikt) ────────────────────────
-select created_at, industry_key, subarea_key, coalesce(subarea_other,'') as annet,
+-- `bransje` viser den egenskrevne bransjen når den er valgt — ellers står det
+-- bare 'annen-bransje' i lista, og selve svaret blir usynlig.
+select created_at,
+       case when industry_key = 'annen-bransje'
+            then coalesce(industry_other, '(uten navn)')
+            else industry_key end as bransje,
+       subarea_key, coalesce(subarea_other,'') as annet,
        title, company_name, contact_name, contact_email, contact_phone, levels, status
 from public.sc_submissions
 order by created_at desc;

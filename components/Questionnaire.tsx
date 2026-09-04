@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { INDUSTRIES } from "@/lib/taxonomy";
+import { INDUSTRIES, OTHER_INDUSTRY } from "@/lib/taxonomy";
 import type { PublicSubmission } from "@/lib/types";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -96,6 +96,7 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [industryKey, setIndustryKey] = useState<string | null>(null);
+  const [industryOther, setIndustryOther] = useState("");
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,11 +121,20 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
   /* Alt står framme samtidig, så i stedet for å sperre veien videre sier vi
      rett ut hva som mangler før man kan sende inn. Tittelen er ikke med —
      den er valgfri. */
+  const otherIndustryChosen = industryKey === OTHER_INDUSTRY;
+
   const missing: string[] = [];
   if (challenge.trim().length < MIN_CHALLENGE) missing.push("utfordringen");
   if (companyName.trim().length < 2) missing.push("bedrift");
   if (!contactEmail.trim().includes("@")) missing.push("e-post");
-  if (!industryKey) missing.push("bransje");
+  /* «Annen bransje» er ikke et svar i seg selv — den åpner bare feltet der
+     svaret skal stå. Derfor teller den som manglende bransje til feltet er
+     fylt ut, og ikke som et eget punkt i lista: den som nettopp trykket på
+     brikka ser feltet rett under, og «mangler bransjenavn» hadde vært å
+     forklare noe man allerede har foran seg. */
+  if (!industryKey || (otherIndustryChosen && industryOther.trim().length < 2)) {
+    missing.push("bransje");
+  }
   const canSubmit = missing.length === 0;
 
   async function submit() {
@@ -139,6 +149,7 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
           title: title.trim(),
           challenge: challenge.trim(),
           industry_key: industryKey,
+          industry_other: otherIndustryChosen ? industryOther.trim() : null,
           company_name: companyName.trim(),
           contact_name: contactName.trim() || null,
           contact_email: contactEmail.trim() || null,
@@ -186,7 +197,6 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
       <div className="panel-scroll">
         <header className="panel-head">
           <div className="panel-head-row">
-            <span className="panel-badge">Student Connect 2026</span>
             <button
               type="button"
               className="panel-toggle"
@@ -308,7 +318,42 @@ export default function Questionnaire({ onPublished, onCollapse }: Props) {
               {ind.label}
             </button>
           ))}
+
+          {/* Lista er vår, ikke verdens. Den som ikke finner seg selv i den
+              skal slippe å velge noe som er omtrent riktig — et omtrentlig
+              svar her er verre enn intet svar, for det er dette vi sorterer
+              studenter etter. Brikka står sist og er stiplet: den er en
+              utgang fra lista, ikke ett punkt til i den. */}
+          <button
+            type="button"
+            className={`chip chip-other${otherIndustryChosen ? " is-on" : ""}`}
+            aria-pressed={otherIndustryChosen}
+            onClick={() => setIndustryKey(otherIndustryChosen ? null : OTHER_INDUSTRY)}
+          >
+            Annen bransje
+          </button>
         </div>
+
+        {/* Feltet finnes bare når brikka er valgt. Det står ikke og venter
+            tomt under lista resten av tiden — da hadde skjemaet sett ut som
+            om det spør om bransje to ganger. */}
+        {otherIndustryChosen && (
+          <Field
+            id="industry-other"
+            label="Hvilken bransje?"
+            filled={industryOther.trim().length > 0}
+          >
+            <input
+              id="industry-other"
+              className="field-input"
+              placeholder="Skriv inn bransjen deres"
+              value={industryOther}
+              onChange={(e) => setIndustryOther(e.target.value)}
+              maxLength={80}
+              autoFocus
+            />
+          </Field>
+        )}
 
         {/* ── Kommentert ut inntil videre ──────────────────────────────────────
             Nivåene: «Dette kan være en bacheloroppgave / masteroppgave /

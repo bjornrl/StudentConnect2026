@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { getSupabase, publicDbError } from "@/lib/supabase";
-import { isValidPair, OTHER_KEY, UNSPECIFIED_INDUSTRY, LEVELS } from "@/lib/taxonomy";
+import {
+  isValidPair,
+  isValidIndustry,
+  OTHER_KEY,
+  OTHER_INDUSTRY,
+  UNSPECIFIED_INDUSTRY,
+  LEVELS,
+} from "@/lib/taxonomy";
 import type { PublicSubmission } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -68,6 +75,16 @@ export async function POST(request: Request) {
       ? String(body.subarea_other ?? "").trim().slice(0, 80) || null
       : null;
 
+  /* Egenskrevet bransje. Den har sin EGEN kolonne og deler ikke plass med
+     `subarea_other`: de to svarer på hvert sitt spørsmål, og en dag
+     ansvarsområde-feltet kommer tilbake ville de kollidert. Teksten lagres
+     bare når brikka «Annen bransje» faktisk er valgt — ellers ville den blitt
+     stående igjen fra et valg brukeren ombestemte seg om. */
+  const industry_other =
+    industry_key === OTHER_INDUSTRY
+      ? String(body.industry_other ?? "").trim().slice(0, 80) || null
+      : null;
+
   const company_name = String(body.company_name ?? "").trim() || NO_COMPANY;
   const levels = Array.isArray(body.levels)
     ? body.levels.map(String).filter((l) => VALID_LEVELS.has(l))
@@ -84,8 +101,16 @@ export async function POST(request: Request) {
   if (title.length > 0 && (title.length < 3 || title.length > 120)) {
     return NextResponse.json({ error: "Tittelen må være mellom 3 og 120 tegn." }, { status: 400 });
   }
+  if (sentIndustry && !isValidIndustry(sentIndustry)) {
+    return NextResponse.json({ error: "Ukjent bransje." }, { status: 400 });
+  }
   if (sentIndustry && !isValidPair(sentIndustry, subarea_key)) {
     return NextResponse.json({ error: "Ukjent bransje eller ansvarsområde." }, { status: 400 });
+  }
+  /* «Annen bransje» uten navn er ingen bransje — da er brikka bare et tomt
+     valg, og vi hadde lagret en rad ingen kan sortere på. */
+  if (industry_key === OTHER_INDUSTRY && !industry_other) {
+    return NextResponse.json({ error: "Skriv inn hvilken bransje dere er i." }, { status: 400 });
   }
 
   /* Anon-rollen har INSERT, men bevisst ingen SELECT på sc_submissions —
@@ -98,6 +123,7 @@ export async function POST(request: Request) {
     id,
     created_at,
     industry_key,
+    industry_other,
     subarea_key,
     subarea_other,
     title: title || NO_TITLE,

@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -27,6 +28,10 @@ import { EXAMPLE_NOTES } from "@/lib/examples";
    legges den nye posisjonen i `moved` og overstyrer utlegget fra da av; resten
    av veggen står i ro. Det er derfor utlegget kan regnes om fritt når vinduet
    endrer størrelse uten at det river vekk lapper folk har flyttet.
+
+   At lappene er eksempler står nå i selve tavla og ikke bare i en kommentar:
+   de ligger avslått i gråtoner, og den man peker på får farge samtidig som
+   pekeren sier hva den er. Se `.board .note` og `.board-hint` i globals.css.
    ──────────────────────────────────────────────────────────────────────────── */
 
 type Drag = {
@@ -44,6 +49,9 @@ type Drag = {
 
 /** Under dette regnes bevegelsen som skjelving, ikke som et dra. */
 const DRAG_SLOP = 3;
+
+/** Det pekeren sier når den ligger på en lapp. */
+const HINT = "Forslag fra oss — ikke en ekte innmelding";
 
 export default function StickyBoard() {
   const boardRef = useRef<HTMLDivElement>(null);
@@ -86,6 +94,40 @@ export default function StickyBoard() {
     movedRef.current = moved;
     placementsRef.current = placements;
   }, [moved, placements]);
+
+  /* ── pekeren som forklarer lappene ──────────────────────────────────────
+     Merkelappen følger musa utenom React: `--x`/`--y` skrives rett på
+     elementet. Gikk posisjonen gjennom state, ville hver piksel musa flytter
+     seg tegnet hele tavla på nytt.
+
+     Bare mus. En finger har ingen peker å henge en forklaring på, og på
+     berøring finnes det ikke noe «over lappen» — der er lappen enten tatt i
+     eller ikke. */
+  const hintRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const board = boardRef.current;
+    const hint = hintRef.current;
+    if (!board || !hint) return;
+
+    const follow = (event: globalThis.PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      const onNote = (event.target as Element | null)?.closest?.(".note") != null;
+      hint.classList.toggle("is-on", onNote);
+      if (!onNote) return;
+      hint.style.setProperty("--x", `${event.clientX}px`);
+      hint.style.setProperty("--y", `${event.clientY}px`);
+    };
+
+    const leave = () => hint.classList.remove("is-on");
+
+    board.addEventListener("pointermove", follow);
+    board.addEventListener("pointerleave", leave);
+    return () => {
+      board.removeEventListener("pointermove", follow);
+      board.removeEventListener("pointerleave", leave);
+    };
+  }, []);
 
   /* Bredden på flaten styrer hvor mange kolonner utlegget får. */
   useLayoutEffect(() => {
@@ -154,26 +196,40 @@ export default function StickyBoard() {
   }, []);
 
   return (
-    <div className="board" ref={boardRef}>
-      <div className="board-canvas" style={{ height: `${height}px` }}>
-        {styled.map(({ id, note, style }, i) => {
-          const at = moved[id] ?? placements.get(id) ?? { x: 0, y: 0 };
-          return (
-            <StickyNote
-              key={id}
-              submission={note}
-              style={style}
-              x={at.x}
-              y={at.y}
-              z={zOf[id] ?? i + 1}
-              dragging={draggingId === id}
-              onGrab={onGrab}
-              onMove={onMove}
-              onDrop={onDrop}
-            />
-          );
-        })}
+    /* Merkelappen ligger UTENFOR `.board`. Tavla har `z-index: 0` og lager
+       dermed et eget stablingslag; alt inni det ligger under panelet, uansett
+       hvilket tall man gir det. Som søsken kan den legge seg over — og det må
+       den: en peker som forsvinner under panelet i det man nærmer seg det, er
+       verre enn ingen peker. */
+    <>
+      <div className="board" ref={boardRef}>
+        <div className="board-canvas" style={{ height: `${height}px` }}>
+          {styled.map(({ id, note, style }, i) => {
+            const at = moved[id] ?? placements.get(id) ?? { x: 0, y: 0 };
+            return (
+              <StickyNote
+                key={id}
+                submission={note}
+                style={style}
+                x={at.x}
+                y={at.y}
+                z={zOf[id] ?? i + 1}
+                dragging={draggingId === id}
+                onGrab={onGrab}
+                onMove={onMove}
+                onDrop={onDrop}
+              />
+            );
+          })}
+        </div>
       </div>
-    </div>
+
+      {/* `aria-hidden`: den samme opplysningen står allerede i panelet
+          («Lappene rundt er eksempler»), og en merkelapp som følger musa har
+          ingenting å si til en skjermleser. */}
+      <div className="board-hint" ref={hintRef} aria-hidden>
+        {HINT}
+      </div>
+    </>
   );
 }

@@ -45,7 +45,7 @@ export default function SentNote({ submission, from, onDone }: Props) {
     };
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const fade = el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260 });
+      const fade = el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420 });
       whenDone(fade);
       return () => {
         cancelled = true;
@@ -88,7 +88,11 @@ export default function SentNote({ submission, from, onDone }: Props) {
           offset: 1,
         },
       ],
-      { duration: 900, easing: "cubic-bezier(0.32, 0, 0.2, 1)" }
+      /* Rolig med vilje. Kortet skal rekke å bli lest som «det jeg skrev ble
+         til en lapp, og lappen dro» — går det fortere, ser man bare at noe
+         glapp. Kvitteringen i globals.css venter på at denne er ferdig, så
+         endres tallet her, må `animation-delay` på `.toast` følge etter. */
+      { duration: 1600, easing: "cubic-bezier(0.32, 0, 0.2, 1)" }
     );
 
     whenDone(animation);

@@ -5,8 +5,10 @@
    panelet svever oppå, og navigasjonslinja svever over igjen. Det er hele
    hierarkiet: flate → innhold → verktøy → sted.
 
-   Målene under er hentet rett fra Figma-fila og står derfor i px. Rot-
-   skriftstørrelsen er 16 px nettopp for at de skal stemme 1:1.
+   Målene under er hentet rett fra Figma-fila. Boksene står i px slik Figma
+   ga dem; SKRIFTEN står i rem og henger dermed på rot-størrelsen, som vokser
+   med skjermbredden (se `html` under). 1 rem = 16 px på en liten skjerm, så
+   Figma-tallene stemmer fortsatt 1:1 der de ble tegnet.
    ──────────────────────────────────────────────────────────────────────────── */
 
 /* Tailwind. Preflight er bevisst utelatt — grunnstilene står her under. */
@@ -48,6 +50,16 @@
 
   --float: 0 1px 2px rgba(16, 17, 16, 0.05), 0 10px 32px rgba(16, 17, 16, 0.08);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Luft mot skjermkanten. Den er en kant, ikke tekst, og skal derfor IKKE
+     vokse med skriften — ellers spiser den seg innover på store skjermer. */
+  --edge: 10px;
+
+  /* Navigasjonslinja måles i rem, så den vokser i takt med teksten sin.
+     `--band-top` er underkanten av linja pluss like mye luft igjen: alt som
+     svever under linja (panelet) starter der. */
+  --nav-h: 2.9375rem; /* 47 px */
+  --band-top: calc(var(--edge) + var(--nav-h) + var(--edge));
 }
 
 @theme inline {
@@ -74,10 +86,19 @@
     overscroll-behavior: none;
   }
 
-  /* Alle mål i denne filen kommer fra Figma og er i px. 16 px rot gjør at de
-     stemmer, og at post-it-teksten på 22–34 px er nøyaktig det den sier. */
+  /* Rot-størrelsen bærer HELE skriftskalaen: alle font-size-er under står i
+     rem, så denne ene linja bestemmer hvor stor teksten er.
+
+     Den vokser med bredden i stedet for å stå på ett tall. En 27-tommer har
+     ikke bare plass til mer — man sitter også lenger unna den, og 16 px som
+     er riktig på en laptop blir smått der. Fra 900 px og ned står den i ro på
+     17 px; over det stiger den jevnt til 21 px ved 1920 px og stopper der.
+
+     Verdiene er i rem og ikke px nettopp for at de skal REGNES UT FRA
+     nettleserens egen skriftstørrelse: har man skrudd den opp, følger hele
+     skalaen med. `clamp()` med px hadde overstyrt den innstillingen. */
   html {
-    font-size: 16px;
+    font-size: clamp(1.0625rem, 0.39vw + 0.844rem, 1.3125rem);
   }
 
   body {
@@ -118,9 +139,9 @@
 
 .nav {
   position: fixed;
-  inset: 10px 10px auto 10px;
+  inset: var(--edge) var(--edge) auto var(--edge);
   z-index: 40;
-  height: 47px;
+  height: var(--nav-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -129,7 +150,7 @@
   border-radius: 1000px;
   background: var(--nav);
   box-shadow: var(--float);
-  font-size: 18px;
+  font-size: 1.125rem; /* 18 px */
   font-weight: 500;
 }
 
@@ -160,7 +181,7 @@
   border-radius: 100px;
   background: var(--ink);
   color: #f5f5f5;
-  font-size: 12px;
+  font-size: 0.75rem; /* 12 px */
   font-weight: 400;
   line-height: 1.3;
 }
@@ -264,6 +285,84 @@
   pointer-events: none;
 }
 
+/* ── forslag, ikke innmeldinger ───────────────────────────────────────────── */
+
+/* Lappene på tavla er eksempler vi har skrevet selv. Kunne man lese nitti av
+   dem med én gang, ville veggen sett ut som en liste andre allerede har fylt
+   ut — og da er skjemaet noe man føyer seg inn i framfor noe man starter.
+
+   Fargene blir stående. Det er de som gjør veggen til en vegg, og de sier
+   allerede det de skal: her er det mange og ulike utfordringer. Det er
+   TEKSTEN som er ulesbar, for det er den som ellers leses som fasit. Legger
+   man pekeren på én lapp, skarpstilles akkurat den — ett eksempel man plukker
+   opp, ikke en liste man blar i.
+
+   Uskarpheten står i `em` og ikke i px: lappene settes i 22–34 px etter hvor
+   lang teksten er (se lib/notes.ts), og en fast piksel-verdi hadde visket ut
+   den minste lappen mens den største fortsatt var til å lese.
+
+   Gjelder bare tavla. Veggen på forsiden (`.home-wall`) er et bilde av tavla
+   og har ingen peker å skarpstille med. */
+.board .note-title,
+.board .note-quote,
+.board .note-tag {
+  filter: blur(0.13em);
+  transition: filter 240ms ease;
+}
+
+.board .note:hover .note-title,
+.board .note:hover .note-quote,
+.board .note:hover .note-tag,
+.board .note.is-dragging .note-title,
+.board .note.is-dragging .note-quote,
+.board .note.is-dragging .note-tag {
+  filter: none;
+}
+
+/* Pekeren sier hva lappen ER. Uten den er en lapp som lyser opp under
+   musepekeren umulig å skille fra noe man har lov til å tro på — og folk
+   spør nettopp om det: «er dette noe andre har meldt inn?»
+
+   Den følger musa gjennom `--x`/`--y`, satt rett på elementet fra
+   StickyBoard. Den skrives ikke gjennom React state: pekeren flytter seg
+   hundre ganger i sekundet, og hver eneste bevegelse ville tegnet nitti
+   lapper på nytt. `pointer-events: none` gjør at den aldri kommer i veien for
+   lappen den forklarer. */
+.board-hint {
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* Over panelet (30) og kvitteringen (45). Den er en peker: den skal ligge
+     over alt den peker forbi. */
+  z-index: 46;
+  padding: 7px 14px;
+  border-radius: 100px;
+  background: var(--ink);
+  color: #f5f5f5;
+  font-size: 0.75rem; /* 12 px */
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(16, 17, 16, 0.22);
+  pointer-events: none;
+  opacity: 0;
+  /* 18/20 px unna pekerspissen: nær nok til å høre til, langt nok unna til at
+     den ikke dekker det man peker på. */
+  transform: translate(calc(var(--x, 0px) + 18px), calc(var(--y, 0px) + 20px));
+  /* Posisjonen ligger i `transform` og størrelsen i `scale`, hver for seg.
+     Slås de sammen, må hver eneste musebevegelse skrive en verdi som også
+     inneholder en størrelse midt i en overgang — og da rykker den. */
+  scale: 0.94;
+  transition:
+    opacity 140ms ease,
+    scale 140ms var(--ease-out);
+}
+
+.board-hint.is-on {
+  opacity: 1;
+  scale: 1;
+}
+
 /* Kortet som løfter seg ut av skjemaet og sendes av gårde. Det ligger ikke på
    tavla — det svever over hele siden og finnes bare mens bevegelsen varer.
    Overgangene er av: animasjonen styrer transform selv. */
@@ -328,7 +427,7 @@
   border-radius: 100px;
   background: var(--ink);
   color: var(--note-bg);
-  font-size: 11px;
+  font-size: 0.6875rem; /* 11 px */
   font-weight: 500;
   line-height: 1.3;
   white-space: nowrap;
@@ -336,23 +435,38 @@
 
 /* ── panelet ──────────────────────────────────────────────────────────────── */
 
+/* Skjemaet er hele oppgaven på denne siden — tavla bak er eksempler. Derfor
+   står ruta midt på skjermen og ikke i et hjørne: det man skal gjøre ligger
+   der blikket allerede er.
+
+   Sentreringen er fire kanter + `margin: auto`. Feltet den sentreres i er
+   flaten UNDER navigasjonslinja, slik at ruta aldri kryper opp bak den når
+   skjemaet er langt. `height: fit-content` er det som gjør at `margin: auto`
+   får noe å fordele — med `height: auto` strekker ruta seg til begge kantene
+   og sentrerer ingenting.
+
+   Merk at `max-width`/`max-height` må stå i calc og ikke i prosent: for et
+   `fixed`-element regnes prosent ut fra hele vinduet, ikke fra kantene over. */
 .panel {
   position: fixed;
-  left: 10px;
-  top: 67px; /* navigasjonslinja (10 + 47) pluss samme luft igjen */
+  inset: var(--band-top) var(--edge) var(--edge);
+  margin: auto;
   z-index: 30;
   display: flex;
-  width: 441px;
-  max-width: calc(100vw - 20px);
-  max-height: calc(100dvh - 77px);
+  width: 27.5625rem; /* 441 px */
+  height: fit-content;
+  max-width: calc(100vw - var(--edge) * 2);
+  max-height: calc(100dvh - var(--band-top) - var(--edge));
   border-radius: 24px;
   background: var(--panel);
   box-shadow: var(--float);
   overflow: hidden;
 
-  /* Av: ut til venstre. `visibility` slås av FØRST etter at sveipet er ferdig,
-     ellers forsvinner panelet med ett i stedet for å gli ut. */
-  transform: translateX(calc(-100% - 20px));
+  /* Av: krymper og tones ut der den står. En rute midt på skjermen har ingen
+     kant i nærheten å gli ut av — sveipet ut til venstre ville vært en lang
+     reise tvers over tavla. `visibility` slås av FØRST etter at bevegelsen er
+     ferdig, ellers forsvinner panelet med ett i stedet for å tone ut. */
+  transform: scale(0.94);
   opacity: 0;
   visibility: hidden;
   transition:
@@ -400,30 +514,24 @@
   gap: 14px;
 }
 
+/* Bare hamburgeren står igjen her etter at merkelappen «Student Connect 2026»
+   ble tatt ut — navnet står allerede i navigasjonslinja rett over, og to
+   ganger var én for mye. Raden beholdes fordi den holder knappen ute til
+   høyre over tittelen. */
 .panel-head-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
 }
 
-.panel-badge {
-  padding: 5px 11px;
-  border-radius: 100px;
-  background: var(--orange);
-  color: var(--ink);
-  font-size: 15px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
 .panel-title {
-  font-size: 34px;
+  font-size: 2.125rem; /* 34 px */
 }
 
 .panel-lead {
   margin: 0;
-  font-size: 14px;
+  font-size: 0.875rem; /* 14 px */
   line-height: 1.5;
   color: var(--ink-2);
 }
@@ -437,7 +545,7 @@
 .panel-step {
   margin: 6px 0 -8px;
   padding-top: 22px;
-  font-size: 12px;
+  font-size: 0.75rem; /* 12 px */
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -452,7 +560,7 @@
 /* Forklaringen under en bolktittel. Hører til bolken, så den ligger tett. */
 .panel-note {
   margin: -10px 0 0;
-  font-size: 13px;
+  font-size: 0.8125rem; /* 13 px */
   line-height: 1.45;
   color: var(--ink-2);
 }
@@ -538,7 +646,7 @@
 }
 
 .field-label {
-  font-size: 12px;
+  font-size: 0.75rem; /* 12 px */
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -559,7 +667,7 @@
   border: 0;
   background: transparent;
   color: var(--ink);
-  font-size: 15px;
+  font-size: 0.9375rem; /* 15 px */
   outline: none;
 }
 
@@ -587,7 +695,7 @@
   border-radius: 100px;
   background: transparent;
   color: var(--ink-2);
-  font-size: 13px;
+  font-size: 0.8125rem; /* 13 px */
   line-height: 1.2;
   transition:
     background-color 150ms ease,
@@ -598,6 +706,17 @@
 .chip:hover {
   border-color: var(--ink);
   color: var(--ink);
+}
+
+/* «Annen bransje» er en utgang fra lista, ikke ett punkt til i den. Stiplet
+   kant sier det uten en eneste ekstra ord: brikka er tom til man fyller den
+   selv. Valgt ser den ut som de andre — da ER den et svar. */
+.chip-other {
+  border-style: dashed;
+}
+
+.chip-other.is-on {
+  border-style: solid;
 }
 
 /* Valgt bransje er den samme svarte brikka som signerer lappen på tavla.
@@ -627,7 +746,7 @@
 .publish-hint {
   margin: 0;
   min-width: 0;
-  font-size: 12px;
+  font-size: 0.75rem; /* 12 px */
   line-height: 1.35;
   color: var(--ink-2);
 }
@@ -645,7 +764,7 @@
   /* Figma har hvit tekst her, men hvitt på lime gir ca. 1,5:1 og er ikke
      lesbar. Samme lime, mørk skrift — det holder kravet og ser likt ut. */
   color: var(--ink);
-  font-size: 13px;
+  font-size: 0.8125rem; /* 13 px */
   font-weight: 500;
   white-space: nowrap;
   transition:
@@ -671,11 +790,14 @@
 /* ── knappen som henter panelet tilbake ───────────────────────────────────── */
 
 /* Ikonet alene ville vært en gåte. Teksten står ved siden av, så det er tydelig
-   hva som skjer — og den ligger nøyaktig der panelet forsvant fra. */
+   hva som skjer. Knappen står midtstilt nederst: panelet forsvinner nå på
+   stedet midt på skjermen, så det finnes ikke lenger noe hjørne den «kom fra»
+   — og midt på tavla ville den dekket det man nettopp fikk se. */
 .panel-reopen {
   position: fixed;
-  left: 10px;
-  top: 67px;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
   z-index: 30;
   display: inline-flex;
   align-items: center;
@@ -685,7 +807,7 @@
   border-radius: 100px;
   background: var(--nav);
   color: var(--ink);
-  font-size: 15px;
+  font-size: 0.9375rem; /* 15 px */
   font-weight: 500;
   box-shadow: var(--float);
   animation: pop-in 320ms var(--ease-out) both;
@@ -693,7 +815,7 @@
 }
 
 .panel-reopen:hover {
-  transform: translateY(-1px);
+  transform: translate(-50%, -1px);
 }
 
 .panel-reopen-icon {
@@ -717,40 +839,73 @@
 
 /* ── kvittering ───────────────────────────────────────────────────────────── */
 
+/* Å melde inn en utfordring er dagens eneste handling på denne siden, og den
+   skjer bare én gang. Da skal kvitteringen være en hendelse og ikke en liten
+   pille i toppen: et lime kort midt på skjermen, i samme farge som knappen man
+   nettopp trykket på.
+
+   Den ligger OPPÅ panelet med vilje. `pointer-events: none` gjør at man kan
+   skrive videre bak den med en gang — kortet stenger ingenting, det bare sier
+   fra.
+
+   Timingen: kortet som løftes ut av skjemaet flyr i 1600 ms (se SentNote).
+   Kvitteringen venter til det er ute av bildet, ellers kolliderer de to midt
+   på skjermen. Én bevegelse om gangen. */
 .toast {
   position: fixed;
-  top: 68px;
+  top: 50%;
   left: 50%;
   z-index: 45;
+  max-width: min(calc(100vw - 40px), 30rem);
   margin: 0;
-  padding: 10px 20px;
-  border-radius: 100px;
-  background: var(--ink);
-  color: #f5f5f5;
-  font-size: 14px;
-  box-shadow: 0 10px 30px rgba(16, 17, 16, 0.24);
-  animation: toast-in 320ms var(--ease-out) both;
+  padding: 2rem 2.4rem;
+  border-radius: 2rem;
+  background: var(--lime);
+  color: var(--ink);
+  font-size: 2rem; /* 32 px */
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-align: center;
+  text-wrap: balance;
+  box-shadow:
+    0 4px 12px rgba(16, 17, 16, 0.1),
+    0 28px 70px rgba(16, 17, 16, 0.26);
+  pointer-events: none;
+
+  /* Hele levetiden ligger i én animasjon: inn, stå, ut. Siden fjerner
+     elementet etter 8 s (se app/edit/page.tsx), og 1500 + 6500 treffer
+     nøyaktig der — uten dette forsvant et så stort kort med ett klipp. */
+  animation: toast-life 6500ms var(--ease-out) 1500ms both;
 }
 
-@keyframes toast-in {
-  from {
+@keyframes toast-life {
+  0% {
     opacity: 0;
-    transform: translate(-50%, -10px);
+    transform: translate(-50%, -50%) scale(0.9);
   }
-  to {
+  8% {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -50%) scale(1);
+  }
+  91% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.03);
   }
 }
 
 @keyframes pop-in {
   from {
     opacity: 0;
-    transform: translateX(-12px);
+    transform: translate(-50%, 10px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translate(-50%, 0);
   }
 }
 
@@ -827,7 +982,7 @@
   border-radius: 100px;
   background: rgba(16, 17, 16, 0.14);
   color: var(--ink);
-  font-size: 13px;
+  font-size: 0.8125rem; /* 13 px */
   line-height: 1;
   transition:
     background-color 150ms ease,
@@ -847,7 +1002,7 @@
   border-radius: 100px;
   background: var(--ink);
   color: var(--about);
-  font-size: 11px;
+  font-size: 0.6875rem; /* 11 px */
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -855,7 +1010,7 @@
 
 .about-title {
   margin: 18px 0 0;
-  font-size: 34px;
+  font-size: 2.125rem; /* 34 px */
   /* Halvfet og tett, som en lapp-tittel — ikke som en sideoverskrift. */
   font-weight: 700;
   line-height: 1.04;
@@ -864,16 +1019,64 @@
 
 .about-lead {
   margin: 14px 0 0;
-  font-size: 19px;
+  font-size: 1.1875rem; /* 19 px */
   line-height: 1.28;
   letter-spacing: -0.012em;
 }
 
 .about-body {
   margin: 14px 0 0;
-  font-size: 15px;
+  font-size: 0.9375rem; /* 15 px */
   line-height: 1.45;
   color: rgba(16, 17, 16, 0.72);
+}
+
+.about-more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  margin-top: 22px;
+}
+
+.about-more-label {
+  margin: 0;
+  font-size: 0.9375rem; /* 15 px */
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.about-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 100px;
+  background: var(--lime);
+  color: var(--ink);
+  font-size: 0.8125rem; /* 13 px */
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.about-more-btn:hover {
+  background: var(--lime-hover);
+  transform: translateY(-1px);
+}
+
+.about-more-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.about-more-btn span {
+  transition: transform 150ms ease;
+}
+
+.about-more-btn:hover span {
+  transform: translateX(3px);
 }
 
 /* Hvit stripe: logoene er tegnet for lys bakgrunn, og et par av dem har sin
@@ -887,7 +1090,7 @@
 
 .about-partners-label {
   margin: 0 0 14px;
-  font-size: 11px;
+  font-size: 0.6875rem; /* 11 px */
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -901,17 +1104,17 @@
   gap: 14px 24px;
 }
 
-.about-logos img {
-  opacity: 0.75;
-  filter: grayscale(1);
-  transition:
-    opacity 200ms ease,
-    filter 200ms ease;
+.about-logos a {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  opacity: 1;
+  transition: opacity 200ms ease;
 }
 
-.about-logos:hover img {
-  opacity: 1;
-  filter: none;
+.about-logos a:hover,
+.about-logos a:focus-visible {
+  opacity: 0.7;
 }
 
 /* ── forsiden ─────────────────────────────────────────────────────────────── */
@@ -949,7 +1152,7 @@
 
 .home-eyebrow {
   margin: 0;
-  font-size: 13px;
+  font-size: 0.8125rem; /* 13 px */
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -966,7 +1169,7 @@
 .home-lead {
   margin: 20px auto 0;
   max-width: 30em;
-  font-size: 18px;
+  font-size: 1.125rem; /* 18 px */
   line-height: 1.5;
   color: var(--ink-2);
 }
@@ -983,7 +1186,7 @@
   border-radius: 100px;
   background: var(--lime);
   color: var(--ink);
-  font-size: 16px;
+  font-size: 1rem; /* 16 px */
   font-weight: 500;
   text-decoration: none;
   box-shadow:
@@ -1024,7 +1227,7 @@
      lese så snart den passerer fire–fem linjer. Bredden holder den nede på
      fire. */
   max-width: 48em;
-  font-size: 13px;
+  font-size: 0.8125rem; /* 13 px */
   line-height: 1.5;
   color: var(--ink-2);
 }
@@ -1038,7 +1241,7 @@
 
 .home-partners-label {
   margin: 0 0 16px;
-  font-size: 12px;
+  font-size: 0.75rem; /* 12 px */
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1070,19 +1273,26 @@
 
 @media (max-width: 900px) {
   .nav {
-    font-size: 16px;
+    font-size: 1rem; /* 16 px */
     padding: 0 18px;
   }
 
   /* Panelet legger seg over hele bredden. Det er greit her: på en telefon er
-     man enten i ferd med å skrive, eller i ferd med å lese tavla. */
+     man enten i ferd med å skrive, eller i ferd med å lese tavla. Kantene
+     ligger allerede i `inset`, så det er bare bredden som slippes fri. */
   .panel {
-    right: 10px;
     width: auto;
   }
 
+  /* Kvitteringen fyller nesten skjermen på en telefon. 32 px midt i en slik
+     rute blir fire–fem linjer; 26 px holder den på to–tre. */
+  .toast {
+    padding: 1.6rem 1.5rem;
+    font-size: 1.625rem; /* 26 px */
+  }
+
   .panel-title {
-    font-size: 26px;
+    font-size: 1.625rem; /* 26 px */
   }
 
   .panel-scroll {
@@ -1114,7 +1324,7 @@
   }
 
   .panel-reopen {
-    font-size: 14px;
+    font-size: 0.875rem; /* 14 px */
   }
 
   .about-scroll {
@@ -1122,11 +1332,11 @@
   }
 
   .about-title {
-    font-size: 28px;
+    font-size: 1.75rem; /* 28 px */
   }
 
   .about-lead {
-    font-size: 17px;
+    font-size: 1.0625rem; /* 17 px */
   }
 
   .home-hero {
@@ -1134,7 +1344,7 @@
   }
 
   .home-lead {
-    font-size: 16px;
+    font-size: 1rem; /* 16 px */
   }
 
   .home-partners {

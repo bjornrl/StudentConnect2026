@@ -9,6 +9,9 @@ create table if not exists public.sc_submissions (
   id            uuid primary key default gen_random_uuid(),
   created_at    timestamptz not null default now(),
   industry_key  text not null,
+  -- Fylles bare når industry_key = 'annen-bransje': da står bransjenavnet her,
+  -- skrevet av bedriften selv. Se OTHER_INDUSTRY i lib/taxonomy.ts.
+  industry_other text,
   subarea_key   text not null,
   subarea_other text,
   title         text not null check (char_length(title) between 3 and 120),

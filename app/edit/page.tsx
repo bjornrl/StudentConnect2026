@@ -45,10 +45,14 @@ export default function EditPage() {
     setPanelOpen(!isMobile);
   }
 
-  // kvitteringen skal si fra og så gi seg
+  /* Kvitteringen skal si fra og så gi seg. Tallet henger sammen med
+     `.toast` i globals.css: der ligger både ventetiden mens lappen flyr og
+     inn-, stå- og ut-bevegelsen, og til sammen er de nøyaktig like lange som
+     dette. Endres det ene, må det andre følge etter — ellers klippes kortet
+     bort midt i sin egen uttoning. */
   useEffect(() => {
     if (!justSent) return;
-    const t = setTimeout(() => setJustSent(false), 6000);
+    const t = setTimeout(() => setJustSent(false), 8000);
     return () => clearTimeout(t);
   }, [justSent]);
 

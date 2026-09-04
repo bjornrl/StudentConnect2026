@@ -2,23 +2,21 @@
  * ─────────────────────────────────────────────────────────────────────────────
  *  DETTE ER DEN ENESTE FILEN DU TRENGER Å ENDRE FOR Å BYTTE UT SPØRSMÅLENE.
  *
- *  Skjemaet spør nå bare om utfordringen — bransjevalget står kommentert ut i
- *  components/Questionnaire.tsx. Lista under brukes fortsatt: innmeldinger fra
- *  før den endringen har en `industry_key`, og bransjebrikka nederst på lappen
- *  hentes herfra. Nye lapper lagres med UNSPECIFIED_INDUSTRY og får ingen
- *  brikke.
+ *  INDUSTRIES er bransjeraden i trinn 03 i skjemaet. Brikkene tegnes rett fra
+ *  lista, så et nytt punkt her er et nytt valg i skjemaet.
  *
- *  `subareas` brukes heller ikke av skjemaet lenger — feltet «ansvarsområde»
- *  er tatt bort. Listene står igjen av samme grunn: eldre rader har en
+ *  `hint` og `subareas` brukes IKKE av skjemaet lenger — feltet
+ *  «ansvarsområde» er tatt bort. Listene står igjen fordi eldre rader har en
  *  `subarea_key` og trenger etiketten sin.
  *
  *  Regler:
  *   • `key` må være unik og bør ikke endres etter at data er samlet inn
  *     (nøkkelen lagres i databasen). Endre gjerne `label` fritt.
- *   • `color` er bransjens farge i skjemaet. Den er ubrukt så lenge
- *     bransjevalget står kommentert ut — post-it-lappene har sin egen palett
- *     i lib/notes.ts, og den velges ut fra id-en, ikke ut fra bransje.
- *   • Hver bransje får automatisk et «Annet» valg med fritekstfelt.
+ *   • `color` er bransjens farge i skjemaet. Den er ubrukt: valgt brikke er
+ *     svart som taggen på lappene, og post-it-lappene har sin egen palett i
+ *     lib/notes.ts, valgt ut fra id-en og ikke ut fra bransje.
+ *   • Står ikke bransjen på lista, velger man OTHER_INDUSTRY og skriver den
+ *     selv. Den nøkkelen står ikke her — se under.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -45,6 +43,15 @@ export const OTHER_KEY = "annet";
  * og tavla tegner lappen uten bransjebrikke.
  */
 export const UNSPECIFIED_INDUSTRY = "uoppgitt";
+
+/**
+ * «Min bransje står ikke på lista». Lista er lang, men den er vår — og en
+ * bedrift som ikke finner seg selv i den skal ikke måtte velge noe som er
+ * omtrent riktig. Nøkkelen står med vilje IKKE i INDUSTRIES: den har ingen
+ * etikett eller farge å vise, for navnet på bransjen skriver bedriften selv,
+ * og det havner i `industry_other` i basen.
+ */
+export const OTHER_INDUSTRY = "annen-bransje";
 
 export const INDUSTRIES: Industry[] = [
   {
@@ -211,8 +218,17 @@ export function getIndustry(key: string): Industry | undefined {
   return industryByKey.get(key);
 }
 
-export function industryLabel(key: string): string {
+export function industryLabel(key: string, other?: string | null): string {
+  if (key === OTHER_INDUSTRY) return other?.trim() || "Annen bransje";
   return industryByKey.get(key)?.label ?? "Ukjent bransje";
+}
+
+/**
+ * Bransjer skjemaet har lov til å sende. `OTHER_INDUSTRY` er gyldig selv om
+ * den ikke står i INDUSTRIES — den er nettopp «ingen av disse».
+ */
+export function isValidIndustry(key: string): boolean {
+  return key === OTHER_INDUSTRY || industryByKey.has(key);
 }
 
 export function subareaLabel(industryKey: string, subareaKey: string, other?: string | null): string {
@@ -225,6 +241,8 @@ export function subareaLabel(industryKey: string, subareaKey: string, other?: st
 
 /** Alle gyldige (bransje, ansvarsområde)-par, brukt til validering. */
 export function isValidPair(industryKey: string, subareaKey: string): boolean {
+  /* Egenskrevet bransje har ingen ansvarsområder å velge mellom. */
+  if (industryKey === OTHER_INDUSTRY) return subareaKey === OTHER_KEY;
   const industry = industryByKey.get(industryKey);
   if (!industry) return false;
   if (subareaKey === OTHER_KEY) return true;
