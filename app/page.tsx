@@ -121,7 +121,7 @@ export default function Home() {
             </p>
             <a
               className="home-next-btn"
-              href="https://visionary-gingersnap-ad7609.netlify.app/#"
+              href="https://www.oslostudenthub.no/studentconnect2026"
               target="_blank"
               rel="noopener noreferrer"
             >
