@@ -4,13 +4,13 @@ import { useState, type FormEvent } from "react";
 import Icon from "@/components/Icon";
 import { TOPICS } from "@/lib/topics";
 
-type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent" } | { kind: "error"; message: string };
+type Status = { kind: "idle" } | { kind: "sending" } | { kind: "error"; message: string };
 
 const inputClass =
   "w-full bg-kp-gray border-2 border-kp-black focus:border-kp-black focus:bg-white rounded-lg px-4 py-3 transition-colors shadow-[2px_2px_0px_0px_rgba(15,15,15,1)]";
 
 /** Skjemaet nederst på forsiden. Sender til /api/ideas, som lagrer i Supabase (sc_ideas). */
-export default function IdeaForm() {
+export default function IdeaForm({ onSent }: { onSent: () => void }) {
   const [topics, setTopics] = useState<string[]>([]);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
 
@@ -37,27 +37,13 @@ export default function IdeaForm() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Noe gikk galt. Prøv igjen.");
-      setStatus({ kind: "sent" });
+      onSent();
     } catch (err) {
       setStatus({
         kind: "error",
         message: err instanceof Error ? err.message : "Noe gikk galt. Prøv igjen.",
       });
     }
-  }
-
-  if (status.kind === "sent") {
-    return (
-      <div role="status" className="py-6">
-        <div className="inline-block bg-kp-lime text-kp-black border-2 border-kp-black px-4 py-1.5 rounded-lg text-sm font-black uppercase tracking-wider mb-6 shadow-[2px_2px_0px_0px_rgba(15,15,15,1)]">
-          Sendt
-        </div>
-        <h3 className="text-3xl md:text-4xl font-black tracking-tight mb-4">Takk! Vi har fått tanken deres.</h3>
-        <p className="text-lg text-kp-black font-medium">
-          Vi tar kontakt innen én uke for en kort scope-samtale på 30 minutter.
-        </p>
-      </div>
-    );
   }
 
   const sending = status.kind === "sending";
