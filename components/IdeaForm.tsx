@@ -93,7 +93,7 @@ export default function IdeaForm() {
                 type="button"
                 aria-pressed={on}
                 onClick={() => toggle(topic)}
-                className={`border-2 border-kp-black px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                className={`cursor-pointer border-2 border-kp-black px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${
                   on
                     ? "bg-kp-blue text-white shadow-none translate-y-0.5"
                     : "bg-white text-kp-black shadow-[2px_2px_0px_0px_rgba(15,15,15,1)] hover:bg-kp-gray hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_rgba(15,15,15,1)]"
@@ -136,7 +136,7 @@ export default function IdeaForm() {
         <button
           type="submit"
           disabled={sending}
-          className="w-full sm:w-auto inline-flex items-center justify-center px-10 py-5 border-2 border-kp-black bg-kp-black text-white text-lg font-bold hover:bg-kp-lime hover:text-kp-black rounded-xl kp-btn group"
+          className="cursor-pointer w-full sm:w-auto inline-flex items-center justify-center px-10 py-5 border-2 border-kp-black bg-kp-black text-white text-lg font-bold hover:bg-kp-lime hover:text-kp-black rounded-xl kp-btn group"
         >
           {sending ? "Sender…" : "Send inn"}
           <Icon n={2} className="w-6 h-6 ml-3 invert group-hover:invert-0 transition-all" />
