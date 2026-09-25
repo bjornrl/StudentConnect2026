@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Icon from "@/components/Icon";
-import IdeaForm from "@/components/IdeaForm";
+import IdeaSection from "@/components/IdeaSection";
 import OpportunitiesModal from "@/components/OpportunitiesModal";
 
 const chip = "shadow-[2px_2px_0px_0px_rgba(15,15,15,1)]";
@@ -254,36 +254,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Skjema */}
-        <section id="skjema" className="py-24 md:py-32 bg-kp-neon relative border-t-2 border-kp-black">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="bg-white border-4 border-kp-black p-8 md:p-12 lg:p-16 rounded-2xl shadow-solid-lg relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-kp-blue border-b-4 border-l-4 border-kp-black rounded-bl-3xl -mr-16 -mt-16 z-0 pointer-events-none" />
-              <Icon n={7} className="absolute bottom-8 right-8 w-16 h-16 opacity-10 pointer-events-none z-0" />
-
-              <div className="relative z-10">
-                <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">
-                  Hva skulle dere gjerne hatt noen nye øyne på?
-                </h2>
-                <p className="text-lg text-kp-black font-medium mb-10">
-                  Skriv det akkurat slik dere ville forklart det til en kollega. Det trenger ikke være ferdig formulert.
-                </p>
-                <IdeaForm />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Avslutning */}
-        <section className="py-24 md:py-32 text-center bg-kp-neon">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6">Har dere noe dere burde sett nærmere på?</h2>
-            <p className="text-xl text-kp-black font-medium mb-10 max-w-2xl mx-auto">
-              Ikke bruk tid på å lage en perfekt problemstilling. Send oss tanken deres, så tar vi det videre derfra.
-            </p>
-            <PrimaryLink href="#skjema">Send inn</PrimaryLink>
-          </div>
-        </section>
+        <IdeaSection />
       </main>
 
       <footer className="bg-kp-black text-white pt-24 pb-12 border-t-2 border-kp-black">
