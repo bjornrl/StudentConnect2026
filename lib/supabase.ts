@@ -43,9 +43,8 @@ function assertSameProject(url: string, key: string): void {
 }
 
 /**
- * Supabase-klient med den publiserbare anon-nøkkelen. Den kan bare:
- *   • lese public.sc_submissions_public (uten kontaktinfo)
- *   • sette inn rader i sc_submissions og sc_contact_requests
+ * Supabase-klient med den publiserbare anon-nøkkelen. Forsiden bruker den
+ * bare til å sette inn rader i sc_ideas (se supabase/migrations/0006_sc_ideas.sql).
  * Alt annet er stengt av row level security.
  *
  * Klienten lages først når den brukes, slik at `next build` ikke krasjer
